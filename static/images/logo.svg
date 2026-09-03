@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+  <defs>
+    <linearGradient id="kg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#06b6d4" />
+      <stop offset="50%" stop-color="#3b82f6" />
+      <stop offset="100%" stop-color="#8b5cf6" />
+    </linearGradient>
+    <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fbbf24" />
+      <stop offset="100%" stop-color="#f59e0b" />
+    </linearGradient>
+  </defs>
+  <!-- Outer Focus Aperture -->
+  <circle cx="50" cy="50" r="44" stroke="url(#kg)" stroke-width="3" stroke-dasharray="6 4" opacity="0.6" />
+  <!-- Shutter / Facial Polygon Focus -->
+  <path d="M50 16 L80 34 L80 66 L50 84 L20 66 L20 34 Z" stroke="url(#kg)" stroke-width="3" fill="none" />
+  <!-- Corner Detection Brackets -->
+  <path d="M30 38 L30 30 L38 30" stroke="#06b6d4" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M70 38 L70 30 L62 30" stroke="#06b6d4" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M30 62 L30 70 L38 70" stroke="#06b6d4" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M70 62 L70 70 L62 70" stroke="#06b6d4" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Central Pulse / Flash Node -->
+  <circle cx="50" cy="50" r="10" fill="url(#gold)" />
+</svg>

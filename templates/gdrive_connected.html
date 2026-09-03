@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}Google Drive Connected | KSHAN Studio{% endblock %}
+
+{% block content %}
+<div style="min-height: 80vh; display: flex; align-items: center; justify-content: center; padding: 24px;">
+  <div style="max-width: 520px; width: 100%; background: var(--bg-surface, #141414); border: 1.5px solid {% if success %}rgba(52, 211, 153, 0.3){% else %}rgba(248, 113, 113, 0.3){% endif %}; border-radius: 20px; padding: 40px 32px; text-align: center; box-shadow: 0 20px 48px rgba(0,0,0,0.4); backdrop-filter: blur(20px);">
+    
+    <div style="width: 72px; height: 72px; border-radius: 50%; background: {% if success %}rgba(52, 211, 153, 0.12){% else %}rgba(248, 113, 113, 0.12){% endif %}; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 32px;">
+      {% if success %}✨{% else %}⚠️{% endif %}
+    </div>
+
+    <h2 style="font-family: var(--font-display); font-size: 24px; font-weight: 500; color: var(--text-primary); margin-bottom: 12px;">
+      {% if success %}Google Drive Connected!{% else %}Connection Failed{% endif %}
+    </h2>
+
+    <p style="font-size: 14px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 28px;">
+      {% if success %}
+        Your Google account has been authorized. KSHAN can now upload full-resolution event photos directly into your Google Drive folders using your account's storage quota.
+      {% else %}
+        {{ error }}
+      {% endif %}
+    </p>
+
+    <div style="display: flex; gap: 12px; justify-content: center;">
+      <a href="/admin/" class="btn btn-primary" style="padding: 12px 24px; font-size: 14px; font-weight: 700; text-decoration: none;">
+        Return to Studio Dashboard &rarr;
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}

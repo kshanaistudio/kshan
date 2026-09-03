@@ -1,0 +1,460 @@
+{% extends "base.html" %}
+
+{% block title %}{{ event.name }} — Find Your Photos | KSHAN{% endblock %}
+
+{% block content %}
+<div style="flex: 1; display: flex; flex-direction: column; background: var(--bg-warm); min-height: 100vh; position: relative;">
+
+  <!-- ── 01: IMMERSIVE EVENT HERO ───────────────────────── -->
+  <section style="position: relative; min-height: 88vh; display: flex; align-items: center; justify-content: center; overflow: hidden; padding: 70px 20px;">
+    
+    <!-- Decorative Luxury Concentric Radial Rings & Aura Glow -->
+    <div style="position: absolute; inset: 0; pointer-events: none; overflow: hidden;">
+      <div style="position: absolute; top: -150px; left: 50%; transform: translateX(-50%); width: 700px; height: 500px; background: radial-gradient(ellipse at center, rgba(199,168,107,0.18) 0%, rgba(199,168,107,0.04) 50%, transparent 75%); filter: blur(30px);"></div>
+      <div style="position: absolute; bottom: -100px; right: -80px; width: 450px; height: 450px; border-radius: 50%; background: radial-gradient(circle, rgba(199,168,107,0.08) 0%, transparent 70%);"></div>
+      
+      <!-- Subtle Golden Geometric Geometry Rings -->
+      <div style="position: absolute; top: 46%; left: 50%; transform: translate(-50%, -50%); width: 440px; height: 440px; border: 1px dashed rgba(199,168,107,0.14); border-radius: 50%;"></div>
+      <div style="position: absolute; top: 46%; left: 50%; transform: translate(-50%, -50%); width: 680px; height: 680px; border: 1px solid rgba(199,168,107,0.07); border-radius: 50%;"></div>
+      <div style="position: absolute; top: 46%; left: 50%; transform: translate(-50%, -50%); width: 920px; height: 920px; border: 1px solid rgba(199,168,107,0.035); border-radius: 50%;"></div>
+    </div>
+
+    <div style="position: relative; z-index: 2; text-align: center; max-width: 720px; width: 100%; margin: 0 auto;">
+      
+      <!-- Studio Monogram / Pill Badge -->
+      <div class="animate-fade-up" style="display: inline-flex; align-items: center; gap: 9px; background: rgba(22, 20, 27, 0.85); backdrop-filter: blur(16px); border: 1px solid rgba(199,168,107,0.3); padding: 7px 20px; border-radius: var(--radius-pill); margin-bottom: 28px; box-shadow: 0 4px 20px rgba(0,0,0,0.4), 0 0 15px rgba(199,168,107,0.12);">
+        <span style="width: 7px; height: 7px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 8px var(--gold);"></span>
+        <span style="font-size: 11px; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold);">
+          {{ profile.studio_name|default:"KSHAN STUDIO" }}
+        </span>
+      </div>
+
+      <!-- Event Title -->
+      <h1 class="display-title animate-fade-up" style="animation-delay: 0.1s; margin-bottom: 16px; font-family: 'Cinzel Decorative', 'Italiana', serif; font-size: clamp(32px, 5.5vw, 56px); font-weight: 700; line-height: 1.15; color: #FFF; text-shadow: 0 2px 25px rgba(0,0,0,0.8);">
+        {{ event.name }}
+      </h1>
+
+      <!-- Event Meta Details Chips -->
+      <div class="animate-fade-up" style="animation-delay: 0.2s; display: flex; justify-content: center; gap: 14px; font-size: 13px; color: rgba(255,255,255,0.75); margin-bottom: 36px; font-weight: 500; flex-wrap: wrap;">
+        {% if event.event_date %}
+        <span style="display: flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.05); padding: 6px 14px; border-radius: 99px; border: 1px solid rgba(255,255,255,0.08);">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          {{ event.event_date }}
+        </span>
+        {% endif %}
+        {% if event.location %}
+        <span style="display: flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.05); padding: 6px 14px; border-radius: 99px; border: 1px solid rgba(255,255,255,0.08);">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          {{ event.location }}
+        </span>
+        {% endif %}
+        <span style="display: flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.05); padding: 6px 14px; border-radius: 99px; border: 1px solid rgba(255,255,255,0.08);">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+          {{ photos_count|default:0 }} Photos
+        </span>
+      </div>
+
+      <!-- Primary Glassmorphic Selfie Search Card -->
+      <div class="animate-fade-up" style="animation-delay: 0.3s;">
+        <div style="background: rgba(18, 16, 23, 0.75); backdrop-filter: blur(28px) saturate(180%); border: 1.5px solid rgba(199,168,107,0.25); border-radius: 28px; padding: 44px 36px; max-width: 500px; margin: 0 auto; text-align: center; box-shadow: 0 24px 60px rgba(0,0,0,0.65), 0 0 40px rgba(199,168,107,0.12); position: relative; overflow: hidden;">
+          
+          <!-- Subtle Card Inner Top Accent -->
+          <div style="position: absolute; top: 0; left: 15%; right: 15%; height: 2px; background: linear-gradient(90deg, transparent 0%, var(--gold) 50%, transparent 100%);"></div>
+
+          <!-- Camera Glyph Avatar -->
+          <div style="width: 72px; height: 72px; border-radius: 50%; background: radial-gradient(circle, rgba(199,168,107,0.22) 0%, rgba(199,168,107,0.06) 100%); border: 1.5px solid var(--gold); display: flex; align-items: center; justify-content: center; color: var(--gold); margin: 0 auto 20px; box-shadow: 0 0 25px rgba(199,168,107,0.35);">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>
+          </div>
+
+          <h2 style="font-family: var(--font-display); font-size: 26px; font-weight: 500; color: #FFF; margin-bottom: 8px;">
+            Find Your Moments
+          </h2>
+          <p style="color: rgba(255,255,255,0.65); font-size: 13.5px; line-height: 1.6; max-width: 380px; margin: 0 auto 28px;">
+            Take a quick selfie and our AI will instantly find every photo you're in from this event.
+          </p>
+
+          <button onclick="openRegistrationOrCamera()" class="btn btn-gold btn-lg" style="width: 100%; font-size: 15px; font-weight: 800; border-radius: 14px; margin-bottom: 16px; padding: 16px; box-shadow: 0 10px 30px rgba(199,168,107,0.35); display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer;">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            <span>Take Selfie to Find Photos</span>
+          </button>
+
+          {% if event.allow_guest_upload %}
+          <div style="margin-top: 4px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.08);">
+            <p style="color: rgba(255,255,255,0.45); font-size: 12px; margin-bottom: 10px;">Also took photos from this celebration?</p>
+            <button onclick="document.getElementById('guestUploadInput').click()" class="btn btn-ghost btn-sm" style="width: 100%; font-size: 13px; color: var(--gold); font-weight: 700; border: 1px dashed rgba(199,168,107,0.3); border-radius: 10px; padding: 10px;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              <span>Contribute Your Photos</span>
+            </button>
+            <input type="file" id="guestUploadInput" multiple accept="image/jpeg,image/png,image/webp,image/jpg" style="display: none;" onchange="handleGuestUpload(this.files)">
+          </div>
+          {% endif %}
+
+          {% if highlights %}
+          <div style="margin-top: 16px;">
+            <button onclick="scrollToHighlights()" class="btn btn-ghost btn-sm" style="font-size: 12.5px; color: rgba(255,255,255,0.6);">
+              <span>Browse Event Highlights</span>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Trust Indicators -->
+      <div class="animate-fade-up" style="animation-delay: 0.4s; display: flex; justify-content: center; gap: 28px; font-size: 12px; color: rgba(255,255,255,0.5); font-weight: 600; margin-top: 36px; flex-wrap: wrap;">
+        <span style="display: flex; align-items: center; gap: 6px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          Privacy Safe & Encrypted
+        </span>
+        <span style="display: flex; align-items: center; gap: 6px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          Instant Sub-Second AI Match
+        </span>
+        <span style="display: flex; align-items: center; gap: 6px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          No App Download Needed
+        </span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 02: CURATED HIGHLIGHTS ────────────────────────── -->
+  {% if highlights %}
+  <section id="highlightsSection" style="padding: 80px 24px; max-width: 1200px; margin: 0 auto; width: 100%;">
+    <div style="text-align: center; margin-bottom: 48px;">
+      <div class="kshan-label" style="margin-bottom: 12px; color: var(--gold); letter-spacing: 0.15em;">CURATED REEL</div>
+      <h2 style="font-family: var(--font-display); font-size: clamp(28px, 4vw, 42px); font-weight: 400; color: #FFF; margin-bottom: 8px;">
+        Event Highlights
+      </h2>
+      <div style="width: 48px; height: 2px; background: var(--gold); margin: 16px auto 0;"></div>
+    </div>
+
+    <div class="kshan-gallery-masonry stagger">
+      {% for h in highlights %}
+      <div class="gallery-card animate-fade-up">
+        <img src="{{ h.thumbnail_url }}" alt="Highlight" loading="lazy">
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  <!-- ── 03: PHOTOGRAPHER CREDIT ───────────────────────── -->
+  <div style="background: rgba(14, 13, 18, 0.9); border-top: 1px solid rgba(255,255,255,0.08); padding: 40px 24px; text-align: center;">
+    <div style="max-width: 720px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap;">
+      <div style="display: flex; align-items: center; gap: 14px;">
+        {% if profile.profile_photo %}
+        <img src="{{ profile.profile_photo.url }}" alt="{{ profile.studio_name }}" style="width: 52px; height: 52px; border-radius: 50%; object-fit: cover; border: 2px solid var(--gold); box-shadow: 0 0 15px rgba(199,168,107,0.3);">
+        {% else %}
+        <div style="width: 52px; height: 52px; border-radius: 50%; background: var(--gradient-gold); color: var(--bg-dark); display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: 20px; font-weight: 800;">{{ profile.studio_name|default:"K"|first }}</div>
+        {% endif %}
+        <div style="text-align: left;">
+          <div style="font-family: var(--font-display); font-size: 17px; font-weight: 600; color: #FFF;">{{ profile.studio_name|default:"KSHAN Studio" }}</div>
+          <div style="font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 2px;">
+            {% if profile.city %}{{ profile.city }}{% endif %}
+            {% if profile.instagram %} &middot; @{{ profile.instagram }}{% endif %}
+          </div>
+        </div>
+      </div>
+      <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+        {% if profile.whatsapp_number %}
+        <a href="https://wa.me/{{ profile.whatsapp_number }}?text=Hi%2C%20I%20found%20you%20through%20my%20event%20photos%21" target="_blank" class="btn btn-gold btn-sm" style="text-decoration: none; padding: 10px 18px; font-weight: 700;">
+          Book via WhatsApp
+        </a>
+        {% endif %}
+        {% if profile.instagram %}
+        <a href="https://instagram.com/{{ profile.instagram }}" target="_blank" class="btn btn-secondary btn-sm" style="text-decoration: none; padding: 10px 18px;">
+          Instagram
+        </a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── SELFIE CAMERA MODAL ────────────────────────────────── -->
+<div id="selfieModal" class="modal-backdrop" style="display: none;">
+  <div style="background: var(--bg-dark); color: #FFFFFF; width: 100%; max-width: 420px; height: 85vh; max-height: 680px; border-radius: var(--radius-xl); position: relative; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 32px 80px rgba(0,0,0,0.5);">
+    
+    <!-- Top Bar -->
+    <div style="position: absolute; top: 16px; left: 16px; right: 16px; display: flex; justify-content: space-between; align-items: center; z-index: 20;">
+      <div style="display: flex; align-items: center; gap: 6px; background: rgba(11,11,11,0.5); backdrop-filter: blur(12px); padding: 6px 14px; border-radius: var(--radius-pill); font-size: 10px; font-weight: 700; letter-spacing: 0.12em; color: var(--gold);">
+        <span style="width: 5px; height: 5px; border-radius: 50%; background: var(--gold);"></span>
+        SELFIE VERIFICATION
+      </div>
+      <button onclick="closeSelfieCamera()" style="background: rgba(11,11,11,0.5); backdrop-filter: blur(12px); border: none; color: #FFFFFF; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; transition: background 0.2s;">&times;</button>
+    </div>
+
+    <!-- Live Video -->
+    <div style="flex: 1; position: relative; background: #000; overflow: hidden; display: flex; align-items: center; justify-content: center;">
+      <video id="selfieVideo" autoplay playsinline muted style="width: 100%; height: 100%; object-fit: cover;"></video>
+      <canvas id="selfieCanvas" style="display: none;"></canvas>
+      <div style="position: absolute; width: 200px; height: 260px; border: 2px dashed rgba(199,168,107,0.7); border-radius: 50%; pointer-events: none; box-shadow: 0 0 0 9999px rgba(0,0,0,0.4);"></div>
+      <div style="position: absolute; bottom: 80px; color: rgba(255,255,255,0.8); font-size: 12px; font-weight: 500; text-align: center; text-shadow: 0 2px 8px rgba(0,0,0,0.6); pointer-events: none;">
+        Position your face inside the oval
+      </div>
+    </div>
+
+    <!-- Shutter Controls -->
+    <div style="padding: 20px 32px; background: #111; display: flex; justify-content: space-around; align-items: center; z-index: 20;">
+      <label style="cursor: pointer; color: rgba(255,255,255,0.5); font-size: 11px; display: flex; flex-direction: column; align-items: center; gap: 4px;">
+        <input type="file" id="selfieFileInput" accept="image/*" style="display: none;" onchange="handleSelfieFile(event)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+        <span>Upload</span>
+      </label>
+      <button onclick="captureSelfie()" style="width: 64px; height: 64px; border-radius: 50%; background: #FFF; border: 3px solid var(--gold); cursor: pointer; transition: transform 0.15s;" onmousedown="this.style.transform='scale(0.92)'" onmouseup="this.style.transform='scale(1)'"></button>
+      <div style="width: 40px;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── GUEST REGISTRATION MODAL ────────────────────────────── -->
+<div id="guestRegModal" class="modal-backdrop" style="display: none; z-index: 9500;">
+  <div class="modal-window" style="max-width: 420px; text-align: center;">
+    <div style="width: 56px; height: 56px; border-radius: 50%; background: var(--gold-subtle); border: 1.5px solid var(--gold-border); display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 24px;">&#x1F44B;</div>
+    <h2 style="font-family: var(--font-display); font-size: 24px; font-weight: 400; margin-bottom: 6px;">Say hello before we find you!</h2>
+    <p style="color: var(--text-secondary); font-size: 13.5px; line-height: 1.6; margin-bottom: 24px;">Enter your name so the photographer can tag your moments.</p>
+
+    <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; text-align: left;">
+      <input id="regName" type="text" placeholder="Your Name *" maxlength="100" autocomplete="name">
+      <input id="regPhone" type="tel" placeholder="Phone Number (optional)" maxlength="20" autocomplete="tel">
+      <input id="regEmail" type="email" placeholder="Email (optional)" maxlength="255" autocomplete="email">
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+      <button onclick="submitRegistration()" class="btn btn-gold btn-lg" style="width: 100%; font-size: 14px; border-radius: var(--radius-md);">
+        Continue to Camera
+      </button>
+      <button onclick="skipRegistration()" class="btn btn-ghost btn-sm" style="width: 100%; font-size: 12.5px;">
+        Skip & continue anonymously
+      </button>
+    </div>
+
+    <p style="font-size: 11px; color: var(--text-muted); margin-top: 14px;">
+      Your information is only shared with the event photographer. No selfies are stored.
+    </p>
+  </div>
+</div>
+
+<!-- ── AI SEARCHING OVERLAY ────────────────────────────────── -->
+<div id="aiSearchModal" class="modal-backdrop" style="display: none; z-index: 9999;">
+  <div style="text-align: center; color: #FFFFFF; max-width: 360px; padding: 24px;">
+    <div style="width: 72px; height: 72px; border: 2.5px solid rgba(199,168,107,0.3); border-top-color: var(--gold); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 28px;"></div>
+    <h2 id="aiSearchHeading" style="font-family: var(--font-display); font-size: 28px; font-weight: 400; margin-bottom: 8px; color: #FFFFFF;">
+      Looking for you...
+    </h2>
+    <p id="aiSearchSubtext" style="color: rgba(255,255,255,0.5); font-size: 14px; line-height: 1.6;">
+      Scanning facial vectors across event photography...
+    </p>
+  </div>
+</div>
+
+<style>
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes pulse-gold {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(199,168,107,0.4); }
+  50% { box-shadow: 0 0 0 6px rgba(199,168,107,0); }
+}
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+window.EVENT_CODE = "{{ event.event_code }}";
+let mediaStream = null;
+
+function scrollToHighlights() {
+  document.getElementById("highlightsSection")?.scrollIntoView({ behavior: "smooth" });
+}
+
+async function openSelfieCamera() {
+  document.getElementById("selfieModal").style.display = "flex";
+  try {
+    mediaStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: "user", width: { ideal: 720 } },
+      audio: false
+    });
+    const video = document.getElementById("selfieVideo");
+    video.srcObject = mediaStream;
+  } catch (err) {
+    showToast("Camera unavailable, please choose a photo file.", "warning");
+  }
+}
+
+function closeSelfieCamera() {
+  if (mediaStream) {
+    mediaStream.getTracks().forEach(track => track.stop());
+    mediaStream = null;
+  }
+  document.getElementById("selfieModal").style.display = "none";
+}
+
+function captureSelfie() {
+  const video = document.getElementById("selfieVideo");
+  const canvas = document.getElementById("selfieCanvas");
+  canvas.width = video.videoWidth || 640;
+  canvas.height = video.videoHeight || 480;
+  const ctx = canvas.getContext("2d");
+  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+  canvas.toBlob(blob => {
+    closeSelfieCamera();
+    startAiSearch(blob);
+  }, "image/jpeg", 0.92);
+}
+
+function handleSelfieFile(e) {
+  const file = e.target.files[0];
+  if (file) {
+    closeSelfieCamera();
+    compressImageFile(file, (compressedBlob) => {
+      startAiSearch(compressedBlob);
+    });
+  }
+}
+
+function compressImageFile(file, callback) {
+  const reader = new FileReader();
+  reader.onload = function(event) {
+    const img = new Image();
+    img.onload = function() {
+      const maxDim = 1200;
+      let w = img.width, h = img.height;
+      if (w > maxDim || h > maxDim) {
+        if (w > h) { h = Math.round((h * maxDim) / w); w = maxDim; }
+        else { w = Math.round((w * maxDim) / h); h = maxDim; }
+      }
+      const canvas = document.createElement("canvas");
+      canvas.width = w; canvas.height = h;
+      canvas.getContext("2d").drawImage(img, 0, 0, w, h);
+      canvas.toBlob(blob => callback(blob || file), "image/jpeg", 0.90);
+    };
+    img.onerror = () => callback(file);
+    img.src = event.target.result;
+  };
+  reader.onerror = () => callback(file);
+  reader.readAsDataURL(file);
+}
+
+async function startAiSearch(blob) {
+  const searchModal = document.getElementById("aiSearchModal");
+  const heading = document.getElementById("aiSearchHeading");
+  const subtext = document.getElementById("aiSearchSubtext");
+  searchModal.style.display = "flex";
+
+  setTimeout(() => { heading.textContent = "Scanning event photos..."; }, 400);
+  setTimeout(() => { heading.textContent = "Matching your face vectors..."; }, 900);
+
+  const formData = new FormData();
+  formData.append("selfie", blob, "selfie.jpg");
+
+  try {
+    const res = await fetch(`/api/events/${window.EVENT_CODE}/search/`, {
+      method: "POST", body: formData
+    });
+    let data = null;
+    const ct = res.headers.get("content-type");
+    if (ct && ct.includes("application/json")) { data = await res.json(); }
+    else { throw new Error(`Server returned HTTP ${res.status}`); }
+
+    if (!res.ok) {
+      searchModal.style.display = "none";
+      showToast(data.error || "Face search failed. Please try again.", "danger");
+      return;
+    }
+
+    const matchCount = data.match_count !== undefined ? data.match_count : (data.photos ? data.photos.length : 0);
+    heading.textContent = "Found you!";
+    subtext.textContent = `${matchCount} photo(s) discovered. Redirecting...`;
+
+    sessionStorage.setItem(`kshan_search_${window.EVENT_CODE}`, JSON.stringify(data));
+    setTimeout(() => { window.location.href = `/event/${window.EVENT_CODE}/gallery/`; }, 800);
+  } catch (err) {
+    searchModal.style.display = "none";
+    showToast("Face Search Error: " + err.message, "danger");
+  }
+}
+
+// ── REGISTRATION ──────────────────────────────────────────
+function openRegistrationOrCamera() {
+  if (sessionStorage.getItem(`kshan_registered_${window.EVENT_CODE}`)) {
+    openSelfieCamera();
+    return;
+  }
+  document.getElementById('guestRegModal').style.display = 'flex';
+}
+
+async function submitRegistration() {
+  const name = document.getElementById('regName').value.trim();
+  if (!name) { showToast('Please enter your name.', 'warning'); return; }
+  const phone = document.getElementById('regPhone').value.trim();
+  const email = document.getElementById('regEmail').value.trim();
+  const sessionId = getOrCreateSessionId();
+
+  try {
+    const res = await fetch(`/api/events/${window.EVENT_CODE}/register/`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name,
+        phone,
+        email,
+        session_id: sessionId
+      })
+    });
+    const data = await res.json();
+    if (data.whatsapp_welcome_url && phone) {
+      // Store welcome link in session so guest can easily click or auto-launch
+      sessionStorage.setItem(`kshan_wa_welcome_${window.EVENT_CODE}`, data.whatsapp_welcome_url);
+      showToast(`Welcome ${name}! Taking your selfie now...`, 'success');
+    }
+  } catch(e) {}
+  
+  sessionStorage.setItem(`kshan_registered_${window.EVENT_CODE}`, '1');
+  document.getElementById('guestRegModal').style.display = 'none';
+  openSelfieCamera();
+}
+
+function skipRegistration() {
+  sessionStorage.setItem(`kshan_registered_${window.EVENT_CODE}`, '1');
+  document.getElementById('guestRegModal').style.display = 'none';
+  openSelfieCamera();
+}
+
+// ── GUEST UPLOADS ─────────────────────────────────────────
+async function handleGuestUpload(files) {
+  if (!files || files.length === 0) return;
+  const formData = new FormData();
+  let guestName = "Anonymous Guest";
+  const inputName = prompt("Enter your name to share these photos:", "");
+  if (inputName !== null) guestName = inputName.trim() || guestName;
+
+  formData.append('guest_name', guestName);
+  for (let i = 0; i < files.length; i++) formData.append("photos", files[i]);
+
+  showToast("Uploading your photos...", "info");
+  try {
+    const token = getCsrfToken();
+    const res = await fetch(`/api/events/${window.EVENT_CODE}/guest-upload/`, {
+      method: "POST",
+      headers: token ? { "X-CSRFToken": token } : {},
+      body: formData
+    });
+    const data = await res.json();
+    if (res.ok) showToast(`Thank you! ${data.uploaded_count} photo(s) shared.`, "success");
+    else showToast("Upload failed: " + (data.error || "Unknown error"), "danger");
+  } catch (err) {
+    showToast("Upload failed: " + err.message, "danger");
+  }
+}
+
+function getOrCreateSessionId() {
+  let id = localStorage.getItem('kshan_session_id');
+  if (!id) {
+    id = 'sess_' + Math.random().toString(36).slice(2) + Date.now().toString(36);
+    localStorage.setItem('kshan_session_id', id);
+  }
+  return id;
+}
+</script>
+{% endblock %}

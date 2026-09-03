@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ event.name }} — Live Beam</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap');
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    width: 100%; height: 100%;
+    background: #000;
+    font-family: 'Outfit', sans-serif;
+    overflow: hidden;
+    cursor: none;
+  }
+
+  /* Slideshow container */
+  #slide-container {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .slide {
+    position: absolute;
+    inset: 0;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-color: #000;
+    opacity: 0;
+    transition: opacity 1.2s ease-in-out;
+    pointer-events: none;
+  }
+  .slide.active { opacity: 1; }
+  .slide.prev   { opacity: 0; }
+
+  /* HUD overlays */
+  #hud-top {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    padding: 22px 30px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.72) 0%, transparent 100%);
+    z-index: 10;
+  }
+
+  #studio-info {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  #studio-logo {
+    width: 42px; height: 42px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid rgba(255,255,255,0.3);
+    display: none;
+  }
+
+  #studio-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.9);
+    letter-spacing: 0.04em;
+  }
+
+  #event-info {
+    text-align: right;
+  }
+
+  #event-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.9);
+    letter-spacing: 0.05em;
+  }
+
+  #event-date {
+    font-size: 12px;
+    color: rgba(255,255,255,0.45);
+    margin-top: 2px;
+  }
+
+  /* Bottom HUD */
+  #hud-bottom {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    padding: 20px 30px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    background: linear-gradient(to top, rgba(0,0,0,0.75) 0%, transparent 100%);
+    z-index: 10;
+  }
+
+  /* QR code box */
+  #qr-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  #qr-canvas {
+    background: white;
+    padding: 8px;
+    border-radius: 10px;
+    width: 100px; height: 100px;
+  }
+
+  #qr-label {
+    font-size: 11px;
+    color: rgba(255,255,255,0.6);
+    text-align: center;
+    line-height: 1.4;
+  }
+
+  /* Slide counter */
+  #slide-counter {
+    font-size: 13px;
+    color: rgba(255,255,255,0.45);
+    font-weight: 400;
+  }
+
+  /* Progress bar */
+  #progress-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    background: linear-gradient(to right, #C7A86B, #E8C97A);
+    transition: width linear;
+    z-index: 20;
+  }
+
+  /* Pause overlay */
+  #pause-overlay {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0.5);
+    z-index: 30;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+  }
+  #pause-overlay.visible { opacity: 1; pointer-events: all; }
+
+  #pause-icon {
+    font-size: 72px;
+    color: rgba(255,255,255,0.7);
+  }
+
+  /* Empty state */
+  #empty-state {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    display: none;
+  }
+  #empty-state .icon { font-size: 60px; }
+  #empty-state p { font-size: 18px; color: rgba(255,255,255,0.55); }
+
+  /* Controls hint */
+  #controls-hint {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0,0,0,0.75);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 16px;
+    padding: 28px 40px;
+    text-align: center;
+    color: rgba(255,255,255,0.85);
+    font-size: 14px;
+    line-height: 2;
+    z-index: 50;
+    opacity: 1;
+    transition: opacity 0.6s;
+  }
+  #controls-hint.hidden { opacity: 0; pointer-events: none; }
+  #controls-hint h3 { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+  #controls-hint kbd {
+    display: inline-block;
+    background: rgba(255,255,255,0.15);
+    border-radius: 6px;
+    padding: 2px 10px;
+    font-size: 13px;
+    font-family: monospace;
+  }
+</style>
+<!-- QR Code library -->
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+</head>
+<body>
+
+<!-- Controls Hint -->
+<div id="controls-hint">
+  <h3>🎬 Live Beam Mode</h3>
+  <p><kbd>Space</kbd> — Pause / Resume</p>
+  <p><kbd>←</kbd> <kbd>→</kbd> — Previous / Next</p>
+  <p><kbd>Esc</kbd> — Exit Beam</p>
+  <br>
+  <small style="color:rgba(255,255,255,0.4);">Click anywhere to start</small>
+</div>
+
+<!-- Slide container -->
+<div id="slide-container"></div>
+
+<!-- Progress bar -->
+<div id="progress-bar" style="width:0%"></div>
+
+<!-- Top HUD -->
+<div id="hud-top">
+  <div id="studio-info">
+    {% if profile.studio_logo %}
+      <img id="studio-logo" src="{{ profile.studio_logo.url }}" style="display:block" alt="Studio Logo">
+    {% endif %}
+    <div id="studio-name">{{ profile.studio_name|default:"KSHAN Studio" }}</div>
+  </div>
+  <div id="event-info">
+    <div id="event-title">{{ event.name }}</div>
+    <div id="event-date">{{ event.event_date|default:"" }}</div>
+  </div>
+</div>
+
+<!-- Bottom HUD -->
+<div id="hud-bottom">
+  <div id="qr-box">
+    <div id="qr-canvas"></div>
+    <div id="qr-label">Scan to find<br>your photos</div>
+  </div>
+  <div id="slide-counter">0 / 0</div>
+</div>
+
+<!-- Pause overlay -->
+<div id="pause-overlay">
+  <div id="pause-icon">⏸</div>
+</div>
+
+<!-- Empty state -->
+<div id="empty-state">
+  <div class="icon">📷</div>
+  <p>Waiting for photos to be uploaded…</p>
+</div>
+
+<script>
+const EVENT_CODE = '{{ event.event_code }}';
+const GALLERY_URL = window.location.origin + '/event/' + EVENT_CODE + '/';
+const SLIDE_DURATION = 5000; // ms per slide
+const POLL_INTERVAL = 8000;  // re-fetch photos every 8s
+
+let photos = [];
+let currentIndex = 0;
+let isPaused = false;
+let slideTimer = null;
+let progressTimer = null;
+let progressStart = null;
+let progressEl = document.getElementById('progress-bar');
+let counterEl = document.getElementById('slide-counter');
+let containerEl = document.getElementById('slide-container');
+let pauseEl = document.getElementById('pause-overlay');
+let emptyEl = document.getElementById('empty-state');
+let hintEl = document.getElementById('controls-hint');
+let slideA = null, slideB = null;
+let activeSlide = 'a';
+
+// Build QR code
+const qr = qrcode(0, 'M');
+qr.addData(GALLERY_URL);
+qr.make();
+document.getElementById('qr-canvas').innerHTML = qr.createImgTag(3, 4);
+
+function createSlideEl() {
+  const el = document.createElement('div');
+  el.className = 'slide';
+  containerEl.appendChild(el);
+  return el;
+}
+
+slideA = createSlideEl();
+slideB = createSlideEl();
+
+function showSlide(index) {
+  if (!photos.length) return;
+  index = ((index % photos.length) + photos.length) % photos.length;
+  currentIndex = index;
+  const photo = photos[index];
+  counterEl.textContent = `${index + 1} / ${photos.length}`;
+
+  const incoming = activeSlide === 'a' ? slideB : slideA;
+  const outgoing = activeSlide === 'a' ? slideA : slideB;
+
+  incoming.style.backgroundImage = `url('${photo.url}')`;
+  incoming.classList.add('active');
+  outgoing.classList.remove('active');
+  activeSlide = activeSlide === 'a' ? 'b' : 'a';
+
+  startProgress();
+}
+
+function startProgress() {
+  if (isPaused) return;
+  if (progressTimer) clearInterval(progressTimer);
+  progressStart = Date.now();
+  progressEl.style.transition = `width ${SLIDE_DURATION}ms linear`;
+  progressEl.style.width = '100%';
+
+  if (slideTimer) clearTimeout(slideTimer);
+  slideTimer = setTimeout(() => {
+    progressEl.style.transition = 'none';
+    progressEl.style.width = '0%';
+    // small pause for transition reset
+    setTimeout(() => showSlide(currentIndex + 1), 50);
+  }, SLIDE_DURATION);
+}
+
+function pauseSlide() {
+  if (!photos.length) return;
+  isPaused = true;
+  if (slideTimer) clearTimeout(slideTimer);
+  // Freeze progress bar
+  const elapsed = Date.now() - progressStart;
+  const pct = (elapsed / SLIDE_DURATION) * 100;
+  progressEl.style.transition = 'none';
+  progressEl.style.width = pct + '%';
+  pauseEl.classList.add('visible');
+}
+
+function resumeSlide() {
+  isPaused = false;
+  pauseEl.classList.remove('visible');
+  startProgress();
+}
+
+async function fetchPhotos() {
+  try {
+    const res = await fetch(`/api/events/${EVENT_CODE}/beam-photos/?limit=60`);
+    const data = await res.json();
+    if (data.photos && data.photos.length > 0) {
+      const prevLen = photos.length;
+      photos = data.photos;
+      emptyEl.style.display = 'none';
+      if (prevLen === 0) {
+        showSlide(0);
+        if (!isPaused) startProgress();
+      }
+    } else {
+      emptyEl.style.display = 'flex';
+    }
+  } catch (e) {
+    console.error('Beam fetch error', e);
+  }
+}
+
+// Init
+fetchPhotos();
+setInterval(fetchPhotos, POLL_INTERVAL);
+
+// Keyboard controls
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    window.close();
+    history.back();
+  } else if (e.key === ' ') {
+    e.preventDefault();
+    isPaused ? resumeSlide() : pauseSlide();
+  } else if (e.key === 'ArrowRight') {
+    if (slideTimer) clearTimeout(slideTimer);
+    progressEl.style.transition = 'none';
+    progressEl.style.width = '0%';
+    setTimeout(() => showSlide(currentIndex + 1), 50);
+  } else if (e.key === 'ArrowLeft') {
+    if (slideTimer) clearTimeout(slideTimer);
+    progressEl.style.transition = 'none';
+    progressEl.style.width = '0%';
+    setTimeout(() => showSlide(currentIndex - 1), 50);
+  }
+});
+
+// Click to dismiss hint & start
+document.body.addEventListener('click', () => {
+  if (!hintEl.classList.contains('hidden')) {
+    hintEl.classList.add('hidden');
+    if (!isPaused && photos.length > 0) startProgress();
+  }
+}, { once: true });
+
+// Also hide hint after 5s automatically
+setTimeout(() => hintEl.classList.add('hidden'), 5000);
+</script>
+</body>
+</html>

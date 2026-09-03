@@ -1,0 +1,189 @@
+{% extends "base.html" %}
+
+{% block title %}Studio Analytics — KSHAN{% endblock %}
+
+{% block content %}
+<div class="studio-shell">
+
+  <!-- ── 01: V5 GLASS SIDEBAR ────────────────────────────────── -->
+  <aside class="studio-sidebar">
+    <div style="position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 180px; height: 180px; background: radial-gradient(circle, rgba(199,168,107,0.12) 0%, transparent 70%); pointer-events: none;"></div>
+
+    <div style="padding: 16px 16px 14px; border-bottom: 1px solid rgba(199,168,107,0.12); position: relative; z-index: 1;">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <div style="width: 34px; height: 34px; border-radius: 9px; background: var(--gradient-gold); display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 800; color: var(--bg-dark); box-shadow: var(--shadow-gold);">K</div>
+        <div>
+          <div class="sidebar-header-title" style="font-family: var(--font-display); font-size: 14px; font-weight: 600; letter-spacing: 0.1em;">KSHAN STUDIO</div>
+          <div class="sidebar-header-sub" style="font-size: 10.5px; margin-top: 1px; font-weight: 500;">{{ profile.studio_name|default:user.username }}</div>
+        </div>
+      </div>
+    </div>
+
+    <nav style="flex: 1; display: flex; flex-direction: column; gap: 1px; overflow-y: auto; padding: 10px 0; position: relative; z-index: 1;">
+      <div class="sidebar-section-label" style="padding: 4px 16px 2px; font-size: 9px; font-weight: 700; color: var(--gold); letter-spacing: 0.12em; text-transform: uppercase;">WORKSPACE</div>
+      <a href="/admin/" class="sidebar-nav-item">
+        <span>Overview</span>
+      </a>
+      <a href="/studio/events/" class="sidebar-nav-item">
+        <span>Events</span>
+      </a>
+      <a href="/studio/proofing/" class="sidebar-nav-item">
+        <span>Album Studio</span>
+        <span class="badge badge-gold" style="margin-left: auto; font-size: 8.5px; padding: 1px 5px;">NEW</span>
+      </a>
+
+      <div class="sidebar-divider" style="margin: 6px 16px; border-top: 1px solid rgba(199,168,107,0.1);"></div>
+
+      <div class="sidebar-section-label" style="padding: 4px 16px 2px; font-size: 9px; font-weight: 700; color: var(--gold); letter-spacing: 0.12em; text-transform: uppercase;">OPERATE</div>
+      <a href="/admin/" class="sidebar-nav-item" style="color: var(--gold); font-weight: 700;">
+        <span>Quick Camera Upload</span>
+      </a>
+      <a href="/studio/analytics/" class="sidebar-nav-item active">
+        <span>Analytics & Activity</span>
+      </a>
+
+      <div class="sidebar-divider" style="margin: 6px 16px; border-top: 1px solid rgba(199,168,107,0.1);"></div>
+
+      <div class="sidebar-section-label" style="padding: 4px 16px 2px; font-size: 9px; font-weight: 700; color: var(--gold); letter-spacing: 0.12em; text-transform: uppercase;">MANAGE</div>
+      <a href="/studio/guests/" class="sidebar-nav-item">
+        <span>Team & Guests</span>
+      </a>
+      <a href="/admin/settings/" class="sidebar-nav-item">
+        <span>Cloud Storage</span>
+      </a>
+
+      <div class="sidebar-divider" style="margin: 6px 16px; border-top: 1px solid rgba(199,168,107,0.1);"></div>
+
+      <div class="sidebar-section-label" style="padding: 4px 16px 2px; font-size: 9px; font-weight: 700; color: var(--gold); letter-spacing: 0.12em; text-transform: uppercase;">ACCOUNT & BILLING</div>
+      <a href="/studio/billing/" class="sidebar-nav-item">
+        <span>Plans & Billing</span>
+        <span class="badge badge-gold" style="margin-left: auto; font-size: 8.5px; padding: 1px 5px;">PRO</span>
+      </a>
+      <a href="/admin/profile/" class="sidebar-nav-item">
+        <span>Studio Profile</span>
+      </a>
+      <a href="/admin/settings/" class="sidebar-nav-item">
+        <span>Account Settings</span>
+      </a>
+      <a href="/logout/" class="sidebar-nav-item" style="color: var(--danger); margin-top: 4px;">
+        <span>Sign Out</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-user-card" style="padding: 10px 14px; border-top: 1px solid rgba(199,168,107,0.12); display: flex; align-items: center; gap: 10px; margin: 0 10px 10px; border-radius: var(--radius-md); position: relative; z-index: 1;">
+      <div style="width: 32px; height: 32px; border-radius: 50%; background: var(--gradient-gold); color: var(--bg-dark); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 12px; box-shadow: 0 2px 8px rgba(199,168,107,0.3);">
+        {{ user.username|slice:":2"|upper }}
+      </div>
+      <div style="overflow: hidden; flex: 1;">
+        <div class="sidebar-user-name" style="font-size: 11.5px; font-weight: 700; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">{{ profile.display_name|default:user.username }}</div>
+        <div class="sidebar-user-plan" style="font-size: 9.5px; color: var(--gold);">{{ profile.get_subscription_tier_display|default:"Pro Photographer Plan" }}</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ── 02: V5 ANALYTICS WORKSPACE ──────────────────────────── -->
+  <main class="studio-main" style="background: var(--bg-warm); max-width: 1200px;">
+    
+    <!-- Premium Header -->
+    <div style="background: linear-gradient(135deg, var(--bg-dark) 0%, #1a1018 40%, #2a1520 100%); border-radius: var(--radius-xl); padding: 32px 36px; margin-bottom: 32px; position: relative; overflow: hidden;">
+      <div style="position: absolute; top: -50px; right: -50px; width: 180px; height: 180px; border-radius: 50%; background: radial-gradient(circle, rgba(199,168,107,0.15) 0%, transparent 70%);"></div>
+
+      <div style="position: relative; z-index: 1;">
+        <div style="font-size: 10px; font-weight: 700; color: var(--gold); letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 8px;">BUSINESS INSIGHTS &bull; REAL DATA</div>
+        <h1 style="font-family: var(--font-display); font-size: 32px; color: var(--text-inverse); margin-bottom: 8px; font-weight: 300;">Studio Engagement Analytics</h1>
+        <p style="color: rgba(255,255,255,0.5); font-size: 13px;">Understand guest selfie activity, search frequency, and photo download volume.</p>
+      </div>
+    </div>
+
+    <!-- Metric Cards -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 32px;">
+      <div class="bento-card" style="padding: 24px; position: relative; overflow: hidden;">
+        <div style="position: absolute; top: 0; right: 0; width: 80px; height: 80px; background: radial-gradient(circle, var(--gold-subtle) 0%, transparent 70%);"></div>
+        <div style="font-size: 10px; font-weight: 700; color: var(--gold); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 8px;">TOTAL GUEST SEARCHES</div>
+        <div style="font-family: var(--font-display); font-size: 40px; font-weight: 300; color: var(--gold); line-height: 1;">{{ total_searches }}</div>
+      </div>
+      <div class="bento-card" style="padding: 24px; position: relative; overflow: hidden;">
+        <div style="position: absolute; top: 0; right: 0; width: 80px; height: 80px; background: radial-gradient(circle, var(--emerald-subtle) 0%, transparent 70%);"></div>
+        <div style="font-size: 10px; font-weight: 700; color: var(--emerald); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 8px;">TOTAL DOWNLOADS</div>
+        <div style="font-family: var(--font-display); font-size: 40px; font-weight: 300; color: var(--emerald); line-height: 1;">{{ total_downloads }}</div>
+      </div>
+      <div class="bento-card" style="padding: 24px; position: relative; overflow: hidden;">
+        <div style="position: absolute; top: 0; right: 0; width: 80px; height: 80px; background: radial-gradient(circle, var(--blue-subtle) 0%, transparent 70%);"></div>
+        <div style="font-size: 10px; font-weight: 700; color: var(--blue); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 8px;">PHOTOS DELIVERED</div>
+        <div style="font-family: var(--font-display); font-size: 40px; font-weight: 300; color: var(--text-primary); line-height: 1;">{{ total_photos }}</div>
+      </div>
+      <div class="bento-card" style="padding: 24px; position: relative; overflow: hidden;">
+        <div style="position: absolute; top: 0; right: 0; width: 80px; height: 80px; background: radial-gradient(circle, var(--violet-subtle) 0%, transparent 70%);"></div>
+        <div style="font-size: 10px; font-weight: 700; color: var(--violet); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 8px;">ACTIVE GALLERIES</div>
+        <div style="font-family: var(--font-display); font-size: 40px; font-weight: 300; color: var(--text-primary); line-height: 1;">{{ total_events }}</div>
+      </div>
+    </div>
+
+    <!-- Activity Tables -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+      
+      <!-- Recent Searches -->
+      <div class="bento-card" style="padding: 28px; position: relative; overflow: hidden;">
+        <div style="position: absolute; top: -30px; right: -30px; width: 100px; height: 100px; border-radius: 50%; background: radial-gradient(circle, var(--gold-subtle) 0%, transparent 70%);"></div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; position: relative; z-index: 1;">
+          <h2 style="font-size: 18px; color: var(--text-primary);">Recent Guest Searches</h2>
+          <span class="badge badge-gold">Privacy Safe</span>
+        </div>
+
+        {% if recent_searches %}
+        <div style="display: flex; flex-direction: column; gap: 10px; position: relative; z-index: 1;">
+          {% for s in recent_searches %}
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; background: var(--bg-warm); border-radius: var(--radius-md); border: 1px solid var(--border); transition: transform 0.2s, box-shadow 0.2s;" onmouseenter="this.style.transform='translateX(4px)'" onmouseleave="this.style.transform=''">
+            <div>
+              <span style="font-weight: 600; color: var(--text-primary);">{{ s.event.name }}</span>
+              <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">{{ s.timestamp|date:"M d, H:i" }}</div>
+            </div>
+            <span class="badge badge-green">{{ s.number_of_matches }} Matches</span>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div style="text-align: center; padding: 40px 20px; color: var(--text-muted); font-size: 13px; position: relative; z-index: 1;">
+          <div style="font-size: 32px; margin-bottom: 12px; opacity: 0.3;">&#128269;</div>
+          No search activity yet. Share your event QR code to start tracking!
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- Recent Downloads -->
+      <div class="bento-card" style="padding: 28px; position: relative; overflow: hidden;">
+        <div style="position: absolute; top: -30px; right: -30px; width: 100px; height: 100px; border-radius: 50%; background: radial-gradient(circle, var(--emerald-subtle) 0%, transparent 70%);"></div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; position: relative; z-index: 1;">
+          <h2 style="font-size: 18px; color: var(--text-primary);">Recent Photo Downloads</h2>
+          <span class="badge badge-green">Full Resolution</span>
+        </div>
+
+        {% if recent_downloads %}
+        <div style="display: flex; flex-direction: column; gap: 10px; position: relative; z-index: 1;">
+          {% for d in recent_downloads %}
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; background: var(--bg-warm); border-radius: var(--radius-md); border: 1px solid var(--border); transition: transform 0.2s, box-shadow 0.2s;" onmouseenter="this.style.transform='translateX(4px)'" onmouseleave="this.style.transform=''">
+            <div>
+              <span style="font-weight: 600; color: var(--text-primary);">{{ d.event.name }}</span>
+              <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">{{ d.timestamp|date:"M d, H:i" }}</div>
+            </div>
+            <span class="badge badge-gold">
+              {% if d.is_batch %}Batch ZIP ({{ d.batch_count }}){% else %}Single High-Res{% endif %}
+            </span>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div style="text-align: center; padding: 40px 20px; color: var(--text-muted); font-size: 13px; position: relative; z-index: 1;">
+          <div style="font-size: 32px; margin-bottom: 12px; opacity: 0.3;">&#128190;</div>
+          No download activity recorded yet.
+        </div>
+        {% endif %}
+      </div>
+
+    </div>
+
+  </main>
+</div>
+{% endblock %}

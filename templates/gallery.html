@@ -1,0 +1,767 @@
+{% extends "base.html" %}
+
+{% block title %}Your Moments — {{ event.name }} | KSHAN{% endblock %}
+
+{% block content %}
+<div style="flex: 1; display: flex; flex-direction: column; background: var(--bg-warm);">
+
+  <!-- ── 01: STICKY GALLERY HEADER ─────────────────────── -->
+  <header style="background: rgba(17,17,17,0.88); backdrop-filter: blur(20px) saturate(180%); border-bottom: 1px solid var(--border); padding: 16px 32px; position: sticky; top: 64px; z-index: 50;">
+    <div style="max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
+      
+      <div>
+        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+          <a href="/event/{{ event.event_code }}/" style="font-size: 11px; color: var(--gold); text-decoration: none; font-weight: 600;">{{ event.name }}</a>
+          <span style="color: var(--text-muted); font-size: 11px;">&middot;</span>
+          <span style="font-size: 11px; color: var(--text-muted);">{{ event.event_date|default:"Event" }}</span>
+        </div>
+        <h1 style="font-family: var(--font-display); font-size: 22px; font-weight: 400; color: var(--text-primary);">Your Discovered Moments</h1>
+      </div>
+
+      <!-- Tabs -->
+      <div style="display: flex; gap: 4px; background: var(--bg-warm); padding: 3px; border-radius: var(--radius-pill); border: 1px solid var(--border);">
+        <button id="tabAllBtn" class="btn" onclick="switchGalleryTab('all')" style="background: var(--bg-surface); color: var(--text-primary); border: none; padding: 6px 16px; border-radius: var(--radius-pill); font-size: 12.5px; font-weight: 600; box-shadow: var(--shadow-xs);">
+          My Photos (<span id="myCount">0</span>)
+        </button>
+        <button id="tabFavBtn" class="btn" onclick="switchGalleryTab('favorites')" style="background: transparent; color: var(--text-muted); border: none; padding: 6px 16px; border-radius: var(--radius-pill); font-size: 12.5px; font-weight: 600;">
+          &#10084; Favorites (<span id="favCount">0</span>)
+        </button>
+      </div>
+
+      <!-- Actions -->
+      <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+        <!-- View Modes -->
+        <div style="display: flex; gap: 2px; background: var(--bg-warm); padding: 2px; border-radius: var(--radius-sm); border: 1px solid var(--border);">
+          <button onclick="setGuestView('masonry')" id="gvMasonry" class="btn" style="background: var(--gold); color: white; border: none; padding: 5px 8px; border-radius: 6px; font-size: 13px;" title="Masonry">&#8862;</button>
+          <button onclick="setGuestView('grid')" id="gvGrid" class="btn" style="background: transparent; color: var(--text-muted); border: none; padding: 5px 8px; border-radius: 6px; font-size: 13px;" title="Grid">&#8861;</button>
+          <button onclick="setGuestView('theater')" id="gvTheater" class="btn" style="background: transparent; color: var(--text-muted); border: none; padding: 5px 8px; border-radius: 6px; font-size: 13px;" title="Theater">&#9645;</button>
+        </div>
+
+        <!-- Select Photos Mode Toggle -->
+        <button id="selectModeBtn" class="btn btn-secondary btn-sm" onclick="toggleSelectionMode()" style="font-size: 12px; display: flex; align-items: center; gap: 6px;">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+          <span id="selectModeLabel">Select</span>
+        </button>
+
+        <button class="btn btn-secondary btn-sm" onclick="shareGallery()" style="font-size: 12px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+          Share
+        </button>
+
+        <button id="downloadZipBtn" class="btn btn-gold btn-sm" onclick="downloadSelectedOrAllZip()" style="font-size: 12px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          <span id="downloadBtnLabel">Download All (ZIP)</span>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- Floating Multi-Photo Selection Action Dock -->
+  <div id="selectionDock" style="display: none; position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%); z-index: 500; background: rgba(18, 17, 24, 0.94); backdrop-filter: blur(20px); border: 1.5px solid var(--gold-border); border-radius: 99px; padding: 8px 24px; box-shadow: 0 20px 50px rgba(0,0,0,0.7), 0 0 25px rgba(199,168,107,0.25); align-items: center; gap: 16px;">
+    <div style="font-size: 13px; font-weight: 700; color: #FFF;">
+      <span id="selectedCountNum" style="color: var(--gold); font-size: 15px;">0</span> Photos Selected
+    </div>
+    <div style="height: 18px; width: 1px; background: rgba(255,255,255,0.15);"></div>
+    <button onclick="selectAllVisiblePhotos()" class="btn btn-ghost btn-sm" style="color: #FFF; font-size: 12px; padding: 6px 12px;">Select All</button>
+    <button onclick="clearSelectedPhotos()" class="btn btn-ghost btn-sm" style="color: rgba(255,255,255,0.6); font-size: 12px; padding: 6px 12px;">Clear</button>
+    <button onclick="downloadSelectedPhotosZip()" class="btn btn-gold btn-sm" style="font-weight: 800; padding: 8px 18px; border-radius: 99px; font-size: 12.5px; display: flex; align-items: center; gap: 6px;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Download Selected
+    </button>
+  </div>
+
+  <!-- ── 02: PHOTO GRID ────────────────────────────────── -->
+  <main style="flex: 1; max-width: 1400px; margin: 0 auto; width: 100%; padding: 32px;">
+    
+    <!-- Ceremony Filter -->
+    <div id="ceremonyTabsBar" style="display:none; margin-bottom: 20px;">
+      <div id="ceremonyTabs" style="display:flex; gap: 6px; flex-wrap:wrap;"></div>
+    </div>
+
+    <div id="galleryGrid" class="kshan-gallery-masonry"></div>
+
+    <!-- Empty State -->
+    <div id="emptyGalleryBox" style="display: none; text-align: center; padding: 100px 20px;">
+      <div style="width: 72px; height: 72px; border-radius: 50%; background: var(--gold-subtle); border: 1.5px solid var(--gold-border); display: flex; align-items: center; justify-content: center; color: var(--gold); margin: 0 auto 20px; font-size: 28px;">
+        &#9670;
+      </div>
+      <h3 style="font-family: var(--font-display); font-size: 26px; font-weight: 400; color: var(--text-primary); margin-bottom: 8px;">No moments found yet</h3>
+      <p style="color: var(--text-secondary); font-size: 14px; max-width: 400px; margin: 0 auto 28px; line-height: 1.7;">
+        Try taking another selfie with good, even front lighting, or check if the photographer has shared public highlights.
+      </p>
+      <a href="/event/{{ event.event_code }}/" class="btn btn-gold" style="text-decoration: none;">
+        Take Another Selfie
+      </a>
+    </div>
+  </main>
+
+</div>
+
+<!-- ── PHOTOGRAPHER CONTACT ──────────────────────────────── -->
+<div style="background: var(--bg-surface); border-top: 1px solid var(--border); padding: 32px;">
+  <div style="max-width: 900px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px;">
+    <div style="display: flex; align-items: center; gap: 14px;">
+      {% if profile.profile_photo %}
+      <img src="{{ profile.profile_photo.url }}" alt="{{ profile.studio_name }}" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 2px solid var(--gold);">
+      {% else %}
+      <div style="width: 48px; height: 48px; border-radius: 50%; background: var(--gold-subtle); border: 2px solid var(--gold); display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: 18px; font-weight: 600; color: var(--gold);">{{ profile.studio_name|default:"K"|first }}</div>
+      {% endif %}
+      <div>
+        <div style="font-family: var(--font-display); font-size: 16px; font-weight: 500;">{{ profile.studio_name|default:"KSHAN Studio" }}</div>
+        <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">
+          {% if profile.city %}{{ profile.city }}{% endif %}
+          {% if profile.instagram %} &middot; @{{ profile.instagram }}{% endif %}
+        </div>
+      </div>
+    </div>
+    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+      {% if profile.whatsapp_number %}
+      <a href="https://wa.me/{{ profile.whatsapp_number }}?text=Hi%2C%20I%20found%20you%20through%20my%20event%20photos%21" target="_blank" class="btn btn-gold btn-sm" style="text-decoration: none;">
+        Book via WhatsApp
+      </a>
+      {% endif %}
+      {% if profile.booking_url %}
+      <a href="{{ profile.booking_url }}" target="_blank" class="btn btn-secondary btn-sm" style="text-decoration: none;">Visit Studio</a>
+      {% endif %}
+      {% if profile.instagram %}
+      <a href="https://instagram.com/{{ profile.instagram }}" target="_blank" class="btn btn-ghost btn-sm" style="text-decoration: none; color: var(--text-muted);">Instagram</a>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<!-- ── WhatsApp Floating ─────────────────────────────────── -->
+<div style="position: fixed; bottom: 24px; right: 24px; z-index: 200;">
+  <button onclick="shareViaWhatsApp()" title="Share gallery on WhatsApp"
+    style="width: 52px; height: 52px; border-radius: 50%; background: #25D366; border: none; display: flex; align-items: center; justify-content: center; font-size: 24px; cursor: pointer; box-shadow: 0 4px 20px rgba(37,211,102,0.35); transition: transform 0.2s var(--ease-spring), box-shadow 0.2s ease;"
+    onmouseover="this.style.transform='scale(1.1)'; this.style.boxShadow='0 8px 28px rgba(37,211,102,0.45)'"
+    onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 4px 20px rgba(37,211,102,0.35)'">
+    &#128172;
+  </button>
+</div>
+
+<style>
+.ceremony-pill {
+  padding: 6px 16px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border);
+  background: var(--bg-surface);
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: var(--font-sans);
+}
+.ceremony-pill.active, .ceremony-pill:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+  background: var(--gold-subtle);
+}
+</style>
+
+<!-- ── LIGHTBOX ─────────────────────────────────────────── -->
+<div id="kshanLightbox" style="display: none; position: fixed; inset: 0; background: rgba(11, 11, 11, 0.96); z-index: 10000; flex-direction: column; animation: fadeIn 0.2s ease;">
+  
+  <!-- Top -->
+  <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 16px 24px;">
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <span style="font-size: 13px; color: rgba(255,255,255,0.5); font-weight: 500;">
+        <span id="lbCurrentIndex">1</span> / <span id="lbTotalCount">1</span>
+      </span>
+    </div>
+
+    <div style="display: flex; gap: 8px; align-items: center;">
+      <button onclick="toggleLightboxFavorite()" id="lbFavBtn" style="background: rgba(255,255,255,0.08); border: none; font-size: 18px; cursor: pointer; color: #FFFFFF; width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.15)'" onmouseout="this.style.background='rgba(255,255,255,0.08)'">
+        &#9825;
+      </button>
+      <button id="lbDownloadBtn" onclick="handleLightboxDownload()" style="color: #FFFFFF; border: none; background: rgba(255,255,255,0.08); width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.15)'" onmouseout="this.style.background='rgba(255,255,255,0.08)'" title="Download">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      </button>
+      <button onclick="closeLightbox()" style="background: rgba(255,255,255,0.08); border: none; font-size: 22px; color: #FFFFFF; cursor: pointer; width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: background 0.2s; line-height: 1;" onmouseover="this.style.background='rgba(255,255,255,0.15)'" onmouseout="this.style.background='rgba(255,255,255,0.08)'">&times;</button>
+    </div>
+  </div>
+
+  <!-- Image -->
+  <div style="flex: 1; display: flex; align-items: center; justify-content: space-between; position: relative; overflow: hidden; padding: 0 16px;">
+    <button onclick="prevLightboxPhoto()" style="background: rgba(255,255,255,0.06); border: none; color: #FFF; width: 44px; height: 44px; border-radius: 50%; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; z-index: 10; transition: background 0.2s; flex-shrink: 0;" onmouseover="this.style.background='rgba(255,255,255,0.12)'" onmouseout="this.style.background='rgba(255,255,255,0.06)'">&#8249;</button>
+    
+    <div style="position: relative; display: inline-flex; align-items: center; justify-content: center; max-height: 82vh; max-width: 88vw;">
+      <img id="lbImage" src="" alt="Moment" style="max-height: 82vh; max-width: 88vw; object-fit: contain; border-radius: 4px; box-shadow: 0 8px 40px rgba(0,0,0,0.4);">
+      <!-- Watermark Pill -->
+      <div style="position: absolute; bottom: 16px; left: 50%; transform: translateX(-50%); background: rgba(11,11,11,0.7); backdrop-filter: blur(8px); border: 1px solid rgba(199,168,107,0.3); color: #FFF; padding: 5px 16px; border-radius: var(--radius-pill); font-size: 10.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; display: flex; align-items: center; gap: 6px; pointer-events: none;">
+        <span style="color: var(--gold);">&#9670;</span>
+        <span>{{ event.photographer.profile.studio_name|default:event.photographer.username }}</span>
+      </div>
+    </div>
+
+    <button onclick="nextLightboxPhoto()" style="background: rgba(255,255,255,0.06); border: none; color: #FFF; width: 44px; height: 44px; border-radius: 50%; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; z-index: 10; transition: background 0.2s; flex-shrink: 0;" onmouseover="this.style.background='rgba(255,255,255,0.12)'" onmouseout="this.style.background='rgba(255,255,255,0.06)'">&#8250;</button>
+  </div>
+
+  <!-- Footer -->
+  <div style="text-align: center; padding: 12px; font-size: 11.5px; color: rgba(255,255,255,0.35);">
+    {{ event.name }} &middot; Photography by {{ profile.studio_name|default:"KSHAN Studio" }}
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+window.EVENT_CODE = "{{ event.event_code }}";
+let currentPhotos = [];
+let favoritesSet = new Set(JSON.parse(localStorage.getItem(`kshan_favs_${window.EVENT_CODE}`) || "[]"));
+let selectedPhotosSet = new Set();
+let isSelectionMode = false;
+let activeTab = "all";
+let activeCeremony = "all";
+let currentLightboxIndex = 0;
+let ceremonyMap = {};
+const SESSION_ID = localStorage.getItem('kshan_session_id') || '';
+
+document.addEventListener("DOMContentLoaded", () => {
+  loadGalleryData();
+  syncFavoritesFromServer();
+});
+
+async function syncFavoritesFromServer() {
+  if (!SESSION_ID) return;
+  try {
+    const res = await fetch(`/api/events/${window.EVENT_CODE}/favorites/?session_id=${SESSION_ID}`);
+    const data = await res.json();
+    if (data.favorites && data.favorites.length) {
+      data.favorites.forEach(id => favoritesSet.add(id));
+      localStorage.setItem(`kshan_favs_${window.EVENT_CODE}`, JSON.stringify(Array.from(favoritesSet)));
+      renderGallery();
+    }
+  } catch(e) {}
+}
+
+function toggleSelectionMode() {
+  isSelectionMode = !isSelectionMode;
+  const selectBtn = document.getElementById('selectModeBtn');
+  const label = document.getElementById('selectModeLabel');
+  
+  if (isSelectionMode) {
+    selectBtn.className = 'btn btn-primary btn-sm';
+    label.innerText = 'Exit Select';
+  } else {
+    selectBtn.className = 'btn btn-secondary btn-sm';
+    label.innerText = 'Select';
+    clearSelectedPhotos();
+  }
+  updateSelectionDock();
+  renderGallery();
+}
+
+function toggleCardSelection(e, photoId) {
+  e.stopPropagation();
+  if (selectedPhotosSet.has(photoId)) {
+    selectedPhotosSet.delete(photoId);
+  } else {
+    selectedPhotosSet.add(photoId);
+    if (!isSelectionMode) {
+      isSelectionMode = true;
+      document.getElementById('selectModeBtn').className = 'btn btn-primary btn-sm';
+      document.getElementById('selectModeLabel').innerText = 'Exit Select';
+    }
+  }
+  updateSelectionDock();
+  renderGallery();
+}
+
+function updateSelectionDock() {
+  const dock = document.getElementById('selectionDock');
+  const countEl = document.getElementById('selectedCountNum');
+  if (countEl) countEl.innerText = selectedPhotosSet.size;
+  
+  if (selectedPhotosSet.size > 0) {
+    if (dock) dock.style.display = 'flex';
+  } else if (!isSelectionMode) {
+    if (dock) dock.style.display = 'none';
+  } else {
+    if (dock) dock.style.display = 'flex';
+  }
+}
+
+function selectAllVisiblePhotos() {
+  const displayList = getFilteredDisplayList();
+  displayList.forEach(p => {
+    const id = p.id || p.photo_id;
+    if (id) selectedPhotosSet.add(id);
+  });
+  updateSelectionDock();
+  renderGallery();
+}
+
+function clearSelectedPhotos() {
+  selectedPhotosSet.clear();
+  updateSelectionDock();
+  renderGallery();
+}
+
+function getFilteredDisplayList() {
+  let list = activeTab === "favorites" ? currentPhotos.filter(p => favoritesSet.has(p.id || p.photo_id)) : currentPhotos;
+  if (activeCeremony !== 'all' && ceremonyMap[activeCeremony]) {
+    list = list.filter(p => ceremonyMap[activeCeremony].has(p.id || p.photo_id));
+  }
+  return list;
+}
+
+function buildCeremonyTabs() {
+  const slugsInUse = {};
+  currentPhotos.forEach(p => {
+    if (p.sub_event_slug && p.sub_event_name) {
+      if (!slugsInUse[p.sub_event_slug]) slugsInUse[p.sub_event_slug] = p.sub_event_name;
+      if (!ceremonyMap[p.sub_event_slug]) ceremonyMap[p.sub_event_slug] = new Set();
+      ceremonyMap[p.sub_event_slug].add(p.id || p.photo_id);
+    }
+  });
+  const slugs = Object.keys(slugsInUse);
+  const bar = document.getElementById('ceremonyTabsBar');
+  const tabsEl = document.getElementById('ceremonyTabs');
+  if (!slugs.length) { bar.style.display = 'none'; return; }
+  bar.style.display = 'block';
+  tabsEl.innerHTML = `<button class="ceremony-pill${activeCeremony === 'all' ? ' active' : ''}" onclick="switchCeremony('all', this)">All</button>`;
+  slugs.forEach(slug => {
+    tabsEl.innerHTML += `<button class="ceremony-pill${activeCeremony === slug ? ' active' : ''}" onclick="switchCeremony('${slug}', this)">${slugsInUse[slug]}</button>`;
+  });
+}
+
+function switchCeremony(slug, el) {
+  activeCeremony = slug;
+  document.querySelectorAll('.ceremony-pill').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  renderGallery();
+}
+
+function loadGalleryData() {
+  const cached = sessionStorage.getItem(`kshan_search_${window.EVENT_CODE}`);
+  if (cached) {
+    try {
+      const parsed = JSON.parse(cached);
+      currentPhotos = parsed.photos || parsed.results || [];
+    } catch(e) { currentPhotos = []; }
+    renderGallery();
+  } else {
+    fetchHighlights();
+  }
+}
+
+async function fetchHighlights() {
+  try {
+    const res = await fetch(`/api/events/${window.EVENT_CODE}/highlights/`);
+    const data = await res.json();
+    currentPhotos = data.photos || [];
+    renderGallery();
+  } catch (err) {
+    currentPhotos = [];
+  }
+}
+
+function renderGallery() {
+  const grid = document.getElementById("galleryGrid");
+  const emptyBox = document.getElementById("emptyGalleryBox");
+  const myCountEl = document.getElementById("myCount");
+  const favCountEl = document.getElementById("favCount");
+  
+  if (myCountEl) myCountEl.innerText = currentPhotos.length;
+  if (favCountEl) favCountEl.innerText = currentPhotos.filter(p => favoritesSet.has(p.id || p.photo_id)).length;
+
+  grid.innerHTML = "";
+  let displayList = getFilteredDisplayList();
+
+  if (displayList.length === 0) {
+    emptyBox.style.display = "block";
+    grid.style.display = "none";
+    return;
+  }
+
+  emptyBox.style.display = "none";
+  grid.style.display = "grid";
+
+  displayList.forEach((p, idx) => {
+    const card = document.createElement("div");
+    card.className = "gallery-card animate-fade-in";
+    const photoId = p.id || p.photo_id;
+    const isFav = favoritesSet.has(photoId);
+    const isSelected = selectedPhotosSet.has(photoId);
+    card.style.animationDelay = `${Math.min(idx * 0.03, 0.3)}s`;
+
+    if (isSelected) {
+      card.style.outline = "2.5px solid var(--gold)";
+      card.style.outlineOffset = "2px";
+    } else {
+      card.style.outline = "none";
+    }
+
+    card.innerHTML = `
+      <img src="${p.thumbnail_url || p.view_url}" alt="Moment" loading="lazy" onclick="handleCardClick(event, ${idx}, ${photoId})">
+      
+      <!-- Top Right: Selection Checkbox / Indicator -->
+      <div style="position: absolute; top: 10px; right: 10px; z-index: 10; display: flex; gap: 6px; align-items: center;">
+        <button onclick="toggleCardFavorite(event, ${photoId})" style="background: rgba(17,17,17,0.85); backdrop-filter: blur(8px); border: none; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: var(--shadow-sm); color: ${isFav ? '#EF4444' : '#F5F2ED'}; font-size: 14px; transition: transform 0.2s var(--ease-spring);" onmouseover="this.style.transform='scale(1.15)'" onmouseout="this.style.transform='scale(1)'" title="Favorite">
+          ${isFav ? '&#10084;' : '&#9825;'}
+        </button>
+
+        <button onclick="toggleCardSelection(event, ${photoId})" style="background: ${isSelected ? 'var(--gold)' : 'rgba(17,17,17,0.85)'}; border: 1.5px solid ${isSelected ? 'var(--gold)' : 'rgba(255,255,255,0.3)'}; color: ${isSelected ? '#111' : '#FFF'}; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: var(--shadow-sm); font-size: 13px; font-weight: 800; transition: transform 0.2s, background 0.2s;" onmouseover="this.style.transform='scale(1.15)'" onmouseout="this.style.transform='scale(1)'" title="${isSelected ? 'Deselect Photo' : 'Select Photo'}">
+          ${isSelected ? '✓' : ''}
+        </button>
+      </div>
+
+      <!-- Top Left: 1-Click Single Photo Download Button -->
+      <div style="position: absolute; top: 10px; left: 10px; z-index: 10;">
+        <button onclick="handleSinglePhotoDownloadClick(event, ${photoId})" style="background: rgba(17,17,17,0.85); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.15); border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: var(--shadow-sm); color: #FFF; transition: transform 0.2s var(--ease-spring), background 0.2s;" onmouseover="this.style.transform='scale(1.15)'; this.style.background='var(--gold)'; this.style.color='#111';" onmouseout="this.style.transform='scale(1)'; this.style.background='rgba(17,17,17,0.85)'; this.style.color='#FFF';" title="Download Photo">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        </button>
+      </div>
+
+      <div class="gallery-overlay" onclick="handleCardClick(event, ${idx}, ${photoId})">
+        <span style="font-size: 11px; color: #FFF; font-weight: 500;">View in Lightbox</span>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+  buildCeremonyTabs();
+}
+
+function handleCardClick(e, idx, photoId) {
+  if (isSelectionMode) {
+    toggleCardSelection(e, photoId);
+  } else {
+    openLightbox(idx);
+  }
+}
+
+function handleSinglePhotoDownloadClick(e, photoId) {
+  e.stopPropagation();
+  downloadSinglePhoto(photoId);
+}
+
+function switchGalleryTab(tab) {
+  activeTab = tab;
+  const allBtn = document.getElementById("tabAllBtn");
+  const favBtn = document.getElementById("tabFavBtn");
+  if (tab === 'all') {
+    allBtn.style.background = 'var(--bg-surface)';
+    allBtn.style.color = 'var(--text-primary)';
+    allBtn.style.boxShadow = 'var(--shadow-xs)';
+    favBtn.style.background = 'transparent';
+    favBtn.style.color = 'var(--text-muted)';
+    favBtn.style.boxShadow = 'none';
+  } else {
+    favBtn.style.background = 'var(--bg-surface)';
+    favBtn.style.color = 'var(--text-primary)';
+    favBtn.style.boxShadow = 'var(--shadow-xs)';
+    allBtn.style.background = 'transparent';
+    allBtn.style.color = 'var(--text-muted)';
+    allBtn.style.boxShadow = 'none';
+  }
+  renderGallery();
+}
+
+async function toggleCardFavorite(e, photoId) {
+  e.stopPropagation();
+  if (favoritesSet.has(photoId)) favoritesSet.delete(photoId);
+  else favoritesSet.add(photoId);
+  localStorage.setItem(`kshan_favs_${window.EVENT_CODE}`, JSON.stringify(Array.from(favoritesSet)));
+  if (SESSION_ID) {
+    try {
+      await fetch(`/api/events/${window.EVENT_CODE}/favorite/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ photo_id: photoId, session_id: SESSION_ID })
+      });
+    } catch(e) {}
+  }
+  renderGallery();
+}
+
+/* Lightbox */
+function openLightbox(idx) {
+  const displayList = getFilteredDisplayList();
+  if (!displayList[idx]) return;
+  currentLightboxIndex = idx;
+  const p = displayList[idx];
+  document.getElementById("lbImage").src = p.view_url || p.thumbnail_url;
+  document.getElementById("lbCurrentIndex").innerText = idx + 1;
+  document.getElementById("lbTotalCount").innerText = displayList.length;
+  
+  const isFav = favoritesSet.has(p.id || p.photo_id);
+  const favBtn = document.getElementById("lbFavBtn");
+  favBtn.innerHTML = isFav ? '&#10084;' : '&#9825;';
+  favBtn.style.color = isFav ? '#EF4444' : '#FFF';
+  
+  document.getElementById("kshanLightbox").style.display = "flex";
+  document.body.style.overflow = "hidden";
+}
+
+function closeLightbox() {
+  document.getElementById("kshanLightbox").style.display = "none";
+  document.body.style.overflow = "auto";
+}
+
+function prevLightboxPhoto() {
+  const displayList = getFilteredDisplayList();
+  currentLightboxIndex = (currentLightboxIndex - 1 + displayList.length) % displayList.length;
+  openLightbox(currentLightboxIndex);
+}
+
+function nextLightboxPhoto() {
+  const displayList = getFilteredDisplayList();
+  currentLightboxIndex = (currentLightboxIndex + 1) % displayList.length;
+  openLightbox(currentLightboxIndex);
+}
+
+function handleLightboxDownload() {
+  const displayList = getFilteredDisplayList();
+  const p = displayList[currentLightboxIndex];
+  if (p) downloadSinglePhoto(p.id || p.photo_id);
+}
+
+function toggleLightboxFavorite() {
+  const displayList = getFilteredDisplayList();
+  const p = displayList[currentLightboxIndex];
+  if (!p) return;
+  const photoId = p.id || p.photo_id;
+  if (favoritesSet.has(photoId)) favoritesSet.delete(photoId);
+  else favoritesSet.add(photoId);
+  localStorage.setItem(`kshan_favs_${window.EVENT_CODE}`, JSON.stringify(Array.from(favoritesSet)));
+  const isFav = favoritesSet.has(photoId);
+  document.getElementById("lbFavBtn").innerHTML = isFav ? '&#10084;' : '&#9825;';
+  document.getElementById("lbFavBtn").style.color = isFav ? '#EF4444' : '#FFF';
+  renderGallery();
+}
+
+/* Keyboard */
+document.addEventListener("keydown", e => {
+  if (document.getElementById("kshanLightbox").style.display === "flex") {
+    if (e.key === "ArrowLeft") prevLightboxPhoto();
+    if (e.key === "ArrowRight") nextLightboxPhoto();
+    if (e.key === "Escape") closeLightbox();
+  }
+});
+
+/* Single Photo Download with Paywall Handling */
+async function downloadSinglePhoto(photoId) {
+  const sessionId = localStorage.getItem('kshan_session_id') || '';
+  const url = `/api/photos/${photoId}/download/?session_id=${encodeURIComponent(sessionId)}`;
+  
+  try {
+    showToast("Preparing single photo download...", "info");
+    const res = await fetch(url);
+    if (res.status === 402) {
+      const data = await res.json();
+      showGuestPaymentModal('photo', photoId, data.price || 49);
+      return;
+    }
+    if (!res.ok) {
+      showToast("Download failed", "danger");
+      return;
+    }
+    const blob = await res.blob();
+    const blobUrl = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = blobUrl;
+    a.download = `kshan_photo_${photoId}.jpg`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    window.URL.revokeObjectURL(blobUrl);
+    showToast("Photo downloaded!", "success");
+  } catch (err) {
+    showToast("Download error: " + err.message, "danger");
+  }
+}
+
+/* Download Selected Photos ZIP */
+async function downloadSelectedPhotosZip() {
+  if (selectedPhotosSet.size === 0) {
+    showToast("Please select at least 1 photo to download", "warning");
+    return;
+  }
+  const ids = Array.from(selectedPhotosSet);
+  const sessionId = localStorage.getItem('kshan_session_id') || '';
+  
+  showToast(`Preparing ZIP for ${ids.length} selected photos...`, "info");
+  try {
+    const res = await fetch(`/api/photos/download-batch/`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ photo_ids: ids, session_id: sessionId })
+    });
+    
+    if (res.status === 402) {
+      const data = await res.json();
+      showGuestPaymentModal('full_event', null, data.price_full_event || 299);
+      return;
+    }
+    
+    if (!res.ok) { showToast("Download failed", "danger"); return; }
+    const blob = await res.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = `kshan_${window.EVENT_CODE}_selected_${ids.length}_photos.zip`;
+    document.body.appendChild(a); a.click(); a.remove();
+    showToast("Selected photos ZIP downloaded!", "success");
+  } catch (err) { showToast("Download error: " + err.message, "danger"); }
+}
+
+/* ZIP Download with Paywall Handling */
+async function downloadSelectedOrAllZip() {
+  if (selectedPhotosSet.size > 0) {
+    downloadSelectedPhotosZip();
+    return;
+  }
+  const targetList = activeTab === "favorites" ? currentPhotos.filter(p => favoritesSet.has(p.id)) : currentPhotos;
+  if (targetList.length === 0) { showToast("No photos to download", "warning"); return; }
+  const ids = targetList.map(p => p.id);
+  const sessionId = localStorage.getItem('kshan_session_id') || '';
+  
+  showToast("Preparing download...", "info");
+  try {
+    const res = await fetch(`/api/photos/download-batch/`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ photo_ids: ids, session_id: sessionId })
+    });
+    
+    if (res.status === 402) {
+      const data = await res.json();
+      showGuestPaymentModal('full_event', null, data.price_full_event || 299);
+      return;
+    }
+    
+    if (!res.ok) { showToast("Download failed", "danger"); return; }
+    const blob = await res.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = `kshan_${window.EVENT_CODE}_moments.zip`;
+    document.body.appendChild(a); a.click(); a.remove();
+    showToast("ZIP download started!", "success");
+  } catch (err) { showToast("ZIP download error: " + err.message, "danger"); }
+}
+
+/* Guest Razorpay Checkout Flow */
+async function showGuestPaymentModal(purchaseType, photoId, priceAmount) {
+  const sessionId = localStorage.getItem('kshan_session_id') || '';
+  try {
+    const res = await fetch(`/api/events/${window.EVENT_CODE}/create-guest-order/`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        purchase_type: purchaseType,
+        photo_id: photoId,
+        session_id: sessionId,
+      })
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      showToast(data.detail || "Unable to initiate payment", "danger");
+      return;
+    }
+
+    const options = {
+      key: data.key_id,
+      amount: data.amount,
+      currency: data.currency,
+      name: "KSHAN Moments",
+      description: data.item_name,
+      image: "/static/images/logo.svg",
+      order_id: data.order_id,
+      theme: { color: "#C7A86B" },
+      handler: async function (response) {
+        try {
+          const vRes = await fetch(`/api/events/${window.EVENT_CODE}/verify-guest-payment/`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+              session_id: data.session_id
+            })
+          });
+          const vData = await vRes.json();
+          if (vRes.ok) {
+            showToast("Payment verified! Starting your download...", "success");
+            if (purchaseType === 'photo' && photoId) {
+              setTimeout(() => downloadSinglePhoto(photoId), 500);
+            } else {
+              setTimeout(() => downloadSelectedOrAllZip(), 500);
+            }
+          } else {
+            showToast(vData.detail || "Payment verification failed", "danger");
+          }
+        } catch(e) {
+          showToast("Verification error: " + e.message, "danger");
+        }
+      }
+    };
+    const rzp = new Razorpay(options);
+    rzp.open();
+  } catch(e) {
+    showToast("Payment error: " + e.message, "danger");
+  }
+}
+
+function shareGallery() {
+  if (navigator.share) {
+    navigator.share({ title: "My Moments — KSHAN", url: window.location.href }).catch(() => {});
+  } else {
+    navigator.clipboard.writeText(window.location.href);
+    showToast("Gallery link copied!", "success");
+  }
+}
+
+async function shareViaWhatsApp() {
+  try {
+    const res = await fetch(`/api/events/${window.EVENT_CODE}/whatsapp-link/`);
+    const data = await res.json();
+    window.open(data.whatsapp_link, '_blank');
+  } catch(e) {
+    const url = encodeURIComponent(window.location.origin + '/event/' + window.EVENT_CODE + '/');
+    window.open(`https://wa.me/?text=${url}`, '_blank');
+  }
+}
+
+/* View Modes */
+function setGuestView(mode) {
+  const grid = document.getElementById('galleryGrid');
+  if (!grid) return;
+  ['gvMasonry', 'gvGrid', 'gvTheater'].forEach(id => {
+    const btn = document.getElementById(id);
+    if (btn) { btn.style.background = 'transparent'; btn.style.color = 'var(--text-muted)'; }
+  });
+  if (mode === 'masonry') {
+    grid.className = 'kshan-gallery-masonry';
+    grid.style = '';
+    grid.querySelectorAll('.gallery-card').forEach(c => { c.style = ''; const img = c.querySelector('img'); if(img) img.style = ''; });
+    document.getElementById('gvMasonry').style.background = 'var(--gold)';
+    document.getElementById('gvMasonry').style.color = 'white';
+  } else if (mode === 'grid') {
+    grid.className = 'kshan-gallery-grid';
+    grid.style = '';
+    grid.querySelectorAll('.gallery-card').forEach(c => { c.style = ''; const img = c.querySelector('img'); if(img) img.style = ''; });
+    document.getElementById('gvGrid').style.background = 'var(--gold)';
+    document.getElementById('gvGrid').style.color = 'white';
+  } else if (mode === 'theater') {
+    grid.className = '';
+    grid.style.cssText = 'display:flex;flex-direction:column;gap:20px;align-items:center;';
+    grid.querySelectorAll('.gallery-card').forEach(c => {
+      c.style.cssText = 'width:100%;max-width:800px;aspect-ratio:auto;height:auto;';
+      const img = c.querySelector('img');
+      if (img) img.style.cssText = 'width:100%;height:auto;max-height:70vh;object-fit:contain;border-radius:8px;';
+    });
+    document.getElementById('gvTheater').style.background = 'var(--gold)';
+    document.getElementById('gvTheater').style.color = 'white';
+  }
+  localStorage.setItem('kshan_guest_view', mode);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const savedView = localStorage.getItem('kshan_guest_view');
+  if (savedView) setGuestView(savedView);
+});
+</script>
+{% endblock %}

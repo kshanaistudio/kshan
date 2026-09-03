@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}Studio Sign In — KSHAN{% endblock %}
+
+{% block content %}
+<div style="flex: 1; display: flex; align-items: center; justify-content: center; background: var(--bg-main); padding: 40px 24px;">
+  
+  <div class="kshan-card" style="max-width: 440px; width: 100%; padding: 44px 36px; box-shadow: var(--shadow-lg);">
+    <div class="gold-label" style="margin-bottom: 8px;">STUDIO AUTHENTICATION</div>
+    <h1 style="font-size: 30px; margin-bottom: 24px; color: var(--text-main);">Sign In to KSHAN</h1>
+
+    {% if error %}
+    <div style="background: var(--danger-bg); border: 1px solid rgba(255, 137, 151, 0.42); color: var(--danger); padding: 12px 16px; font-size: 13px; border-radius: 6px; margin-bottom: 20px; font-weight: 500;">
+      {{ error }}
+    </div>
+    {% endif %}
+
+    <form method="POST" action="/admin/login/" style="display: flex; flex-direction: column; gap: 18px;">
+      {% csrf_token %}
+      <div>
+        <label class="gold-label" style="display: block; margin-bottom: 6px;">PHOTOGRAPHER USERNAME</label>
+        <input type="text" name="username" placeholder="Username" required autofocus>
+      </div>
+
+      <div>
+        <label class="gold-label" style="display: block; margin-bottom: 6px;">PASSWORD</label>
+        <input type="password" name="password" placeholder="Password" required>
+      </div>
+
+      <button type="submit" class="btn-primary" style="margin-top: 10px; padding: 14px;">
+        <span>Sign In &rarr;</span>
+      </button>
+    </form>
+  </div>
+
+</div>
+{% endblock %}

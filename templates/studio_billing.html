@@ -1,0 +1,399 @@
+{% extends "base.html" %}
+
+{% block title %}Studio Plans & Billing — KSHAN Studio{% endblock %}
+
+{% block content %}
+<div class="studio-shell">
+
+  <!-- ── 01: V5 GLASS SIDEBAR ────────────────────────────────── -->
+  <aside class="studio-sidebar">
+    <div style="position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 180px; height: 180px; background: radial-gradient(circle, rgba(199,168,107,0.12) 0%, transparent 70%); pointer-events: none;"></div>
+
+    <!-- Studio Header -->
+    <div style="padding: 16px 16px 14px; border-bottom: 1px solid rgba(199,168,107,0.12); position: relative; z-index: 1;">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <div style="width: 34px; height: 34px; border-radius: 9px; background: var(--gradient-gold); display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 800; color: var(--bg-dark); box-shadow: var(--shadow-gold);">K</div>
+        <div>
+          <div class="sidebar-header-title" style="font-family: var(--font-display); font-size: 14px; font-weight: 600; letter-spacing: 0.1em;">KSHAN STUDIO</div>
+          <div class="sidebar-header-sub" style="font-size: 10.5px; margin-top: 1px; font-weight: 500;">{{ profile.studio_name|default:user.username }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav style="flex: 1; display: flex; flex-direction: column; gap: 1px; overflow-y: auto; padding: 10px 0; position: relative; z-index: 1;">
+      <div class="sidebar-section-label" style="padding: 4px 16px 2px; font-size: 9px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;">WORKSPACE</div>
+      <a href="/admin/" class="sidebar-nav-item">
+        <span>Overview</span>
+      </a>
+      <a href="/studio/events/" class="sidebar-nav-item">
+        <span>Events ({{ total_events }})</span>
+      </a>
+      <a href="/studio/proofing/" class="sidebar-nav-item">
+        <span>Album Studio</span>
+        <span class="badge badge-gold" style="margin-left: auto; font-size: 8.5px; padding: 1px 5px;">NEW</span>
+      </a>
+
+      <div class="sidebar-divider" style="margin: 6px 16px; border-top: 1px solid rgba(199,168,107,0.1);"></div>
+
+      <div class="sidebar-section-label" style="padding: 4px 16px 2px; font-size: 9px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;">OPERATE</div>
+      <a href="/studio/analytics/" class="sidebar-nav-item">
+        <span>Analytics & Activity</span>
+      </a>
+      <a href="/studio/guests/" class="sidebar-nav-item">
+        <span>Team & Guests</span>
+      </a>
+
+      <div class="sidebar-divider" style="margin: 6px 16px; border-top: 1px solid rgba(199,168,107,0.1);"></div>
+
+      <div class="sidebar-section-label" style="padding: 4px 16px 2px; font-size: 9px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;">ACCOUNT & BILLING</div>
+      <a href="/studio/billing/" class="sidebar-nav-item active">
+        <span>Plans & Razorpay Billing</span>
+        <span class="badge badge-gold" style="margin-left: auto; font-size: 8.5px; padding: 1px 5px;">PRO</span>
+      </a>
+      <a href="/admin/profile/" class="sidebar-nav-item">
+        <span>Studio Profile</span>
+      </a>
+      <a href="/admin/settings/" class="sidebar-nav-item">
+        <span>Account & Storage</span>
+      </a>
+      <a href="/logout/" class="sidebar-nav-item" style="color: var(--danger); margin-top: 4px;">
+        <span>Sign Out</span>
+      </a>
+    </nav>
+
+    <!-- Photographer ID Card -->
+    <div class="sidebar-user-card" style="padding: 10px 14px; border-top: 1px solid rgba(199,168,107,0.12); display: flex; align-items: center; gap: 10px; margin: 0 10px 10px; border-radius: var(--radius-md); position: relative; z-index: 1;">
+      <div style="width: 32px; height: 32px; border-radius: 50%; background: var(--gradient-gold); color: var(--bg-dark); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 12px;">
+        {{ user.username|slice:":2"|upper }}
+      </div>
+      <div style="overflow: hidden; flex: 1;">
+        <div class="sidebar-user-name" style="font-size: 11.5px; font-weight: 700; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">{{ profile.display_name|default:user.username }}</div>
+        <div class="sidebar-user-plan" style="font-size: 9.5px; color: var(--gold);">{{ profile.get_subscription_tier_display }}</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ── 02: V5 BILLING WORKSPACE ──────────────────────────────── -->
+  <main class="studio-main" style="background: var(--bg-warm); padding-bottom: 60px;">
+
+    <!-- Premium Header Banner -->
+    <div style="background: linear-gradient(135deg, var(--bg-dark) 0%, #1a1018 40%, #2a1520 100%); border-radius: var(--radius-xl); padding: 36px 40px; margin-bottom: 32px; position: relative; overflow: hidden;">
+      <div style="position: absolute; top: -60px; right: -60px; width: 220px; height: 220px; border-radius: 50%; background: radial-gradient(circle, rgba(199,168,107,0.18) 0%, transparent 70%);"></div>
+
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 20px; position: relative; z-index: 1;">
+        <div>
+          <div style="font-size: 10px; font-weight: 700; color: var(--gold); letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 8px;">MEMBERSHIP & SUBSCRIPTION</div>
+          <h1 style="font-family: var(--font-display); font-size: 32px; color: var(--text-inverse); margin-bottom: 8px; font-weight: 300;">Plans & Billing</h1>
+          <p style="color: rgba(255,255,255,0.6); font-size: 13.5px; max-width: 540px; line-height: 1.6;">
+            Power your photography business with AI biometric photo delivery, Cloudflare zero-egress cloud storage, and instant customer monetization.
+          </p>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.06); backdrop-filter: blur(12px); border: 1px solid rgba(199,168,107,0.2); border-radius: var(--radius-lg); padding: 18px 24px; text-align: right;">
+          <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 600; letter-spacing: 0.08em;">CURRENT MEMBERSHIP</div>
+          <div style="font-family: var(--font-display); font-size: 22px; color: var(--gold); font-weight: 600; margin-top: 2px;">
+            {{ profile.get_subscription_tier_display }}
+          </div>
+          <div style="font-size: 12px; color: rgba(255,255,255,0.7); margin-top: 4px;">
+            {% if profile.plan_expires_at %}
+            Expires: <span style="color: var(--gold);">{{ profile.plan_expires_at|date:"M d, Y" }}</span>
+            {% else %}
+            Active Free Starter Tier
+            {% endif %}
+          </div>
+          {% if profile.event_credits > 0 %}
+          <div style="margin-top: 6px; font-size: 11.5px; color: var(--emerald);">
+            &bull; {{ profile.event_credits }} Event Pass Credit(s) Available
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- ── 03: PRICING TIERS CARDS (Razorpay Checkout) ────────────────── -->
+    <div style="margin-bottom: 40px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+        <h2 style="font-family: var(--font-display); font-size: 22px; color: var(--text-primary); margin: 0;">Choose Your Studio Plan</h2>
+        
+        <!-- Quick 1 RS Demo Test Button -->
+        <button onclick="initiateStudioPayment('demo_test')" class="btn btn-sm" style="background: rgba(199,168,107,0.15); border: 1px dashed var(--gold); color: var(--gold); font-weight: 700; display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: var(--radius-pill);">
+          <span>⚡ Live Demo Test: ₹1 Checkout</span>
+        </button>
+      </div>
+      
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 24px;">
+
+        <!-- Plan 0: 1 RS Live Demo / Sandbox Pass -->
+        <div class="bento-card" style="padding: 26px; display: flex; flex-direction: column; justify-content: space-between; border: 1.5px dashed var(--gold); position: relative; background: rgba(199,168,107,0.03);">
+          <div>
+            <div style="font-size: 10px; font-weight: 700; color: var(--gold); letter-spacing: 0.12em; text-transform: uppercase;">QUICK DEMO</div>
+            <h3 style="font-family: var(--font-display); font-size: 20px; color: var(--text-primary); margin: 6px 0 10px;">Demo Trial</h3>
+            <div style="font-size: 32px; font-weight: 800; color: var(--gold); margin-bottom: 4px;">
+              ₹1 <span style="font-size: 12px; font-weight: 400; color: var(--text-muted);">/ instant test</span>
+            </div>
+            <p style="font-size: 12px; color: var(--text-secondary); line-height: 1.4; margin-bottom: 16px;">
+              Test live Razorpay UPI / Card payment flow with genuine 1 Rupee transaction.
+            </p>
+            
+            <ul style="list-style: none; padding: 0; margin: 0 0 20px; font-size: 12.5px; color: var(--text-primary); display: flex; flex-direction: column; gap: 8px;">
+              <li style="display: flex; align-items: center; gap: 8px;">
+                <span style="color: var(--gold); font-weight: 800;">✓</span> 7-Day Pro Studio Access
+              </li>
+              <li style="display: flex; align-items: center; gap: 8px;">
+                <span style="color: var(--gold); font-weight: 800;">✓</span> 1 Event Pass Added
+              </li>
+              <li style="display: flex; align-items: center; gap: 8px;">
+                <span style="color: var(--gold); font-weight: 800;">✓</span> Live Razorpay Modal
+              </li>
+            </ul>
+          </div>
+
+          <button onclick="initiateStudioPayment('demo_test')" class="btn btn-outline" style="width: 100%; justify-content: center; padding: 10px; font-weight: 700; border-color: var(--gold); color: var(--gold);">
+            Pay ₹1 (Demo)
+          </button>
+        </div>
+
+        <!-- Plan 1: Single Event Pass -->
+        <div class="bento-card" style="padding: 26px; display: flex; flex-direction: column; justify-content: space-between; border: 1px solid var(--border); position: relative; background: var(--bg-surface);">
+          <div>
+            <div style="font-size: 10px; font-weight: 700; color: var(--text-muted); letter-spacing: 0.12em; text-transform: uppercase;">ON-DEMAND</div>
+            <h3 style="font-family: var(--font-display); font-size: 20px; color: var(--text-primary); margin: 6px 0 10px;">Event Pass</h3>
+            <div style="font-size: 32px; font-weight: 700; color: var(--text-primary); margin-bottom: 4px;">
+              ₹499 <span style="font-size: 12px; font-weight: 400; color: var(--text-muted);">/ event</span>
+            </div>
+            <p style="font-size: 12px; color: var(--text-secondary); line-height: 1.4; margin-bottom: 16px;">
+              Perfect for single wedding, birthday, or college festival assignments.
+            </p>
+            
+            <ul style="list-style: none; padding: 0; margin: 0 0 20px; font-size: 12.5px; color: var(--text-primary); display: flex; flex-direction: column; gap: 8px;">
+              <li style="display: flex; align-items: center; gap: 8px;">
+                <span style="color: var(--emerald); font-weight: 800;">✓</span> 1 High-Capacity Live Event
+              </li>
+              <li style="display: flex; align-items: center; gap: 8px;">
+                <span style="color: var(--emerald); font-weight: 800;">✓</span> Up to 10,000 Event Photos
+              </li>
+              <li style="display: flex; align-items: center; gap: 8px;">
+                <span style="color: var(--emerald); font-weight: 800;">✓</span> AI Face Recognition (512-D)
+              </li>
+              <li style="display: flex; align-items: center; gap: 8px;">
+                <span style="color: var(--emerald); font-weight: 800;">✓</span> QR Code Posters & Live Beam
+              </li>
+            </ul>
+          </div>
+
+          <button onclick="initiateStudioPayment('event_pass')" class="btn btn-secondary" style="width: 100%; justify-content: center; padding: 10px; font-weight: 600;">
+            Buy Event Pass (₹499)
+          </button>
+        </div>
+
+        <!-- Plan 2: Pro Monthly (Most Popular) -->
+        <div class="bento-card" style="padding: 30px; display: flex; flex-direction: column; justify-content: space-between; border: 2px solid var(--gold); position: relative; background: linear-gradient(180deg, rgba(199,168,107,0.06) 0%, var(--bg-surface) 100%); box-shadow: var(--shadow-gold);">
+          <div style="position: absolute; top: -12px; right: 24px; background: var(--gradient-gold); color: var(--bg-dark); font-size: 10px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; padding: 4px 12px; border-radius: var(--radius-pill); box-shadow: var(--shadow-xs);">
+            MOST POPULAR
+          </div>
+
+          <div>
+            <div style="font-size: 10px; font-weight: 700; color: var(--gold); letter-spacing: 0.12em; text-transform: uppercase;">FULL PRO WORKSPACE</div>
+            <h3 style="font-family: var(--font-display); font-size: 22px; color: var(--text-primary); margin: 6px 0 12px;">Pro Monthly</h3>
+            <div style="font-size: 32px; font-weight: 700; color: var(--gold); margin-bottom: 4px;">
+              ₹1,499 <span style="font-size: 13px; font-weight: 400; color: var(--text-muted);">/ month</span>
+            </div>
+            <p style="font-size: 12.5px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 20px;">
+              For professional wedding and event photographers with multiple active projects.
+            </p>
+            
+            <ul style="list-style: none; padding: 0; margin: 0 0 24px; font-size: 13px; color: var(--text-primary); display: flex; flex-direction: column; gap: 10px;">
+              <li style="display: flex; align-items: center; gap: 8px;">
+                <span style="color: var(--gold); font-weight: 800;">✓</span> <strong>Unlimited Events & Galleries</strong>
+              </li>
+              <li style="display: flex; align-items: center; gap: 8px;">
+                <span style="color: var(--gold); font-weight: 800;">✓</span> 50,000 Photos Cloud Storage (R2)
+              </li>
+              <li style="display: flex; align-items: center; gap: 8px;">
+                <span style="color: var(--gold); font-weight: 800;">✓</span> Custom Watermarks & Studio Branding
+              </li>
+              <li style="display: flex; align-items: center; gap: 8px;">
+                <span style="color: var(--gold); font-weight: 800;">✓</span> Guest Monetization (Paid Downloads)
+              </li>
+              <li style="display: flex; align-items: center; gap: 8px;">
+                <span style="color: var(--gold); font-weight: 800;">✓</span> Client Proofing & Selection Studio
+              </li>
+            </ul>
+          </div>
+
+          <button onclick="initiateStudioPayment('pro_monthly')" class="btn btn-gold" style="width: 100%; justify-content: center; padding: 12px; font-weight: 700; font-size: 14px;">
+            Upgrade to Pro (₹1,499)
+          </button>
+        </div>
+
+        <!-- Plan 3: Studio Annual -->
+        <div class="bento-card" style="padding: 30px; display: flex; flex-direction: column; justify-content: space-between; border: 1px solid var(--border); position: relative; background: var(--bg-surface);">
+          <div>
+            <div style="font-size: 10px; font-weight: 700; color: var(--violet); letter-spacing: 0.12em; text-transform: uppercase;">ANNUAL VALUE &bull; SAVE 28%</div>
+            <h3 style="font-family: var(--font-display); font-size: 22px; color: var(--text-primary); margin: 6px 0 12px;">Studio Annual</h3>
+            <div style="font-size: 32px; font-weight: 700; color: var(--text-primary); margin-bottom: 4px;">
+              ₹12,999 <span style="font-size: 13px; font-weight: 400; color: var(--text-muted);">/ year</span>
+            </div>
+            <p style="font-size: 12.5px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 20px;">
+              Full studio power with maximum cloud storage and multi-photographer support.
+            </p>
+            
+            <ul style="list-style: none; padding: 0; margin: 0 0 24px; font-size: 13px; color: var(--text-primary); display: flex; flex-direction: column; gap: 10px;">
+              <li style="display: flex; align-items: center; gap: 8px;">
+                <span style="color: var(--emerald); font-weight: 800;">✓</span> <strong>All Pro Monthly Features</strong>
+              </li>
+              <li style="display: flex; align-items: center; gap: 8px;">
+                <span style="color: var(--emerald); font-weight: 800;">✓</span> 250,000 Photos Cloud Storage
+              </li>
+              <li style="display: flex; align-items: center; gap: 8px;">
+                <span style="color: var(--emerald); font-weight: 800;">✓</span> Custom Domain Support
+              </li>
+              <li style="display: flex; align-items: center; gap: 8px;">
+                <span style="color: var(--emerald); font-weight: 800;">✓</span> Priority 24/7 Phone & WhatsApp Support
+              </li>
+            </ul>
+          </div>
+
+          <button onclick="initiateStudioPayment('studio_annual')" class="btn btn-secondary" style="width: 100%; justify-content: center; padding: 12px; font-weight: 600;">
+            Get Studio Annual (₹12,999)
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── 04: BILLING HISTORY & RAZORPAY TRANSACTIONS ────────────────── -->
+    <div class="bento-card" style="padding: 28px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h3 style="font-family: var(--font-display); font-size: 20px; color: var(--text-primary);">Payment & Invoice History</h3>
+        <span style="font-size: 12px; color: var(--text-muted);">Secured with Razorpay Payments</span>
+      </div>
+
+      {% if orders %}
+      <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+          <thead>
+            <tr style="border-bottom: 1px solid var(--border); text-align: left; color: var(--text-muted); font-size: 11px; text-transform: uppercase;">
+              <th style="padding: 12px 16px;">Order ID</th>
+              <th style="padding: 12px 16px;">Payment ID</th>
+              <th style="padding: 12px 16px;">Type / Description</th>
+              <th style="padding: 12px 16px;">Amount</th>
+              <th style="padding: 12px 16px;">Status</th>
+              <th style="padding: 12px 16px;">Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for order in orders %}
+            <tr style="border-bottom: 1px solid rgba(199,168,107,0.08);">
+              <td style="padding: 14px 16px; font-family: monospace; font-weight: 600; color: var(--text-primary);">{{ order.order_id }}</td>
+              <td style="padding: 14px 16px; font-family: monospace; color: var(--text-muted);">{{ order.payment_id|default:"—" }}</td>
+              <td style="padding: 14px 16px; color: var(--text-primary);">{{ order.get_payment_type_display }}</td>
+              <td style="padding: 14px 16px; font-weight: 700; color: var(--gold);">₹{{ order.amount }}</td>
+              <td style="padding: 14px 16px;">
+                {% if order.status == 'paid' %}
+                <span class="badge badge-green">PAID</span>
+                {% elif order.status == 'created' %}
+                <span class="badge badge-gold">PENDING</span>
+                {% else %}
+                <span class="badge badge-maroon">FAILED</span>
+                {% endif %}
+              </td>
+              <td style="padding: 14px 16px; color: var(--text-muted);">{{ order.created_at|date:"M d, Y H:i" }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div style="text-align: center; padding: 40px 20px; color: var(--text-muted);">
+        <p style="font-size: 13.5px; margin: 0;">No billing transactions recorded yet.</p>
+      </div>
+      {% endif %}
+    </div>
+
+  </main>
+</div>
+
+<!-- ── RAZORPAY CHECKOUT JAVASCRIPT LOGIC ────────────────── -->
+<script>
+async function initiateStudioPayment(planTier) {
+  try {
+    const res = await fetch('/api/billing/create-subscription-order/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': getCsrfToken()
+      },
+      body: JSON.stringify({ plan_tier: planTier })
+    });
+    
+    const data = await res.json();
+    if (!res.ok) {
+      alert(data.detail || 'Failed to create payment order');
+      return;
+    }
+
+    const options = {
+      key: data.key_id,
+      amount: data.amount,
+      currency: data.currency,
+      name: "KSHAN Studio",
+      description: data.plan_name,
+      image: "/static/images/logo.svg",
+      order_id: data.order_id,
+      prefill: {
+        name: data.user_name,
+        email: data.user_email,
+      },
+      theme: {
+        color: "#C7A86B"
+      },
+      handler: async function (response) {
+        // Verify payment signature
+        try {
+          const verifyRes = await fetch('/api/billing/verify-subscription-payment/', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-CSRFToken': getCsrfToken()
+            },
+            body: JSON.stringify({
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature
+            })
+          });
+
+          const verifyData = await verifyRes.json();
+          if (verifyRes.ok) {
+            alert(verifyData.message || 'Payment successful!');
+            window.location.reload();
+          } else {
+            alert(verifyData.detail || 'Payment verification failed');
+          }
+        } catch (e) {
+          alert('Error verifying payment: ' + e.message);
+        }
+      },
+      modal: {
+        ondismiss: function() {
+          console.log('Payment modal dismissed by user');
+        }
+      }
+    };
+
+    const rzp = new Razorpay(options);
+    rzp.open();
+
+  } catch (err) {
+    alert('Payment error: ' + err.message);
+  }
+}
+
+function getCsrfToken() {
+  const match = document.cookie.match(new RegExp('(^| )csrftoken=([^;]+)'));
+  return match ? match[2] : '';
+}
+</script>
+{% endblock %}

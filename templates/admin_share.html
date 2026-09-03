@@ -1,0 +1,896 @@
+{% extends "base.html" %}
+
+{% block title %}Luxury QR Stand & Poster Studio — {{ event.name }} | KSHAN{% endblock %}
+
+{% block extra_head %}
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="studio-shell">
+
+  <!-- ── 01: V5 GLASS SIDEBAR ────────────────────────────────── -->
+  <aside class="studio-sidebar" style="width: 260px; position: relative; overflow: hidden;">
+    <div style="position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 200px; height: 200px; background: radial-gradient(circle, rgba(199,168,107,0.12) 0%, transparent 70%); pointer-events: none;"></div>
+
+    <div style="padding: 20px 20px 18px; border-bottom: 1px solid rgba(199,168,107,0.12); position: relative; z-index: 1;">
+      <div style="font-size: 9px; font-weight: 700; color: var(--gold); letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 6px;">EVENT WORKSPACE</div>
+      <div style="font-size: 14px; color: var(--text-inverse); font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+        {{ event.name }}
+      </div>
+    </div>
+
+    <nav style="flex: 1; display: flex; flex-direction: column; gap: 2px; padding: 12px 0; position: relative; z-index: 1;">
+      <a href="/admin/events/{{ event.event_code }}/" class="sidebar-nav-item">
+        <span>Back to Photos</span>
+      </a>
+      <a href="/studio/events/" class="sidebar-nav-item">
+        <span>All Events</span>
+      </a>
+      <a href="/event/{{ event.event_code }}/" target="_blank" class="sidebar-nav-item">
+        <span>Guest Link</span>
+      </a>
+    </nav>
+  </aside>
+
+  <!-- ── 02: V5 POSTER DESIGNER ──────────────────────────────── -->
+  <main class="studio-main" style="background: var(--bg-warm); max-width: 1320px;">
+    
+    <!-- Premium Header -->
+    <div style="background: linear-gradient(135deg, var(--bg-dark) 0%, #1a1018 40%, #2a1520 100%); border-radius: var(--radius-xl); padding: 32px 36px; margin-bottom: 32px; position: relative; overflow: hidden; border: 1px solid rgba(199,168,107,0.25);">
+      <div style="position: absolute; top: -50px; right: -50px; width: 180px; height: 180px; border-radius: 50%; background: radial-gradient(circle, rgba(199,168,107,0.2) 0%, transparent 70%);"></div>
+
+      <div style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 16px; position: relative; z-index: 1;">
+        <div>
+          <div style="font-size: 10px; font-weight: 700; color: var(--gold); letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 6px;">STAND & STANDEE STUDIO &bull; 10 LUXURY THEMES</div>
+          <h1 style="font-family: var(--font-display); font-size: 32px; color: var(--text-inverse); margin-bottom: 4px; font-weight: 300;">Luxury Event QR Standee Studio</h1>
+          <p style="color: rgba(255,255,255,0.6); font-size: 13.5px;">Choose from 10 handcrafted Royal Shaadi, Haldi, Mehendi, Floral, and Velvet Palace standee formats with instant Ultra-HD PNG export.</p>
+        </div>
+
+        <div style="display: flex; gap: 10px;">
+          <button class="btn btn-secondary" onclick="downloadPosterImage()" id="downloadPosterBtn">
+            <span>Download Ultra-HD PNG</span>
+          </button>
+          <button class="btn btn-primary" onclick="window.print()">
+            <span>Print Standee / Poster</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 370px 1fr; gap: 36px; align-items: start;">
+      
+      <!-- ── 01: LIVE LUXURY QR STANDEE PREVIEW ──────────────────── -->
+      <div id="printArea" style="position: sticky; top: 90px; display: flex; justify-content: center;">
+        
+        <!-- THE STANDEE CARD CONTAINER (Ratio ~ 1:2.4) -->
+        <div id="posterCard" class="standee-theme-01" style="width: 330px; min-height: 740px; border-radius: 28px; box-shadow: 0 25px 60px -10px rgba(0,0,0,0.35); overflow: hidden; text-align: center; position: relative; transition: all 0.3s ease; display: flex; flex-direction: column; justify-content: space-between; padding: 28px 22px 24px; box-sizing: border-box;">
+          
+          <!-- Background Ornamental Watermark / Floral Overlay -->
+          <div id="standeeBgGraphic" style="position: absolute; inset: 0; pointer-events: none; z-index: 0; opacity: 0.12; background-size: cover; background-position: center;"></div>
+          
+          <!-- TOP: Brand Header -->
+          <div style="position: relative; z-index: 2; margin-bottom: 12px;">
+            <div id="standeeBrandTitle" style="font-family: var(--font-display); font-size: 20px; font-weight: 700; letter-spacing: 0.25em; text-transform: uppercase;">
+              KSHAN
+            </div>
+            <div id="standeeBrandAccent" style="width: 32px; height: 1.5px; margin: 4px auto 0; background: currentColor; opacity: 0.6;"></div>
+          </div>
+
+          <!-- COUPLE / HOST PHOTO FRAME -->
+          <div id="photoAvatarWrapper" style="position: relative; z-index: 2; margin-bottom: 14px; display: flex; justify-content: center;">
+            <div id="avatarFrame" style="position: relative; transition: all 0.3s ease;">
+              <img id="posterAvatarImg" src="/static/images/login_wedding_bg.jpg" alt="Event Cover" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+            </div>
+          </div>
+
+          <!-- EVENT TITLE & SUBTITLE -->
+          <div style="position: relative; z-index: 2; margin-bottom: 14px;">
+            <h2 id="posterEventTitle" style="font-family: var(--font-serif); font-size: 20px; line-height: 1.25; margin-bottom: 4px; font-weight: 600;">
+              {{ event.name }}
+            </h2>
+            <div id="posterEventSubtitle" style="font-size: 10px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; opacity: 0.8; margin-bottom: 8px;">
+              {{ event.event_date|default:"Celebration Photography" }}
+            </div>
+            <div id="posterTagline" style="font-family: var(--font-serif); font-size: 14px; font-style: italic; opacity: 0.9;">
+              Find Every Moment You're In.
+            </div>
+          </div>
+
+          <!-- QR CODE CONTAINER -->
+          <div style="position: relative; z-index: 2; margin-bottom: 14px;">
+            <div id="qrFrameBox" style="display: inline-block; padding: 12px; background: #FFFFFF; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.12); border: 1.5px solid rgba(0,0,0,0.06);">
+              <img id="posterQrImage" src="/api/events/{{ event.event_code }}/qr/" alt="Scan QR" style="width: 135px; height: 135px; display: block;">
+            </div>
+          </div>
+
+          <!-- 3-STEP DISCOVERY INSTRUCTION -->
+          <div id="stepInstructionBar" style="position: relative; z-index: 2; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 8.5px; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase; margin-bottom: 14px; opacity: 0.85;">
+            <span>SCAN QR</span>
+            <span>&bull;</span>
+            <span>TAKE SELFIE</span>
+            <span>&bull;</span>
+            <span>DISCOVER</span>
+          </div>
+
+          <!-- EVENT CODE PILL BADGE -->
+          <div style="position: relative; z-index: 2; margin-bottom: 14px;">
+            <div id="eventCodeBadge" style="display: inline-block; padding: 6px 20px; border-radius: 99px; border: 1px solid rgba(199,168,107,0.5); background: rgba(255,255,255,0.2);">
+              <div style="font-size: 7.5px; letter-spacing: 0.18em; font-weight: 800; text-transform: uppercase; opacity: 0.7; margin-bottom: 1px;">EVENT CODE</div>
+              <div style="font-family: var(--font-serif); font-size: 16px; font-weight: 700; letter-spacing: 0.18em;">{{ event.event_code }}</div>
+            </div>
+          </div>
+
+          <!-- BOTTOM ORNAMENT / STUDIO CREDIT -->
+          <div id="standeeBottomFooter" style="position: relative; z-index: 2; border-top: 1px solid rgba(0,0,0,0.08); padding-top: 8px;">
+            <div style="font-size: 7.5px; opacity: 0.7; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 700;">PHOTOGRAPHY BY</div>
+            <div style="font-family: var(--font-serif); font-size: 11.5px; font-weight: 600; margin-top: 1px;">{{ profile.studio_name|default:"KSHAN Studio" }}</div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ── 02: CUSTOMIZER CONTROLS ─────────────────────── -->
+      <div style="display: flex; flex-direction: column; gap: 24px;">
+        
+        <!-- 10 Standee Themes Selector -->
+        <div class="bento-card" style="padding: 28px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <div>
+              <div style="font-size: 10px; font-weight: 700; color: var(--gold); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 4px;">STAND / STANDEE DESIGNS</div>
+              <h3 style="font-size: 20px; color: var(--text-primary); margin: 0;">10 Luxury Poster Styles (01 – 10)</h3>
+            </div>
+          </div>
+
+          <!-- 10 Theme Grid with Visual Swatches & Palette Archetypes -->
+          <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px;">
+            
+            <!-- 01: Royal Ivory Cream Round -->
+            <div class="theme-card active" onclick="applyStandeeTheme('01')" id="themeBtn-01">
+              <div style="display: flex; gap: 12px; align-items: center;">
+                <div class="theme-swatch" style="background: #FDFBF7; border: 2px solid #C7A86B;">
+                  <div style="width: 14px; height: 14px; border-radius: 50%; background: #C7A86B;"></div>
+                  <div style="width: 16px; height: 4px; background: #73532C; border-radius: 2px; margin-top: 3px;"></div>
+                </div>
+                <div style="flex: 1; min-width: 0;">
+                  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 3px;">
+                    <span style="font-weight: 800; font-size: 13.5px; color: #F5E6CC;">Royal Ivory Arch</span>
+                    <span class="theme-badge">01</span>
+                  </div>
+                  <div style="font-size: 11.5px; color: rgba(255,255,255,0.6); line-height: 1.35;">Warm cream, circular frame & gold leaf details</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 02: Velvet Crimson Shaadi -->
+            <div class="theme-card" onclick="applyStandeeTheme('02')" id="themeBtn-02">
+              <div style="display: flex; gap: 12px; align-items: center;">
+                <div class="theme-swatch" style="background: #3B0A13; border: 2px solid #8A1529;">
+                  <div style="width: 14px; height: 14px; border-radius: 50%; background: #E5C378;"></div>
+                  <div style="width: 16px; height: 4px; background: #FFF; border-radius: 2px; margin-top: 3px;"></div>
+                </div>
+                <div style="flex: 1; min-width: 0;">
+                  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 3px;">
+                    <span style="font-weight: 800; font-size: 13.5px; color: #FFA8B5;">Velvet Crimson</span>
+                    <span class="theme-badge">02</span>
+                  </div>
+                  <div style="font-size: 11.5px; color: rgba(255,255,255,0.6); line-height: 1.35;">Deep maroon velvet with pearl white card</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 03: Golden Rajasthani Jharokha -->
+            <div class="theme-card" onclick="applyStandeeTheme('03')" id="themeBtn-03">
+              <div style="display: flex; gap: 12px; align-items: center;">
+                <div class="theme-swatch" style="background: #FAF3E6; border: 2px solid #B3813B;">
+                  <div style="width: 14px; height: 16px; border-radius: 7px 7px 2px 2px; background: #B3813B;"></div>
+                  <div style="width: 16px; height: 4px; background: #382A1C; border-radius: 2px; margin-top: 3px;"></div>
+                </div>
+                <div style="flex: 1; min-width: 0;">
+                  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 3px;">
+                    <span style="font-weight: 800; font-size: 13.5px; color: #F5D79E;">Palace Jharokha</span>
+                    <span class="theme-badge">03</span>
+                  </div>
+                  <div style="font-size: 11.5px; color: rgba(255,255,255,0.6); line-height: 1.35;">Traditional palace arch & antique gold pillars</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 04: Minimalist Vogue -->
+            <div class="theme-card" onclick="applyStandeeTheme('04')" id="themeBtn-04">
+              <div style="display: flex; gap: 12px; align-items: center;">
+                <div class="theme-swatch" style="background: #FFFFFF; border: 2px solid #333333;">
+                  <div style="width: 14px; height: 14px; border-radius: 3px; background: #111111;"></div>
+                  <div style="width: 16px; height: 4px; background: #555555; border-radius: 2px; margin-top: 3px;"></div>
+                </div>
+                <div style="flex: 1; min-width: 0;">
+                  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 3px;">
+                    <span style="font-weight: 800; font-size: 13.5px; color: #FFFFFF;">Editorial Vogue</span>
+                    <span class="theme-badge">04</span>
+                  </div>
+                  <div style="font-size: 11.5px; color: rgba(255,255,255,0.6); line-height: 1.35;">Clean modern high-fashion monochrome layout</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 05: Emerald Botanical Heritage -->
+            <div class="theme-card" onclick="applyStandeeTheme('05')" id="themeBtn-05">
+              <div style="display: flex; gap: 12px; align-items: center;">
+                <div class="theme-swatch" style="background: #0E291E; border: 2px solid #1B4E3B;">
+                  <div style="width: 14px; height: 16px; border-radius: 7px 7px 2px 2px; background: #C7A86B;"></div>
+                  <div style="width: 16px; height: 4px; background: #A3D1BF; border-radius: 2px; margin-top: 3px;"></div>
+                </div>
+                <div style="flex: 1; min-width: 0;">
+                  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 3px;">
+                    <span style="font-weight: 800; font-size: 13.5px; color: #6EE7B7;">Emerald Heritage</span>
+                    <span class="theme-badge">05</span>
+                  </div>
+                  <div style="font-size: 11.5px; color: rgba(255,255,255,0.6); line-height: 1.35;">Deep imperial emerald with gold botanicals</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 06: Sakura Rose Blossom -->
+            <div class="theme-card" onclick="applyStandeeTheme('06')" id="themeBtn-06">
+              <div style="display: flex; gap: 12px; align-items: center;">
+                <div class="theme-swatch" style="background: #FDF2F4; border: 2px solid #E8B4C0;">
+                  <div style="width: 14px; height: 14px; border-radius: 50%; background: #C25E72;"></div>
+                  <div style="width: 16px; height: 4px; background: #4A1E29; border-radius: 2px; margin-top: 3px;"></div>
+                </div>
+                <div style="flex: 1; min-width: 0;">
+                  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 3px;">
+                    <span style="font-weight: 800; font-size: 13.5px; color: #FDA4AF;">Blossom Rose</span>
+                    <span class="theme-badge">06</span>
+                  </div>
+                  <div style="font-size: 11.5px; color: rgba(255,255,255,0.6); line-height: 1.35;">Romantic cherry pink petals & warm blush</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 07: Obsidian Night Luxury -->
+            <div class="theme-card" onclick="applyStandeeTheme('07')" id="themeBtn-07">
+              <div style="display: flex; gap: 12px; align-items: center;">
+                <div class="theme-swatch" style="background: #0D0D11; border: 2px solid #C7A86B;">
+                  <div style="width: 14px; height: 14px; border-radius: 4px; background: #C7A86B; box-shadow: 0 0 6px rgba(199,168,107,0.6);"></div>
+                  <div style="width: 16px; height: 4px; background: #E5C378; border-radius: 2px; margin-top: 3px;"></div>
+                </div>
+                <div style="flex: 1; min-width: 0;">
+                  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 3px;">
+                    <span style="font-weight: 800; font-size: 13.5px; color: #FDE047;">Obsidian Gold</span>
+                    <span class="theme-badge">07</span>
+                  </div>
+                  <div style="font-size: 11.5px; color: rgba(255,255,255,0.6); line-height: 1.35;">Dark midnight backdrop with glowing gold accents</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 08: Split Hero Portrait -->
+            <div class="theme-card" onclick="applyStandeeTheme('08')" id="themeBtn-08">
+              <div style="display: flex; gap: 12px; align-items: center;">
+                <div class="theme-swatch" style="background: #FFFFFF; border: 2px solid #DFD5C6;">
+                  <div style="width: 24px; height: 12px; border-radius: 3px; background: #694A1F;"></div>
+                  <div style="width: 16px; height: 4px; background: #C7A86B; border-radius: 2px; margin-top: 3px;"></div>
+                </div>
+                <div style="flex: 1; min-width: 0;">
+                  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 3px;">
+                    <span style="font-weight: 800; font-size: 13.5px; color: #F5E6CC;">Split Portrait</span>
+                    <span class="theme-badge">08</span>
+                  </div>
+                  <div style="font-size: 11.5px; color: rgba(255,255,255,0.6); line-height: 1.35;">Top full-bleed photograph & bottom ivory card</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 09: Neon Wine Sangeet -->
+            <div class="theme-card" onclick="applyStandeeTheme('09')" id="themeBtn-09">
+              <div style="display: flex; gap: 12px; align-items: center;">
+                <div class="theme-swatch" style="background: #4A081A; border: 2px solid #73132E;">
+                  <div style="width: 14px; height: 14px; border-radius: 50%; background: #F8D794;"></div>
+                  <div style="width: 16px; height: 4px; background: #F3BAC7; border-radius: 2px; margin-top: 3px;"></div>
+                </div>
+                <div style="flex: 1; min-width: 0;">
+                  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 3px;">
+                    <span style="font-weight: 800; font-size: 13.5px; color: #F472B6;">Sangeet Wine</span>
+                    <span class="theme-badge">09</span>
+                  </div>
+                  <div style="font-size: 11.5px; color: rgba(255,255,255,0.6); line-height: 1.35;">Sleek wine gradient with glassmorphic badges</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 10: Vintage Gold Papyrus -->
+            <div class="theme-card" onclick="applyStandeeTheme('10')" id="themeBtn-10">
+              <div style="display: flex; gap: 12px; align-items: center;">
+                <div class="theme-swatch" style="background: #F7EAD0; border: 2px solid #9E7430;">
+                  <div style="width: 14px; height: 16px; border-radius: 7px 7px 2px 2px; background: #9E7430;"></div>
+                  <div style="width: 16px; height: 4px; background: #5C3C17; border-radius: 2px; margin-top: 3px;"></div>
+                </div>
+                <div style="flex: 1; min-width: 0;">
+                  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 3px;">
+                    <span style="font-weight: 800; font-size: 13.5px; color: #FBBF24;">Gold Papyrus</span>
+                    <span class="theme-badge">10</span>
+                  </div>
+                  <div style="font-size: 11.5px; color: rgba(255,255,255,0.6); line-height: 1.35;">Handcrafted textured parchment & temple arches</div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Couple Photo & AI Cutout Controls -->
+        <div class="bento-card" style="padding: 28px;">
+          <div style="font-size: 10px; font-weight: 700; color: var(--gold); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 6px;">BRIDE & GROOM / HOST PHOTOGRAPH</div>
+          <h3 style="font-size: 20px; margin-bottom: 16px; color: var(--text-primary);">Change Photo & Frame Geometry</h3>
+          
+          <div style="display: flex; flex-direction: column; gap: 16px;">
+            <input type="file" id="posterPhotoInput" accept="image/*" style="display: none;" onchange="handlePosterPhotoSelected(event)">
+            
+            <div style="display: flex; gap: 10px;">
+              <button class="btn btn-secondary" onclick="document.getElementById('posterPhotoInput').click()" style="flex: 1;">
+                <span>Choose Couple Photo</span>
+              </button>
+              
+              <button id="removeBgBtn" class="btn btn-gold" onclick="triggerBackgroundRemoval()" style="flex: 1;" title="AI Background Removal">
+                <span>Remove Background (AI)</span>
+              </button>
+            </div>
+
+            <!-- Avatar Shape Options -->
+            <div>
+              <label style="display: block; margin-bottom: 8px; font-size: 10px; font-weight: 700; color: var(--gold); letter-spacing: 0.12em; text-transform: uppercase;">PHOTO GEOMETRY & ARCH</label>
+              <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;">
+                <button type="button" class="btn btn-outline btn-sm active" onclick="setPhotoShape('circle')" id="shapeCircleBtn">
+                  <span>Circle</span>
+                </button>
+                <button type="button" class="btn btn-outline btn-sm" onclick="setPhotoShape('arch')" id="shapeArchBtn">
+                  <span>Palace Arch</span>
+                </button>
+                <button type="button" class="btn btn-outline btn-sm" onclick="setPhotoShape('rounded')" id="shapeRoundedBtn">
+                  <span>Rounded</span>
+                </button>
+                <button type="button" class="btn btn-outline btn-sm" onclick="setPhotoShape('hidden')" id="shapeHiddenBtn">
+                  <span>No Photo</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Venue Actions & Social Links -->
+        <div class="bento-card" style="padding: 28px; display: flex; flex-direction: column; gap: 12px;">
+          <div style="font-size: 10px; font-weight: 700; color: var(--gold); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 4px;">VENUE MESSAGING & EXPORT</div>
+          
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <button onclick="downloadPosterImage()" class="btn btn-primary" style="display: flex; align-items: center; justify-content: center; gap: 6px;">
+              <span>Download Standee (PNG)</span>
+            </button>
+            <a href="/api/events/{{ event.event_code }}/qr/?download=1" class="btn btn-secondary" style="text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 6px;">
+              <span>Raw QR Code (PNG)</span>
+            </a>
+          </div>
+
+          <div style="height: 1px; background: var(--border); margin: 6px 0;"></div>
+          <div style="font-size: 10px; font-weight: 700; color: var(--gold); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 2px;">SOCIAL SHARE</div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+            <a href="https://api.whatsapp.com/send?text=Find%20your%20photos%20from%20{{ event.name }}%20here:%20{{ event_url }}" target="_blank" class="btn btn-outline" style="text-decoration: none; display: flex; align-items: center; gap: 6px; justify-content: center;">
+              <span>WhatsApp</span>
+            </a>
+            <button onclick="copyShareLink()" class="btn btn-outline" style="display: flex; align-items: center; gap: 6px; justify-content: center;">
+              <span>Copy Link</span>
+            </button>
+            <button onclick="shareToFacebook()" class="btn btn-outline" style="display: flex; align-items: center; gap: 6px; justify-content: center;">
+              <span>Facebook</span>
+            </button>
+            <button onclick="shareToTwitter()" class="btn btn-outline" style="display: flex; align-items: center; gap: 6px; justify-content: center;">
+              <span>Twitter / X</span>
+            </button>
+          </div>
+
+          <div style="height: 1px; background: var(--border); margin: 6px 0;"></div>
+          <div style="font-size: 10px; font-weight: 700; color: var(--gold); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 2px;">EMBED CODE</div>
+          <textarea id="embedCode" readonly style="width: 100%; height: 60px; padding: 12px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--bg-warm); color: var(--text-primary); font-size: 11px; font-family: monospace; resize: none;">&lt;iframe src="{{ event_url }}" width="100%" height="600" frameborder="0" allow="camera" title="{{ event.name }} — KSHAN Studio"&gt;&lt;/iframe&gt;</textarea>
+          <button onclick="copyEmbedCode()" class="btn btn-secondary" style="width: 100%;">Copy Embed Code</button>
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+</div>
+
+<!-- ── STANDEE 10 THEME STYLES ────────────────────────────── -->
+<style>
+.theme-card {
+  padding: 14px 16px;
+  border-radius: 16px;
+  border: 1.5px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.03);
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.theme-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(199,168,107,0.45);
+  background: rgba(255,255,255,0.06);
+}
+.theme-card.active {
+  border-color: var(--gold) !important;
+  background: linear-gradient(135deg, rgba(199,168,107,0.14) 0%, rgba(199,168,107,0.04) 100%) !important;
+  box-shadow: 0 0 25px rgba(199,168,107,0.22), inset 0 0 12px rgba(199,168,107,0.08);
+}
+.theme-badge {
+  display: inline-block;
+  font-size: 9.5px;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 6px;
+  background: rgba(199,168,107,0.18);
+  color: var(--gold);
+  border: 1px solid rgba(199,168,107,0.3);
+}
+.theme-swatch {
+  width: 38px;
+  height: 48px;
+  border-radius: 10px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   01: ROYAL IVORY CREAM
+───────────────────────────────────────────────────────────── */
+.standee-theme-01 {
+  background: #FDFBF7 !important;
+  color: #2D241E !important;
+  border: 3px solid #E8D8B8 !important;
+}
+.standee-theme-01 #avatarFrame {
+  width: 135px; height: 135px; border-radius: 50%;
+  border: 3px solid #C7A86B; overflow: hidden;
+  box-shadow: 0 8px 24px rgba(199,168,107,0.25);
+}
+.standee-theme-01 #eventCodeBadge {
+  background: #F5EEDB !important;
+  border: 1.5px solid #C7A86B !important;
+  color: #7D5618 !important;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   02: VELVET CRIMSON SHAADI
+───────────────────────────────────────────────────────────── */
+.standee-theme-02 {
+  background: #3B0A13 !important;
+  color: #FFFFFF !important;
+  border: 3.5px solid #8A1529 !important;
+}
+.standee-theme-02 #avatarFrame {
+  width: 135px; height: 135px; border-radius: 50%;
+  border: 3px solid #E5C378; overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+}
+.standee-theme-02 #posterEventSubtitle, .standee-theme-02 #stepInstructionBar {
+  color: #E8B4B8 !important;
+}
+.standee-theme-02 #eventCodeBadge {
+  background: #25050C !important;
+  border: 1.5px solid #C7A86B !important;
+  color: #F8D794 !important;
+}
+.standee-theme-02 #standeeBottomFooter {
+  border-color: rgba(255,255,255,0.15) !important;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   03: PALACE JHAROKHA ARCH
+───────────────────────────────────────────────────────────── */
+.standee-theme-03 {
+  background: #FAF3E6 !important;
+  color: #382A1C !important;
+  border: 3px solid #C7A86B !important;
+}
+.standee-theme-03 #avatarFrame {
+  width: 140px; height: 155px; border-radius: 70px 70px 16px 16px;
+  border: 3px solid #B3813B; overflow: hidden;
+  box-shadow: 0 12px 28px rgba(179,129,59,0.25);
+}
+.standee-theme-03 #eventCodeBadge {
+  background: #B3813B !important;
+  border: 1.5px solid #8D6228 !important;
+  color: #FFFFFF !important;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   04: EDITORIAL VOGUE MINIMAL
+───────────────────────────────────────────────────────────── */
+.standee-theme-04 {
+  background: #FFFFFF !important;
+  color: #111111 !important;
+  border: 1.5px solid #E5E5E5 !important;
+}
+.standee-theme-04 #avatarFrame {
+  width: 135px; height: 135px; border-radius: 12px;
+  border: 1px solid #111111; overflow: hidden;
+}
+.standee-theme-04 #eventCodeBadge {
+  background: #FAFAFA !important;
+  border: 1.5px solid #111111 !important;
+  color: #111111 !important;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   05: EMERALD HERITAGE
+───────────────────────────────────────────────────────────── */
+.standee-theme-05 {
+  background: #0E291E !important;
+  color: #FFFFFF !important;
+  border: 3.5px solid #1B4E3B !important;
+}
+.standee-theme-05 #avatarFrame {
+  width: 140px; height: 155px; border-radius: 70px 70px 16px 16px;
+  border: 3px solid #C7A86B; overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+.standee-theme-05 #posterEventSubtitle, .standee-theme-05 #stepInstructionBar {
+  color: #A3D1BF !important;
+}
+.standee-theme-05 #eventCodeBadge {
+  background: #061811 !important;
+  border: 1.5px solid #C7A86B !important;
+  color: #E5C378 !important;
+}
+.standee-theme-05 #standeeBottomFooter {
+  border-color: rgba(255,255,255,0.15) !important;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   06: BLOSSOM ROSE
+───────────────────────────────────────────────────────────── */
+.standee-theme-06 {
+  background: #FDF2F4 !important;
+  color: #4A1E29 !important;
+  border: 3px solid #E8B4C0 !important;
+}
+.standee-theme-06 #avatarFrame {
+  width: 135px; height: 135px; border-radius: 50%;
+  border: 3px solid #C25E72; overflow: hidden;
+  box-shadow: 0 8px 24px rgba(194,94,114,0.25);
+}
+.standee-theme-06 #eventCodeBadge {
+  background: #FCE1E7 !important;
+  border: 1.5px solid #C25E72 !important;
+  color: #8C2237 !important;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   07: OBSIDIAN GOLD LUXURY
+───────────────────────────────────────────────────────────── */
+.standee-theme-07 {
+  background: #0D0D11 !important;
+  color: #FFFFFF !important;
+  border: 2px solid #2B261D !important;
+  border-top: 4px solid #C7A86B !important;
+}
+.standee-theme-07 #avatarFrame {
+  width: 135px; height: 135px; border-radius: 18px;
+  border: 2px solid #C7A86B; overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.8), 0 0 20px rgba(199,168,107,0.2);
+}
+.standee-theme-07 #posterEventSubtitle, .standee-theme-07 #stepInstructionBar {
+  color: #C7A86B !important;
+}
+.standee-theme-07 #eventCodeBadge {
+  background: #171720 !important;
+  border: 1.5px solid #C7A86B !important;
+  color: #E5C378 !important;
+}
+.standee-theme-07 #standeeBottomFooter {
+  border-color: rgba(255,255,255,0.1) !important;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   08: SPLIT HERO PORTRAIT
+───────────────────────────────────────────────────────────── */
+.standee-theme-08 {
+  background: #FFFFFF !important;
+  color: #24201B !important;
+  border: 2px solid #DFD5C6 !important;
+}
+.standee-theme-08 #avatarFrame {
+  width: 100%; height: 140px; border-radius: 18px;
+  border: none; overflow: hidden;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+}
+.standee-theme-08 #eventCodeBadge {
+  background: #F7F3EC !important;
+  border: 1.5px solid #C7A86B !important;
+  color: #694A1F !important;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   09: SANGEET WINE VELVET
+───────────────────────────────────────────────────────────── */
+.standee-theme-09 {
+  background: linear-gradient(180deg, #4A081A 0%, #20030B 100%) !important;
+  color: #FFFFFF !important;
+  border: 3px solid #73132E !important;
+}
+.standee-theme-09 #avatarFrame {
+  width: 135px; height: 135px; border-radius: 50%;
+  border: 3px solid #E5C378; overflow: hidden;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.7);
+}
+.standee-theme-09 #posterEventSubtitle, .standee-theme-09 #stepInstructionBar {
+  color: #F3BAC7 !important;
+}
+.standee-theme-09 #eventCodeBadge {
+  background: rgba(255,255,255,0.1) !important;
+  border: 1.5px solid #E5C378 !important;
+  color: #F8D794 !important;
+}
+.standee-theme-09 #standeeBottomFooter {
+  border-color: rgba(255,255,255,0.15) !important;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   10: VINTAGE GOLD PAPYRUS
+───────────────────────────────────────────────────────────── */
+.standee-theme-10 {
+  background: #F7EAD0 !important;
+  color: #4A331E !important;
+  border: 4px solid #C49B55 !important;
+}
+.standee-theme-10 #avatarFrame {
+  width: 140px; height: 155px; border-radius: 70px 70px 16px 16px;
+  border: 3.5px solid #9E7430; overflow: hidden;
+  box-shadow: 0 10px 24px rgba(158,116,48,0.3);
+}
+.standee-theme-10 #eventCodeBadge {
+  background: #EED4A8 !important;
+  border: 1.5px solid #9E7430 !important;
+  color: #5C3C17 !important;
+}
+
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 1cm;
+  }
+  html, body {
+    background: #FFFFFF !important;
+    color: #000000 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  .navbar, .studio-sidebar, .studio-main > div:first-child, .bento-card, .toast-container, button, a {
+    display: none !important;
+  }
+  .studio-shell {
+    display: block !important;
+    padding: 0 !important;
+  }
+  .studio-main {
+    max-width: 100% !important;
+    padding: 0 !important;
+    background: transparent !important;
+  }
+  #printArea {
+    position: static !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    width: 100% !important;
+    margin: 0 auto !important;
+  }
+  #posterCard {
+    box-shadow: none !important;
+    width: 340px !important;
+    min-height: 760px !important;
+    page-break-inside: avoid !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}
+</style>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+let currentThemeNum = "01";
+let rawPosterImageFile = null;
+
+function applyStandeeTheme(num) {
+  currentThemeNum = num;
+  const card = document.getElementById("posterCard");
+  
+  // Clear previous theme classes
+  for (let i = 1; i <= 10; i++) {
+    const formatted = String(i).padStart(2, '0');
+    card.classList.remove(`standee-theme-${formatted}`);
+    const btn = document.getElementById(`themeBtn-${formatted}`);
+    if (btn) btn.classList.remove("active");
+  }
+
+  // Add new theme class
+  card.classList.add(`standee-theme-${num}`);
+  const activeBtn = document.getElementById(`themeBtn-${num}`);
+  if (activeBtn) activeBtn.classList.add("active");
+
+  showToast(`Switched to Style ${num}!`, "info");
+}
+
+function handlePosterPhotoSelected(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  rawPosterImageFile = file;
+
+  const reader = new FileReader();
+  reader.onload = function(evt) {
+    document.getElementById("posterAvatarImg").src = evt.target.result;
+    document.getElementById("photoAvatarWrapper").style.display = "flex";
+    showToast("Photo updated on Standee!", "success");
+  };
+  reader.readAsDataURL(file);
+}
+
+async function triggerBackgroundRemoval() {
+  if (!rawPosterImageFile) {
+    showToast("Please choose a photo first using 'Choose Couple Photo'.", "warning");
+    return;
+  }
+
+  const btn = document.getElementById("removeBgBtn");
+  btn.innerHTML = `<span>Removing background...</span>`;
+  showToast("AI removing photo background...", "info");
+
+  const formData = new FormData();
+  formData.append("image", rawPosterImageFile);
+
+  try {
+    const res = await authFetch("/api/tools/remove-bg/", {
+      method: "POST",
+      body: formData
+    });
+
+    const data = await res.json();
+    if (!res.ok || !data.success) {
+      showToast(data.error || "Background removal failed", "danger");
+      btn.innerHTML = `<span>Remove Background (AI)</span>`;
+      return;
+    }
+
+    document.getElementById("posterAvatarImg").src = data.image_b64;
+    document.getElementById("avatarFrame").style.background = "transparent";
+    document.getElementById("avatarFrame").style.border = "none";
+    document.getElementById("avatarFrame").style.boxShadow = "none";
+    
+    showToast("Background removed successfully!", "success");
+    btn.innerHTML = `<span>Background Removed &#10003;</span>`;
+    btn.className = "btn btn-secondary";
+  } catch (err) {
+    showToast("Error: " + err.message, "danger");
+    btn.innerHTML = `<span>Remove Background (AI)</span>`;
+  }
+}
+
+function setPhotoShape(shape) {
+  const frame = document.getElementById("avatarFrame");
+  const wrapper = document.getElementById("photoAvatarWrapper");
+  const circleBtn = document.getElementById("shapeCircleBtn");
+  const archBtn = document.getElementById("shapeArchBtn");
+  const roundedBtn = document.getElementById("shapeRoundedBtn");
+  const hiddenBtn = document.getElementById("shapeHiddenBtn");
+
+  [circleBtn, archBtn, roundedBtn, hiddenBtn].forEach(b => {
+    if (b) b.className = "btn btn-outline btn-sm";
+  });
+
+  if (shape === 'circle') {
+    if (circleBtn) circleBtn.className = "btn btn-outline btn-sm active";
+    wrapper.style.display = "flex";
+    frame.style.borderRadius = "50%";
+    frame.style.width = "135px";
+    frame.style.height = "135px";
+  } else if (shape === 'arch') {
+    if (archBtn) archBtn.className = "btn btn-outline btn-sm active";
+    wrapper.style.display = "flex";
+    frame.style.borderRadius = "70px 70px 16px 16px";
+    frame.style.width = "140px";
+    frame.style.height = "155px";
+  } else if (shape === 'rounded') {
+    if (roundedBtn) roundedBtn.className = "btn btn-outline btn-sm active";
+    wrapper.style.display = "flex";
+    frame.style.borderRadius = "16px";
+    frame.style.width = "135px";
+    frame.style.height = "135px";
+  } else if (shape === 'hidden') {
+    if (hiddenBtn) hiddenBtn.className = "btn btn-outline btn-sm active";
+    wrapper.style.display = "none";
+  }
+}
+
+async function downloadPosterImage() {
+  const card = document.getElementById("posterCard");
+  const btn = document.getElementById("downloadPosterBtn");
+  const originalText = btn.innerHTML;
+
+  btn.innerHTML = `<span>Generating Ultra-HD PNG...</span>`;
+  btn.disabled = true;
+
+  try {
+    if (typeof html2canvas === 'undefined') {
+      throw new Error("Canvas generator library loading. Please try again in 2 seconds.");
+    }
+
+    // Ensure all images inside the card have crossOrigin set
+    const images = card.querySelectorAll("img");
+    images.forEach(img => {
+      img.crossOrigin = "anonymous";
+    });
+
+    const canvas = await html2canvas(card, {
+      scale: 3, // 3x Ultra-High Resolution for professional print
+      useCORS: true,
+      allowTaint: false,
+      backgroundColor: null,
+      logging: false
+    });
+
+    const dataUrl = canvas.toDataURL("image/png");
+    const link = document.createElement("a");
+    link.download = `kshan_standee_${currentThemeNum}_{{ event.event_code }}.png`;
+    link.href = dataUrl;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    showToast("Standee downloaded in Ultra-HD!", "success");
+  } catch (err) {
+    console.error(err);
+    showToast("Download note: " + err.message, "warning");
+    // Fallback: trigger print
+    window.print();
+  } finally {
+    btn.innerHTML = originalText;
+    btn.disabled = false;
+  }
+}
+
+function copyShareLink() {
+  navigator.clipboard.writeText("{{ event_url }}").then(() => {
+    showToast("Event link copied to clipboard!", "success");
+  }).catch(() => {
+    showToast("Failed to copy link", "danger");
+  });
+}
+
+function copyEmbedCode() {
+  const textarea = document.getElementById("embedCode");
+  textarea.select();
+  navigator.clipboard.writeText(textarea.value).then(() => {
+    showToast("Embed code copied!", "success");
+  }).catch(() => {
+    document.execCommand("copy");
+    showToast("Embed code copied!", "success");
+  });
+}
+
+function shareToFacebook() {
+  const url = encodeURIComponent("{{ event_url }}");
+  window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank', 'width=600,height=400');
+}
+
+function shareToTwitter() {
+  const text = encodeURIComponent("Find your photos from {{ event.name }}!");
+  const url = encodeURIComponent("{{ event_url }}");
+  window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank', 'width=600,height=400');
+}
+</script>
+{% endblock %}

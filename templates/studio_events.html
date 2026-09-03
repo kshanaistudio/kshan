@@ -1,0 +1,344 @@
+{% extends "base.html" %}
+
+{% block title %}Events — KSHAN Studio{% endblock %}
+
+{% block content %}
+<div class="studio-shell">
+
+  <!-- ── 01: V5 GLASS SIDEBAR ────────────────────────────────── -->
+  <aside class="studio-sidebar">
+    <div style="position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 180px; height: 180px; background: radial-gradient(circle, rgba(199,168,107,0.12) 0%, transparent 70%); pointer-events: none;"></div>
+
+    <div style="padding: 16px 16px 14px; border-bottom: 1px solid rgba(199,168,107,0.12); position: relative; z-index: 1;">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <div style="width: 34px; height: 34px; border-radius: 9px; background: var(--gradient-gold); display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 800; color: var(--bg-dark); box-shadow: var(--shadow-gold);">K</div>
+        <div>
+          <div class="sidebar-header-title" style="font-family: var(--font-display); font-size: 14px; font-weight: 600; letter-spacing: 0.1em;">KSHAN STUDIO</div>
+          <div class="sidebar-header-sub" style="font-size: 10.5px; margin-top: 1px; font-weight: 500;">{{ profile.studio_name|default:user.username }}</div>
+        </div>
+      </div>
+    </div>
+
+    <nav style="flex: 1; display: flex; flex-direction: column; gap: 1px; overflow-y: auto; padding: 10px 0; position: relative; z-index: 1;">
+      <div class="sidebar-section-label" style="padding: 4px 16px 2px; font-size: 9px; font-weight: 700; color: var(--gold); letter-spacing: 0.12em; text-transform: uppercase;">WORKSPACE</div>
+      <a href="/admin/" class="sidebar-nav-item">
+        <span>Overview</span>
+      </a>
+      <a href="/studio/events/" class="sidebar-nav-item active">
+        <span>Events ({{ total_events }})</span>
+      </a>
+      <a href="/studio/proofing/" class="sidebar-nav-item">
+        <span>Album Studio</span>
+        <span class="badge badge-gold" style="margin-left: auto; font-size: 8.5px; padding: 1px 5px;">NEW</span>
+      </a>
+
+      <div class="sidebar-divider" style="margin: 6px 16px; border-top: 1px solid rgba(199,168,107,0.1);"></div>
+
+      <div class="sidebar-section-label" style="padding: 4px 16px 2px; font-size: 9px; font-weight: 700; color: var(--gold); letter-spacing: 0.12em; text-transform: uppercase;">OPERATE</div>
+      <button onclick="openCreateEventModal()" class="sidebar-nav-item" style="color: var(--gold); font-weight: 700;">
+        <span>Quick Camera Upload</span>
+      </button>
+      <a href="/studio/analytics/" class="sidebar-nav-item">
+        <span>Analytics & Activity</span>
+      </a>
+
+      <div class="sidebar-divider" style="margin: 6px 16px; border-top: 1px solid rgba(199,168,107,0.1);"></div>
+
+      <div class="sidebar-section-label" style="padding: 4px 16px 2px; font-size: 9px; font-weight: 700; color: var(--gold); letter-spacing: 0.12em; text-transform: uppercase;">MANAGE</div>
+      <a href="/studio/guests/" class="sidebar-nav-item">
+        <span>Team & Guests</span>
+      </a>
+      <a href="/admin/settings/" class="sidebar-nav-item">
+        <span>Cloud Storage</span>
+        <span class="badge badge-gold" style="margin-left: auto; font-size: 8.5px; padding: 1px 5px;">{{ storage_percent|default:0 }}%</span>
+      </a>
+
+      <div class="sidebar-divider" style="margin: 6px 16px; border-top: 1px solid rgba(199,168,107,0.1);"></div>
+
+      <div class="sidebar-section-label" style="padding: 4px 16px 2px; font-size: 9px; font-weight: 700; color: var(--gold); letter-spacing: 0.12em; text-transform: uppercase;">ACCOUNT & BILLING</div>
+      <a href="/studio/billing/" class="sidebar-nav-item">
+        <span>Plans & Billing</span>
+        <span class="badge badge-gold" style="margin-left: auto; font-size: 8.5px; padding: 1px 5px;">PRO</span>
+      </a>
+      <a href="/admin/profile/" class="sidebar-nav-item">
+        <span>Studio Profile</span>
+      </a>
+      <a href="/admin/settings/" class="sidebar-nav-item">
+        <span>Account Settings</span>
+      </a>
+      <a href="/logout/" class="sidebar-nav-item" style="color: var(--danger); margin-top: 4px;">
+        <span>Sign Out</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-user-card" style="padding: 10px 14px; border-top: 1px solid rgba(199,168,107,0.12); display: flex; align-items: center; gap: 10px; margin: 0 10px 10px; border-radius: var(--radius-md); position: relative; z-index: 1;">
+      <div style="width: 32px; height: 32px; border-radius: 50%; background: var(--gradient-gold); color: var(--bg-dark); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 12px; box-shadow: 0 2px 8px rgba(199,168,107,0.3);">
+        {{ user.username|slice:":2"|upper }}
+      </div>
+      <div style="overflow: hidden; flex: 1;">
+        <div class="sidebar-user-name" style="font-size: 11.5px; font-weight: 700; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">{{ profile.display_name|default:user.username }}</div>
+        <div class="sidebar-user-plan" style="font-size: 9.5px; color: var(--gold);">{{ profile.get_subscription_tier_display|default:"Pro Photographer Plan" }}</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ── 02: V5 EVENTS DIRECTORY ─────────────────────────────── -->
+  <main class="studio-main" style="background: var(--bg-warm);">
+
+    <!-- Premium Header -->
+    <div style="background: linear-gradient(135deg, var(--bg-dark) 0%, #1a1018 40%, #2a1520 100%); border-radius: var(--radius-xl); padding: 36px 40px; margin-bottom: 32px; position: relative; overflow: hidden;">
+      <div style="position: absolute; top: -60px; right: -60px; width: 200px; height: 200px; border-radius: 50%; background: radial-gradient(circle, rgba(199,168,107,0.15) 0%, transparent 70%);"></div>
+      <div style="position: absolute; bottom: -40px; left: 30%; width: 150px; height: 150px; border-radius: 50%; background: radial-gradient(circle, rgba(124,58,237,0.1) 0%, transparent 70%);"></div>
+
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 20px; position: relative; z-index: 1;">
+        <div>
+          <div style="font-size: 10px; font-weight: 700; color: var(--gold); letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 8px;">EVENT REPOSITORIES</div>
+          <h1 style="font-family: var(--font-display); font-size: 36px; color: var(--text-inverse); margin-bottom: 8px; font-weight: 300;">All Photography Events</h1>
+          <p style="color: rgba(255,255,255,0.5); font-size: 14px;">Browse, manage, and share AI galleries for your weddings and events.</p>
+        </div>
+
+        <button class="btn btn-primary" onclick="openCreateEventModal()">
+          <span>+ Create Event</span>
+        </button>
+      </div>
+    </div>
+
+    {% if events %}
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 24px; width: 100%;">
+      {% for ev in events %}
+      <div class="bento-card" style="padding: 0; overflow: hidden; display: flex; flex-direction: column; transition: transform 0.3s var(--ease-out), box-shadow 0.3s var(--ease-out);" onmouseenter="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 16px 48px -12px rgba(0,0,0,0.12)'" onmouseleave="this.style.transform=''; this.style.boxShadow=''">
+        
+        <!-- Cover Banner -->
+        <div style="height: 180px; position: relative; background: var(--bg-warm); overflow: hidden;">
+          {% if ev.cover_photo %}
+          <img src="{{ ev.cover_photo.thumbnail_url }}" alt="{{ ev.name }}" style="width: 100%; height: 100%; object-fit: cover;">
+          {% elif ev.photos.first %}
+          <img src="{{ ev.photos.first.thumbnail_url }}" alt="{{ ev.name }}" style="width: 100%; height: 100%; object-fit: cover;">
+          {% else %}
+          <div class="ev-placeholder-{{ ev.event_type }}" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+          </div>
+          {% endif %}
+
+          <div style="position: absolute; top: 12px; left: 12px; display: flex; gap: 6px;">
+            <span class="badge badge-gold">{{ ev.get_event_type_display }}</span>
+            <span class="badge badge-dark">{{ ev.get_status_display }}</span>
+          </div>
+
+          <div style="position: absolute; bottom: 12px; right: 12px; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); border: 1px solid rgba(199,168,107,0.3); color: var(--gold); font-family: monospace; font-size: 11px; font-weight: 700; padding: 5px 10px; border-radius: var(--radius-sm); letter-spacing: 0.1em;">
+            {{ ev.event_code }}
+          </div>
+
+          <div style="position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.4) 0%, transparent 40%);"></div>
+        </div>
+
+        <!-- Details -->
+        <div style="padding: 24px; flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
+          <div>
+            <h3 style="font-size: 20px; color: var(--text-primary); margin-bottom: 6px; line-height: 1.3;">
+              <a href="/admin/events/{{ ev.event_code }}/" style="color: var(--text-primary); text-decoration: none; transition: color 0.2s;" onmouseenter="this.style.color='var(--gold)'" onmouseleave="this.style.color=''">
+                {{ ev.name }}
+              </a>
+            </h3>
+            
+            <div style="display: flex; gap: 16px; font-size: 12px; color: var(--text-secondary); margin-bottom: 18px; font-weight: 500;">
+              {% if ev.event_date %}<span>{{ ev.event_date }}</span>{% endif %}
+              {% if ev.location %}<span>{{ ev.location }}</span>{% endif %}
+            </div>
+          </div>
+
+          <!-- Stats -->
+          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; border-top: 1px solid var(--border); padding-top: 14px; margin-bottom: 18px; font-size: 12px;">
+            <div>
+              <div style="color: var(--text-muted); font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;">Photos</div>
+              <div style="font-family: var(--font-display); font-size: 22px; font-weight: 600; color: var(--text-primary);">{{ ev.photos.count }}</div>
+            </div>
+            <div>
+              <div style="color: var(--text-muted); font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;">Faces</div>
+              <div style="font-family: var(--font-display); font-size: 22px; font-weight: 600; color: var(--gold);">{{ ev.faces.count }}</div>
+            </div>
+            <div>
+              <div style="color: var(--text-muted); font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;">Access</div>
+              <div style="font-size: 12px; color: var(--text-primary); font-weight: 600; margin-top: 4px;">{{ ev.get_access_mode_display }}</div>
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div style="display: flex; gap: 6px; align-items: center;">
+            <a href="/admin/events/{{ ev.event_code }}/" class="btn btn-primary btn-sm" style="display: inline-flex; align-items: center; gap: 5px; padding: 7px 14px; font-size: 11.5px; font-weight: 600;">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              Manage
+            </a>
+            <a href="/admin/events/{{ ev.event_code }}/share/" class="btn btn-secondary btn-sm" title="QR Poster" style="display: inline-flex; align-items: center; gap: 5px; padding: 7px 12px; font-size: 11.5px; font-weight: 600;">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="8" height="8" rx="1"/><rect x="14" y="2" width="8" height="8" rx="1"/><rect x="2" y="14" width="8" height="8" rx="1"/><rect x="14" y="14" width="4" height="4" rx="0.5"/><line x1="22" y1="14" x2="22" y2="14.01"/><line x1="22" y1="22" x2="22" y2="22.01"/><line x1="18" y1="22" x2="18" y2="22.01"/><line x1="14" y1="18" x2="14" y2="18.01"/></svg>
+              QR
+            </a>
+            <a href="/event/{{ ev.event_code }}/" target="_blank" class="btn btn-outline btn-sm" title="View Guest Page" style="display: inline-flex; align-items: center; gap: 5px; padding: 7px 12px; font-size: 11.5px; font-weight: 600;">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+              View
+            </a>
+            <button class="btn btn-danger btn-sm" onclick="deleteEvent({{ ev.id }}, '{{ ev.name }}')" title="Delete" style="display: inline-flex; align-items: center; gap: 5px; padding: 7px 12px; font-size: 11.5px; font-weight: 600;">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <!-- Empty State -->
+    <div class="bento-card" style="text-align: center; padding: 80px 32px; position: relative; overflow: hidden;">
+      <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 300px; height: 300px; border-radius: 50%; background: radial-gradient(circle, var(--gold-subtle) 0%, transparent 70%);"></div>
+      <div style="position: relative; z-index: 1;">
+        <div style="width: 80px; height: 80px; border-radius: 50%; background: var(--gradient-gold); display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; box-shadow: var(--shadow-gold-lg);">
+          <div style="font-family: var(--font-display); font-size: 32px; color: var(--bg-dark);">&#9670;</div>
+        </div>
+        <h3 style="font-size: 24px; margin-bottom: 10px; color: var(--text-primary);">No events created yet</h3>
+        <p style="color: var(--text-secondary); font-size: 14px; max-width: 440px; margin: 0 auto 28px; line-height: 1.6;">Create your first event repository to upload high-res photos, index faces, and print instant QR standees.</p>
+        <button class="btn btn-primary btn-lg" onclick="openCreateEventModal()">
+          <span>Create Your First Event</span>
+          <span>&rarr;</span>
+        </button>
+      </div>
+    </div>
+    {% endif %}
+
+  </main>
+</div>
+
+<!-- Create Event Modal (V5) -->
+<div id="createEventModal" class="modal-backdrop" onclick="if(event.target===this) closeCreateEventModal()" style="display: none; position: fixed; inset: 0; width: 100vw; height: 100vh; background: rgba(5,5,8,0.85); backdrop-filter: blur(14px) saturate(160%); -webkit-backdrop-filter: blur(14px) saturate(160%); z-index: 99999; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box;">
+  <div class="modal-window" style="border-radius: 24px; border: 1.5px solid rgba(199,168,107,0.35); border-top: 3.5px solid var(--gold); max-width: 560px; width: 100%; max-height: calc(100vh - 50px); display: flex; flex-direction: column; padding: 0; background: var(--bg-surface); box-shadow: 0 40px 100px -15px rgba(0,0,0,0.85), 0 0 50px rgba(199,168,107,0.18); overflow: hidden; margin: auto; position: relative;">
+    
+      <button type="button" onclick="closeCreateEventModal()" aria-label="Close" style="position: absolute; top: 18px; right: 18px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); width: 34px; height: 34px; border-radius: 50%; cursor: pointer; color: rgba(255,255,255,0.75); display: flex; align-items: center; justify-content: center; transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1); padding: 0; outline: none; z-index: 5;" onmouseenter="this.style.background='rgba(239,68,68,0.2)'; this.style.borderColor='rgba(239,68,68,0.4)'; this.style.color='#FF8080'; this.style.transform='rotate(90deg)'" onmouseleave="this.style.background='rgba(255,255,255,0.08)'; this.style.borderColor='rgba(255,255,255,0.12)'; this.style.color='rgba(255,255,255,0.75)'; this.style.transform='rotate(0deg)'">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
+      
+      <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px; position: relative; z-index: 1;">
+        <span style="font-size: 13px; color: var(--gold);">&#9670;</span>
+        <span style="font-size: 10px; font-weight: 800; color: var(--gold); letter-spacing: 0.14em; text-transform: uppercase;">NEW CELEBRATION WORKSPACE</span>
+      </div>
+      <h2 style="font-size: 24px; color: #FFFFFF; font-weight: 400; font-family: var(--font-display); position: relative; z-index: 1; margin: 0;">Create New Event</h2>
+    </div>
+
+    <div style="padding: 22px 28px 26px; overflow-y: auto; flex: 1; box-sizing: border-box;">
+      <form onsubmit="handleCreateEvent(event)" style="display: flex; flex-direction: column; gap: 15px;">
+        <div>
+          <label style="display: block; margin-bottom: 5px; font-size: 10px; font-weight: 700; color: var(--gold); letter-spacing: 0.12em; text-transform: uppercase;">EVENT NAME *</label>
+          <input type="text" id="eventName" placeholder="e.g. Rahul & Priya's Wedding" required
+            style="width: 100%; box-sizing: border-box; padding: 12px 16px; border-radius: var(--radius-md); border: 1.5px solid var(--border-strong); background: var(--bg-warm); font-size: 14px; color: var(--text-primary); outline: none; transition: border-color 0.2s, box-shadow 0.2s;" onfocus="this.style.borderColor='var(--gold)'; this.style.boxShadow='0 0 0 3px var(--gold-subtle)'" onblur="this.style.borderColor=''; this.style.boxShadow=''">
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+          <div>
+            <label style="display: block; margin-bottom: 5px; font-size: 10px; font-weight: 700; color: var(--gold); letter-spacing: 0.12em; text-transform: uppercase;">EVENT TYPE</label>
+            <select id="eventType" style="width: 100%; box-sizing: border-box; padding: 12px 14px; border-radius: var(--radius-md); border: 1.5px solid var(--border-strong); background: var(--bg-warm); font-size: 13.5px; color: var(--text-primary); outline: none;">
+              <option value="wedding">Wedding</option>
+              <option value="engagement">Engagement</option>
+              <option value="pre_wedding">Pre-Wedding</option>
+              <option value="birthday">Birthday</option>
+              <option value="college">College Event</option>
+              <option value="corporate">Corporate</option>
+              <option value="sports">Sports</option>
+              <option value="festival">Festival</option>
+              <option value="conference">Conference</option>
+              <option value="school">School Event</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div>
+            <label style="display: block; margin-bottom: 5px; font-size: 10px; font-weight: 700; color: var(--gold); letter-spacing: 0.12em; text-transform: uppercase;">EVENT DATE</label>
+            <input type="text" id="eventDate" placeholder="e.g. Oct 24, 2026"
+              style="width: 100%; box-sizing: border-box; padding: 12px 16px; border-radius: var(--radius-md); border: 1.5px solid var(--border-strong); background: var(--bg-warm); font-size: 13.5px; color: var(--text-primary); outline: none; transition: border-color 0.2s, box-shadow 0.2s;" onfocus="this.style.borderColor='var(--gold)'; this.style.boxShadow='0 0 0 3px var(--gold-subtle)'" onblur="this.style.borderColor=''; this.style.boxShadow=''">
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+          <div>
+            <label style="display: block; margin-bottom: 5px; font-size: 10px; font-weight: 700; color: var(--gold); letter-spacing: 0.12em; text-transform: uppercase;">LOCATION / VENUE</label>
+            <input type="text" id="eventLocation" placeholder="e.g. Grand Hyatt, Mumbai"
+              style="width: 100%; box-sizing: border-box; padding: 12px 16px; border-radius: var(--radius-md); border: 1.5px solid var(--border-strong); background: var(--bg-warm); font-size: 13.5px; color: var(--text-primary); outline: none; transition: border-color 0.2s, box-shadow 0.2s;" onfocus="this.style.borderColor='var(--gold)'; this.style.boxShadow='0 0 0 3px var(--gold-subtle)'" onblur="this.style.borderColor=''; this.style.boxShadow=''">
+          </div>
+          <div>
+            <label style="display: block; margin-bottom: 5px; font-size: 10px; font-weight: 700; color: var(--gold); letter-spacing: 0.12em; text-transform: uppercase;">CUSTOM CODE (OPTIONAL)</label>
+            <input type="text" id="eventCode" placeholder="Auto-generated if blank" style="text-transform: uppercase; width: 100%; box-sizing: border-box; padding: 12px 16px; border-radius: var(--radius-md); border: 1.5px solid var(--border-strong); background: var(--bg-warm); font-size: 13.5px; color: var(--text-primary); outline: none; transition: border-color 0.2s, box-shadow 0.2s;" onfocus="this.style.borderColor='var(--gold)'; this.style.boxShadow='0 0 0 3px var(--gold-subtle)'" onblur="this.style.borderColor=''; this.style.boxShadow=''">
+          </div>
+        </div>
+
+        <div>
+          <label style="display: block; margin-bottom: 5px; font-size: 10px; font-weight: 700; color: var(--gold); letter-spacing: 0.12em; text-transform: uppercase;">DESCRIPTION</label>
+          <textarea id="eventDesc" rows="3" placeholder="Add optional details for guests..."
+            style="width: 100%; box-sizing: border-box; padding: 12px 16px; border-radius: var(--radius-md); border: 1.5px solid var(--border-strong); background: var(--bg-warm); font-size: 13.5px; color: var(--text-primary); outline: none; resize: vertical; transition: border-color 0.2s, box-shadow 0.2s;" onfocus="this.style.borderColor='var(--gold)'; this.style.boxShadow='0 0 0 3px var(--gold-subtle)'" onblur="this.style.borderColor=''; this.style.boxShadow=''"></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="margin-top: 4px; padding: 14px; font-size: 14.5px; font-weight: 700; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;">
+          <span>Create Event</span>
+          <span>&rarr;</span>
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function openCreateEventModal() {
+  document.getElementById("createEventModal").style.display = "flex";
+}
+
+function closeCreateEventModal() {
+  document.getElementById("createEventModal").style.display = "none";
+}
+
+async function handleCreateEvent(e) {
+  e.preventDefault();
+  const name = document.getElementById("eventName").value.trim();
+  const event_type = document.getElementById("eventType").value;
+  const event_date = document.getElementById("eventDate").value.trim();
+  const location = document.getElementById("eventLocation").value.trim();
+  const event_code = document.getElementById("eventCode").value.trim().toUpperCase();
+  const description = document.getElementById("eventDesc").value.trim();
+
+  try {
+    const res = await authFetch("/api/admin/events/", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, event_type, event_date, location, event_code, description })
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      showToast(data.error || "Failed to create event", "danger");
+      return;
+    }
+
+    showToast("Event created successfully!", "success");
+    window.location.href = `/admin/events/${data.event.event_code}/`;
+  } catch (err) {
+    showToast("Network error: " + err.message, "danger");
+  }
+}
+
+async function deleteEvent(eventId, eventName) {
+  if (!confirm(`Are you sure you want to permanently delete '${eventName}' and all its photos & face embeddings?`)) {
+    return;
+  }
+
+  try {
+    const res = await authFetch(`/api/admin/events/${eventId}/`, {
+      method: "DELETE"
+    });
+
+    if (res.ok) {
+      showToast("Event deleted", "info");
+      window.location.reload();
+    } else {
+      const data = await res.json();
+      showToast(data.error || "Failed to delete event", "danger");
+    }
+  } catch (err) {
+    showToast("Network error: " + err.message, "danger");
+  }
+}
+</script>
+{% endblock %}

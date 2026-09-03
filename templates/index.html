@@ -1,0 +1,1401 @@
+{% extends "base.html" %}
+
+{% block title %}KSHAN — AI Photo Sharing for Events & Weddings | Find Every Moment{% endblock %}
+
+{% block content %}
+<div style="flex: 1; display: flex; flex-direction: column; overflow-x: hidden;">
+
+  <!-- ══════════════════════════════════════════════════════════
+       HERO — Dark gradient with vibrant accents
+       ══════════════════════════════════════════════════════════ -->
+  <section class="bg-gradient-hero" style="position: relative; padding: 72px 32px 64px; overflow: hidden;">
+    
+    <!-- Mesh gradient blobs -->
+    <div style="position: absolute; inset: 0; pointer-events: none; overflow: hidden;">
+      <div style="position: absolute; top: -20%; right: -10%; width: 600px; height: 600px; border-radius: 50%; background: radial-gradient(circle, rgba(199,168,107,0.18) 0%, transparent 60%); animation: floatSlow 20s ease-in-out infinite;"></div>
+      <div style="position: absolute; bottom: -15%; left: -5%; width: 500px; height: 500px; border-radius: 50%; background: radial-gradient(circle, rgba(124,58,237,0.12) 0%, transparent 60%); animation: floatSlow 25s ease-in-out infinite reverse;"></div>
+      <div style="position: absolute; top: 40%; left: 50%; width: 400px; height: 400px; border-radius: 50%; background: radial-gradient(circle, rgba(37,99,235,0.08) 0%, transparent 60%); animation: floatSlow 18s ease-in-out infinite 2s;"></div>
+      <div style="position: absolute; top: 10%; left: 30%; width: 300px; height: 300px; border-radius: 50%; background: radial-gradient(circle, rgba(225,29,72,0.06) 0%, transparent 60%); animation: floatSlow 22s ease-in-out infinite 4s;"></div>
+    </div>
+
+    <div style="position: relative; z-index: 2; max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center;">
+      
+      <!-- Left Content -->
+      <div>
+        <div class="hero-badge" style="display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); padding: 6px 16px; border-radius: var(--radius-pill); margin-bottom: 28px; animation: fadeInUp 0.6s ease;">
+          <span style="color: var(--gold); font-size: 12px;">&#9733;</span>
+          <span class="text-muted-light" style="font-size: 12px; font-weight: 600;">Loved by 50,000+ guests across India</span>
+        </div>
+
+        <h1 class="text-white" style="font-family: var(--font-display); font-size: clamp(44px, 5.5vw, 68px); font-weight: 300; line-height: 1.05; margin-bottom: 6px; animation: fadeInUp 0.6s ease 0.1s both;">
+          AI Photo Sharing for<br>
+          <span id="heroTypewriter" class="text-gradient-gold" style="font-weight: 400; font-style: italic; display: inline-block; min-width: 240px;"></span>
+          <span id="heroCursor" style="display: inline-block; width: 3px; height: clamp(36px, 5vw, 56px); background: var(--gold); margin-left: 4px; animation: blink 1s step-end infinite; vertical-align: text-bottom;"></span>
+        </h1>
+
+        <div class="hero-tagline text-muted-light" style="font-family: var(--font-display); font-size: clamp(18px, 2.5vw, 26px); margin-bottom: 20px; font-weight: 300; font-style: italic; animation: fadeInUp 0.6s ease 0.15s both;">
+          हर क्षण. हर याद. आपकी.
+        </div>
+
+        <p class="hero-description text-muted-light" style="font-size: 15px; line-height: 1.75; margin-bottom: 32px; max-width: 480px; animation: fadeInUp 0.6s ease 0.2s both;">
+          Camera2Cloud &bull; AI Photo Editing &bull; Facial Recognition &bull; QR Gallery &bull; Portfolio Galleries
+        </p>
+
+        <!-- CTA Buttons -->
+        <div style="display: flex; gap: 12px; flex-wrap: wrap; animation: fadeInUp 0.6s ease 0.3s both;">
+          {% if user.is_authenticated %}
+          <a href="/admin/" class="btn btn-gold btn-lg" style="text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
+            Open Studio Workspace
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </a>
+          {% else %}
+          <a href="/signup/" class="btn btn-gold btn-lg" style="text-decoration: none; display: inline-flex; align-items: center; gap: 8px; padding: 16px 32px;">
+            Business Signup
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </a>
+          <a href="#guest-access" class="hero-cta-secondary" style="display: inline-flex; align-items: center; gap: 8px; padding: 16px 32px; border-radius: var(--radius-md); border: 1px solid rgba(255,255,255,0.15); color: rgba(255,255,255,0.8); font-weight: 600; font-size: 15px; text-decoration: none; transition: all 0.2s;" onmouseover="this.style.borderColor='var(--gold)'; this.style.color='white'" onmouseout="this.style.borderColor='rgba(255,255,255,0.15)'; this.style.color='rgba(255,255,255,0.8)'">
+            Find Event (Guests)
+          </a>
+          {% endif %}
+        </div>
+
+        <!-- Solution Tabs -->
+        <div style="display: flex; gap: 8px; margin-top: 32px; flex-wrap: wrap; animation: fadeInUp 0.6s ease 0.4s both;">
+          <a href="#for-photographers" class="hero-audience-pill hero-audience-active" style="padding: 8px 18px; border-radius: var(--radius-pill); border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.6); font-size: 12.5px; font-weight: 600; text-decoration: none; transition: all 0.2s;" onmouseover="this.style.borderColor='var(--gold)'; this.style.color='var(--gold)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.12)'; this.style.color='rgba(255,255,255,0.6)'">Photographers</a>
+          <span class="hero-audience-pill" style="padding: 8px 18px; border-radius: var(--radius-pill); border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.02); color: rgba(255,255,255,0.35); font-size: 12.5px; font-weight: 600; cursor: default;">Event Planners</span>
+          <span class="hero-audience-pill" style="padding: 8px 18px; border-radius: var(--radius-pill); border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.02); color: rgba(255,255,255,0.35); font-size: 12.5px; font-weight: 600; cursor: default;">Hosts</span>
+          <span class="hero-audience-pill" style="padding: 8px 18px; border-radius: var(--radius-pill); border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.02); color: rgba(255,255,255,0.35); font-size: 12.5px; font-weight: 600; cursor: default;">Organisations</span>
+        </div>
+      </div>
+
+      <!-- Right — High-Impact Live Interactive Face Scanning Hero Showcase -->
+      <div style="position: relative; animation: fadeIn 1s ease 0.4s both;">
+        
+        <!-- Glowing Backdrop Aura -->
+        <div style="position: absolute; -inset: 20px; background: radial-gradient(circle, rgba(199,168,107,0.2) 0%, rgba(124,58,237,0.15) 50%, transparent 70%); filter: blur(35px); border-radius: 40px; pointer-events: none;"></div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; position: relative; z-index: 2;">
+          
+          <!-- Interactive Live Camera AI Card -->
+          <div class="glass-dark" style="grid-column: 1 / -1; padding: 26px; border-radius: 24px; position: relative; overflow: hidden;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+              <div style="display: flex; align-items: center; gap: 12px;">
+                <div class="feature-icon feature-icon-gold" style="width: 42px; height: 42px; border-radius: 12px; box-shadow: 0 4px 14px rgba(199,168,107,0.3);">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>
+                </div>
+                <div>
+                  <div class="feature-card-title" style="font-size: 14px; font-weight: 800; letter-spacing: -0.01em;">Neural Face Matcher</div>
+                  <div class="feature-card-sub" style="font-size: 11.5px; opacity: 0.7;">128-D Vector Cosine Matrix</div>
+                </div>
+              </div>
+              <div style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 20px; background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.3); color: #34D399; font-size: 10.5px; font-weight: 700; letter-spacing: 0.05em;">
+                <span style="width: 7px; height: 7px; border-radius: 50%; background: #34D399; box-shadow: 0 0 8px #34D399; animation: pulse 1.5s infinite;"></span>
+                LIVE 99.4%
+              </div>
+            </div>
+
+            <!-- Face Scan Visualizer -->
+            <div style="height: 200px; border-radius: 16px; overflow: hidden; position: relative; border: 1px solid rgba(255,255,255,0.15); box-shadow: inset 0 0 20px rgba(0,0,0,0.5);">
+              <img src="/static/images/hero_ai_face_scan.jpg?v=20260902_v99" alt="Wedding Couple AI Scanning" style="width: 100%; height: 100%; object-fit: cover; object-position: center 25%; filter: brightness(0.95);">
+              
+              <!-- Scanning Laser Line Animation -->
+              <div style="position: absolute; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, #C7A86B, #FFF, #C7A86B, transparent); box-shadow: 0 0 12px #C7A86B; animation: scanLine 3s ease-in-out infinite;"></div>
+
+              <!-- Bottom Floating Match Badge -->
+              <div style="position: absolute; bottom: 10px; left: 10px; right: 10px; display: flex; justify-content: space-between; align-items: center; background: rgba(10,10,14,0.75); backdrop-filter: blur(12px); padding: 8px 14px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.15);">
+                <div style="display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 700; color: #FFF;">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="color: var(--gold);"><polyline points="20 6 9 17 4 12"/></svg>
+                  24 Photos Matched Instantly
+                </div>
+                <span style="font-size: 10px; color: var(--gold); font-weight: 800; letter-spacing: 0.05em;">0.28 SEC</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Mini Stat Card 1 -->
+          <div class="glass-dark" style="padding: 22px 18px; border-radius: 20px; text-align: left; position: relative;">
+            <div style="font-size: 24px; font-weight: 800; font-family: var(--font-display); color: var(--gold); margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">
+              <span>&lt; 3s</span>
+              <span style="font-size: 12px; color: #34D399; font-weight: 700;">⚡ Instant</span>
+            </div>
+            <div style="font-size: 12px; font-weight: 700; color: var(--text-primary);">Camera to Phone</div>
+            <div style="font-size: 11px; opacity: 0.65; margin-top: 2px;">Real-time sync at venue</div>
+          </div>
+
+          <!-- Mini Stat Card 2 -->
+          <div class="glass-dark" style="padding: 22px 18px; border-radius: 20px; text-align: left; position: relative;">
+            <div style="font-size: 24px; font-weight: 800; font-family: var(--font-display); color: var(--violet-light); margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">
+              <span>60 FPS</span>
+              <span style="font-size: 12px; color: #60A5FA; font-weight: 700;">4K Stream</span>
+            </div>
+            <div style="font-size: 12px; font-weight: 700; color: var(--text-primary);">Live Beam Projector</div>
+            <div style="font-size: 11px; opacity: 0.65; margin-top: 2px;">Cinematic screen streaming</div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Trust Logos -->
+    <div style="position: relative; z-index: 2; max-width: 1200px; margin: 48px auto 0; animation: fadeIn 0.8s ease 0.6s both;">
+      <div class="trust-label" style="font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 16px; text-align: center;">Trusted by 1,200+ event professionals across India</div>
+      <div class="logo-ticker" style="overflow: hidden;">
+        <div class="logo-ticker-item"><span style="font-family: var(--font-display); font-size: 18px;">KSHAN Studio</span></div>
+        <div class="logo-ticker-item"><span style="font-family: var(--font-display); font-size: 18px;">Wedding Stories</span></div>
+        <div class="logo-ticker-item"><span style="font-family: var(--font-display); font-size: 18px;">Celebration Co.</span></div>
+        <div class="logo-ticker-item"><span style="font-family: var(--font-display); font-size: 18px;">Moment Makers</span></div>
+        <div class="logo-ticker-item"><span style="font-family: var(--font-display); font-size: 18px;">Forever Frames</span></div>
+        <div class="logo-ticker-item"><span style="font-family: var(--font-display); font-size: 18px;">Royal Events</span></div>
+        <div class="logo-ticker-item"><span style="font-family: var(--font-display); font-size: 18px;">Golden Hour</span></div>
+        <!-- Duplicate for seamless loop -->
+        <div class="logo-ticker-item"><span style="font-family: var(--font-display); font-size: 18px;">KSHAN Studio</span></div>
+        <div class="logo-ticker-item"><span style="font-family: var(--font-display); font-size: 18px;">Wedding Stories</span></div>
+        <div class="logo-ticker-item"><span style="font-family: var(--font-display); font-size: 18px;">Celebration Co.</span></div>
+        <div class="logo-ticker-item"><span style="font-family: var(--font-display); font-size: 18px;">Moment Makers</span></div>
+        <div class="logo-ticker-item"><span style="font-family: var(--font-display); font-size: 18px;">Forever Frames</span></div>
+        <div class="logo-ticker-item"><span style="font-family: var(--font-display); font-size: 18px;">Royal Events</span></div>
+        <div class="logo-ticker-item"><span style="font-family: var(--font-display); font-size: 18px;">Golden Hour</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════
+       STATS BAR — Gold gradient numbers
+       ══════════════════════════════════════════════════════════ -->
+  <section data-animate style="background: var(--bg-warm); border-bottom: 1px solid var(--border); padding: 48px 32px;">
+    <div style="max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; text-align: center;">
+      <div>
+        <div class="stat-number">1,200+</div>
+        <div style="font-size: 12px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; margin-top: 6px;">Events Created</div>
+      </div>
+      <div>
+        <div class="stat-number">500K+</div>
+        <div style="font-size: 12px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; margin-top: 6px;">Photos Delivered</div>
+      </div>
+      <div>
+        <div class="stat-number">50,000+</div>
+        <div style="font-size: 12px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; margin-top: 6px;">Guests Hosted</div>
+      </div>
+      <div>
+        <div class="stat-number">1,200+</div>
+        <div style="font-size: 12px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; margin-top: 6px;">Businesses Onboarded</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════
+       ELEVATED LUXURY SCRAPBOOK MEMORIES COLLAGE SECTION
+       ══════════════════════════════════════════════════════════ -->
+  <section class="scrapbook-section" id="memories">
+    <div class="scrapbook-header">
+      <div class="section-tag" style="margin-bottom: 12px;">Capture Every Chapter</div>
+      <h2 class="scrapbook-title">
+        Made for Every <span class="text-gradient-gold">Unforgettable Moment</span>
+      </h2>
+      <p class="scrapbook-subtitle">
+        From intimate royal weddings to electrifying music festivals — KSHAN delivers instant face-matched galleries for every celebration.
+      </p>
+    </div>
+
+    <div class="scrapbook-canvas">
+      
+      <!-- Card 1: Dream Weddings (Prominent Feature) -->
+      <div class="scrapbook-card card-wedding">
+        <div class="washi-tape tape-top-left"></div>
+        <div class="scrapbook-img-wrap">
+          <img src="/static/images/scrapbook/wedding.jpg?v=20260902_wedding_celebration" alt="Dream Weddings" loading="lazy">
+          <div class="scrapbook-badge">01</div>
+        </div>
+        <div class="scrapbook-tag">
+          <span class="scrapbook-handwriting">Dream Weddings</span>
+        </div>
+      </div>
+
+      <!-- Card 2: Birthday Blasts -->
+      <div class="scrapbook-card card-birthday">
+        <div class="washi-tape tape-top-right"></div>
+        <div class="scrapbook-img-wrap">
+          <img src="/static/images/scrapbook/birthday.jpg?v=20260902_bday2" alt="Birthday Celebrations" loading="lazy">
+          <div class="scrapbook-badge">02</div>
+        </div>
+        <div class="scrapbook-tag">
+          <span class="scrapbook-handwriting">Birthday Blasts</span>
+        </div>
+      </div>
+
+      <!-- Card 3: Graduation Cheers -->
+      <div class="scrapbook-card card-graduation">
+        <div class="washi-tape tape-top-center"></div>
+        <div class="scrapbook-img-wrap">
+          <img src="/static/images/scrapbook/graduation.jpg?v=20260902_highres" alt="Graduation Cheers" loading="lazy">
+          <div class="scrapbook-badge">03</div>
+        </div>
+        <div class="scrapbook-tag">
+          <span class="scrapbook-handwriting">Graduation Cheers</span>
+        </div>
+      </div>
+
+      <!-- Card 4: Road Trips & Getaways -->
+      <div class="scrapbook-card card-roadtrip">
+        <div class="washi-tape tape-bottom-left"></div>
+        <div class="scrapbook-img-wrap">
+          <img src="/static/images/scrapbook/roadtrip.jpg?v=20260902_highres" alt="Road Trips" loading="lazy">
+          <div class="scrapbook-badge">04</div>
+        </div>
+        <div class="scrapbook-tag">
+          <span class="scrapbook-handwriting">Road Trips</span>
+        </div>
+      </div>
+
+      <!-- Card 5: Office Parties & Corporate -->
+      <div class="scrapbook-card card-office">
+        <div class="washi-tape tape-top-left"></div>
+        <div class="scrapbook-img-wrap">
+          <img src="/static/images/scrapbook/office.jpg?v=20260902_highres" alt="Office Celebrations" loading="lazy">
+          <div class="scrapbook-badge">05</div>
+        </div>
+        <div class="scrapbook-tag">
+          <span class="scrapbook-handwriting">Office Celebrations</span>
+        </div>
+      </div>
+
+      <!-- Card 6: Music Festivals & Concerts -->
+      <div class="scrapbook-card card-festival">
+        <div class="washi-tape tape-top-right"></div>
+        <div class="scrapbook-img-wrap">
+          <img src="/static/images/scrapbook/festival.jpg?v=20260902_highres" alt="Music Festivals" loading="lazy">
+          <div class="scrapbook-badge">06</div>
+        </div>
+        <div class="scrapbook-tag">
+          <span class="scrapbook-handwriting">Music Festivals</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════
+       HOW IT WORKS & ARCHITECTURE — Interactive Step by Step
+       ══════════════════════════════════════════════════════════ -->
+  <section id="how-it-works" data-animate style="padding: 100px 32px 70px; max-width: 1280px; margin: 0 auto; width: 100%; position: relative; overflow: hidden;">
+    
+    <!-- Ambient Glass Blobs -->
+    <div style="position: absolute; top: 15%; left: 5%; width: 450px; height: 450px; border-radius: 50%; background: radial-gradient(circle, rgba(199,168,107,0.14) 0%, transparent 65%); filter: blur(40px); pointer-events: none; z-index: 0;"></div>
+    <div style="position: absolute; top: 35%; right: 5%; width: 480px; height: 480px; border-radius: 50%; background: radial-gradient(circle, rgba(124,58,237,0.12) 0%, transparent 65%); filter: blur(50px); pointer-events: none; z-index: 0;"></div>
+    <div style="position: absolute; bottom: 10%; left: 30%; width: 400px; height: 400px; border-radius: 50%; background: radial-gradient(circle, rgba(37,99,235,0.1) 0%, transparent 65%); filter: blur(45px); pointer-events: none; z-index: 0;"></div>
+
+    <div style="text-align: center; max-width: 760px; margin: 0 auto 50px; position: relative; z-index: 2;">
+      <span class="badge badge-gold" style="margin-bottom: 16px;">AI-POWERED ARCHITECTURE</span>
+      <h2 style="font-family: var(--font-display); font-size: clamp(34px, 4.5vw, 50px); font-weight: 300; color: var(--text-primary); margin-bottom: 16px;">
+        How KSHAN Works in <span class="text-gradient-gold">Real-Time</span>
+      </h2>
+      <p style="color: var(--text-secondary); font-size: 16px; line-height: 1.7;">
+        From camera shutter release to guest phone screen in under 3 seconds. Zero app downloads, zero waiting weeks for wedding albums.
+      </p>
+
+      <!-- Role Switcher Pills -->
+      <div class="workflow-tab-container" style="display: inline-flex; border-radius: var(--radius-pill); padding: 5px; gap: 6px; margin-top: 24px;">
+        <button id="tabGuestBtn" class="workflow-tab-btn active" onclick="switchWorkflowTab('guest')">
+          For Wedding & Event Guests
+        </button>
+        <button id="tabPhotogBtn" class="workflow-tab-btn" onclick="switchWorkflowTab('photog')">
+          For Photographers & Studios
+        </button>
+      </div>
+    </div>
+
+    <!-- Workflow 1: For Guests -->
+    <div id="workflowGuest" style="display: block; position: relative; z-index: 2;">
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 24px; margin-bottom: 48px;">
+        
+        <!-- Step 1 -->
+        <div class="how-step-card" style="border-radius: 22px; padding: 26px; text-align: left; position: relative; overflow: hidden;">
+          <div style="position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--gradient-gold);"></div>
+
+          <div style="height: 140px; border-radius: 14px; overflow: hidden; margin-bottom: 18px; border: 1px solid rgba(255,255,255,0.12); position: relative;">
+            <img src="/static/images/qr_table_standee.jpg" alt="Guest Scanning QR Code at Table" style="width: 100%; height: 100%; object-fit: cover;">
+            <div style="position: absolute; inset: 0; background: linear-gradient(180deg, transparent 50%, rgba(0,0,0,0.6) 100%);"></div>
+            <div style="position: absolute; bottom: 8px; left: 8px; font-size: 10px; font-weight: 800; background: var(--gradient-gold); color: #111; padding: 2px 8px; border-radius: 6px;">STEP 01</div>
+          </div>
+
+          <div style="font-size: 10.5px; font-weight: 800; letter-spacing: 0.14em; color: var(--gold); text-transform: uppercase; margin-bottom: 6px;">SCAN AT VENUE</div>
+          <h3 style="font-family: var(--font-display); font-size: 19px; font-weight: 600; color: var(--text-primary); margin-bottom: 8px; line-height: 1.3;">Scan Event QR Standee</h3>
+          <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 16px;">
+            Guests scan table standees, welcome boards, or invitations with their phone camera. No mobile app download required.
+          </p>
+
+          <div style="padding: 8px 12px; background: var(--gold-subtle); border: 1px solid var(--gold-border); border-radius: 10px; font-size: 11.5px; color: var(--text-primary); display: flex; align-items: center; gap: 8px; font-weight: 600;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="color: var(--gold);"><polyline points="20 6 9 17 4 12"/></svg>
+            Instant Safari & Chrome launch
+          </div>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="how-step-card" style="border-radius: 22px; padding: 26px; text-align: left; position: relative; overflow: hidden;">
+          <div style="position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--gradient-violet);"></div>
+
+          <div style="height: 140px; border-radius: 14px; overflow: hidden; margin-bottom: 18px; border: 1px solid rgba(255,255,255,0.12); position: relative;">
+            <img src="/static/images/ai_selfie_matching.jpg" alt="1-Second AI Face Selfie Scan" style="width: 100%; height: 100%; object-fit: cover;">
+            <div style="position: absolute; inset: 0; background: linear-gradient(180deg, transparent 50%, rgba(0,0,0,0.6) 100%);"></div>
+            <div style="position: absolute; bottom: 8px; left: 8px; font-size: 10px; font-weight: 800; background: var(--gradient-violet); color: #FFF; padding: 2px 8px; border-radius: 6px;">STEP 02</div>
+          </div>
+
+
+          <div style="font-size: 10.5px; font-weight: 800; letter-spacing: 0.14em; color: var(--violet-light); text-transform: uppercase; margin-bottom: 6px;">QUICK SELFIE</div>
+          <h3 style="font-family: var(--font-display); font-size: 19px; font-weight: 600; color: var(--text-primary); margin-bottom: 8px; line-height: 1.3;">Snap 1-Second Selfie</h3>
+          <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 16px;">
+            Take a quick selfie or upload a portrait from gallery. Our on-device neural engine extracts 128-D facial vector features.
+          </p>
+
+          <div style="padding: 8px 12px; background: var(--violet-subtle); border: 1px solid rgba(124,58,237,0.25); border-radius: 10px; font-size: 11.5px; color: var(--text-primary); display: flex; align-items: center; gap: 8px; font-weight: 600;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="color: var(--violet);"><polyline points="20 6 9 17 4 12"/></svg>
+            100% Privacy Protected
+          </div>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="how-step-card" style="border-radius: 22px; padding: 26px; text-align: left; position: relative; overflow: hidden;">
+          <div style="position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(135deg, var(--blue), var(--blue-light));"></div>
+
+          <div style="height: 140px; border-radius: 14px; overflow: hidden; margin-bottom: 18px; border: 1px solid rgba(255,255,255,0.12); position: relative;">
+            <img src="/static/images/ai_matching_grid.jpg" alt="Instant AI Face Matching Grid" style="width: 100%; height: 100%; object-fit: cover;">
+            <div style="position: absolute; inset: 0; background: linear-gradient(180deg, transparent 50%, rgba(0,0,0,0.6) 100%);"></div>
+            <div style="position: absolute; bottom: 8px; left: 8px; font-size: 10px; font-weight: 800; background: linear-gradient(135deg, var(--blue), var(--blue-light)); color: #FFF; padding: 2px 8px; border-radius: 6px;">STEP 03</div>
+          </div>
+
+          <div style="font-size: 10.5px; font-weight: 800; letter-spacing: 0.14em; color: var(--blue); text-transform: uppercase; margin-bottom: 6px;">COSINE SIMILARITY</div>
+          <h3 style="font-family: var(--font-display); font-size: 19px; font-weight: 600; color: var(--text-primary); margin-bottom: 8px; line-height: 1.3;">Instant AI Matching</h3>
+          <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 16px;">
+            Deep learning models scan 5,000+ event photos in milliseconds. Candids, stage portraits, and crowd shots match accurately.
+          </p>
+
+          <div class="step-pill" style="padding: 8px 12px; background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.25); border-radius: 10px; font-size: 11.5px; color: var(--blue); display: flex; align-items: center; gap: 8px; font-weight: 700;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+            Matches with glasses & hats
+          </div>
+        </div>
+
+        <!-- Step 4 -->
+        <div class="how-step-card" style="border-radius: 22px; padding: 26px; text-align: left; position: relative; overflow: hidden;">
+          <div style="position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(135deg, var(--emerald), var(--emerald-light));"></div>
+
+          <div style="height: 140px; border-radius: 14px; overflow: hidden; margin-bottom: 18px; border: 1px solid rgba(255,255,255,0.12); position: relative;">
+            <img src="/static/images/hd_album_download.jpg" alt="Personal Album and WhatsApp Delivery" style="width: 100%; height: 100%; object-fit: cover;">
+            <div style="position: absolute; inset: 0; background: linear-gradient(180deg, transparent 50%, rgba(0,0,0,0.6) 100%);"></div>
+            <div style="position: absolute; bottom: 8px; left: 8px; font-size: 10px; font-weight: 800; background: linear-gradient(135deg, var(--emerald), var(--emerald-light)); color: #FFF; padding: 2px 8px; border-radius: 6px;">STEP 04</div>
+          </div>
+
+          <div style="font-size: 10.5px; font-weight: 800; letter-spacing: 0.14em; color: var(--emerald); text-transform: uppercase; margin-bottom: 6px;">HD DOWNLOADS</div>
+          <h3 style="font-family: var(--font-display); font-size: 19px; font-weight: 600; color: var(--text-primary); margin-bottom: 8px; line-height: 1.3;">Personal Album & ZIP</h3>
+          <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 16px;">
+            Download original uncompressed photos, save 1-click batch ZIP, or enjoy automated WhatsApp delivery right to chat.
+          </p>
+
+          <div class="step-pill" style="padding: 8px 12px; background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.25); border-radius: 10px; font-size: 11.5px; color: var(--emerald); display: flex; align-items: center; gap: 8px; font-weight: 700;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+            Razorpay Paywall support
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Workflow 2: For Photographers -->
+    <div id="workflowPhotog" style="display: none; position: relative; z-index: 2;">
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 24px; margin-bottom: 48px;">
+        
+        <div class="how-step-card" style="background: linear-gradient(165deg, rgba(25,22,30,0.85) 0%, rgba(15,13,18,0.95) 100%); border: 1px solid rgba(199,168,107,0.22); border-radius: 20px; padding: 26px; text-align: left; position: relative; overflow: hidden; backdrop-filter: blur(16px); box-shadow: 0 12px 30px rgba(0,0,0,0.35); transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);">
+          <div style="position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--gradient-gold);"></div>
+          
+          <div style="height: 140px; border-radius: 14px; overflow: hidden; margin-bottom: 18px; border: 1px solid rgba(255,255,255,0.12); position: relative;">
+            <img src="/static/images/cam2cloud_photographer.jpg" alt="Photographer Wireless Cam2Cloud Upload" style="width: 100%; height: 100%; object-fit: cover;">
+            <div style="position: absolute; inset: 0; background: linear-gradient(180deg, transparent 50%, rgba(0,0,0,0.6) 100%);"></div>
+            <div style="position: absolute; bottom: 8px; left: 8px; font-size: 10px; font-weight: 800; background: var(--gradient-gold); color: #111; padding: 2px 8px; border-radius: 6px;">STEP 01</div>
+          </div>
+
+          <div style="font-size: 10.5px; font-weight: 800; letter-spacing: 0.14em; color: var(--gold); text-transform: uppercase; margin-bottom: 8px;">CAM2CLOUD / BULK</div>
+          <h3 style="font-family: var(--font-display); font-size: 20px; font-weight: 500; color: #FFF; margin-bottom: 10px; line-height: 1.3;">Live Shoot & Wireless Sync</h3>
+          <p style="font-size: 13.5px; color: rgba(255,255,255,0.65); line-height: 1.65; margin-bottom: 20px;">Shoot directly over Wi-Fi/FTP to KSHAN cloud or drag-and-drop gigabytes of RAW/JPEG photos simultaneously.</p>
+          <div style="padding: 10px 14px; background: rgba(199,168,107,0.08); border: 1px solid rgba(199,168,107,0.18); border-radius: 10px; font-size: 11.5px; color: #F0E6D2; display: flex; align-items: center; gap: 8px; font-weight: 600;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="color: var(--gold);"><polyline points="20 6 9 17 4 12"/></svg>
+            Multi-threaded background indexing
+          </div>
+        </div>
+
+        <div class="how-step-card" style="background: linear-gradient(165deg, rgba(25,20,35,0.85) 0%, rgba(15,12,22,0.95) 100%); border: 1px solid rgba(168,85,247,0.25); border-radius: 20px; padding: 32px 26px; text-align: left; position: relative; overflow: hidden; backdrop-filter: blur(16px); box-shadow: 0 12px 30px rgba(0,0,0,0.35); transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);">
+          <div style="position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--gradient-violet);"></div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 22px;">
+            <div style="width: 44px; height: 44px; border-radius: 14px; background: var(--gradient-violet); color: #FFF; font-weight: 900; font-size: 15px; display: flex; align-items: center; justify-content: center;">02</div>
+            <div style="width: 38px; height: 38px; border-radius: 12px; background: rgba(168,85,247,0.1); border: 1px solid rgba(168,85,247,0.25); display: flex; align-items: center; justify-content: center; color: #C084FC;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a4 4 0 0 1 4 4v2a4 4 0 0 1-8 0V6a4 4 0 0 1 4-4z"/><path d="M18 14a6 6 0 0 1-12 0"/></svg>
+            </div>
+          </div>
+          <div style="font-size: 10.5px; font-weight: 800; letter-spacing: 0.14em; color: #C084FC; text-transform: uppercase; margin-bottom: 8px;">INSIGHTFACE AI</div>
+          <h3 style="font-family: var(--font-display); font-size: 20px; font-weight: 500; color: #FFF; margin-bottom: 10px; line-height: 1.3;">Auto Face Clustering</h3>
+          <p style="font-size: 13.5px; color: rgba(255,255,255,0.65); line-height: 1.65; margin-bottom: 20px;">High-speed neural pipeline detects 20+ faces per frame, calculates bounding boxes, and generates vector indices instantly.</p>
+          <div style="padding: 10px 14px; background: rgba(168,85,247,0.1); border: 1px solid rgba(168,85,247,0.2); border-radius: 10px; font-size: 11.5px; color: #E9D5FF; display: flex; align-items: center; gap: 8px; font-weight: 600;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="color: #C084FC;"><polyline points="20 6 9 17 4 12"/></svg>
+            99.4% benchmark accuracy
+          </div>
+        </div>
+
+        <div class="how-step-card" style="background: linear-gradient(165deg, rgba(18,24,38,0.85) 0%, rgba(11,15,25,0.95) 100%); border: 1px solid rgba(59,130,246,0.25); border-radius: 20px; padding: 32px 26px; text-align: left; position: relative; overflow: hidden; backdrop-filter: blur(16px); box-shadow: 0 12px 30px rgba(0,0,0,0.35); transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);">
+          <div style="position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(135deg, var(--blue), var(--blue-light));"></div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 22px;">
+            <div style="width: 44px; height: 44px; border-radius: 14px; background: linear-gradient(135deg, var(--blue), var(--blue-light)); color: #FFF; font-weight: 900; font-size: 15px; display: flex; align-items: center; justify-content: center;">03</div>
+            <div style="width: 38px; height: 38px; border-radius: 12px; background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.25); display: flex; align-items: center; justify-content: center; color: #60A5FA;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+            </div>
+          </div>
+          <div style="font-size: 10.5px; font-weight: 800; letter-spacing: 0.14em; color: #60A5FA; text-transform: uppercase; margin-bottom: 8px;">LIVE BEAM & SCREENS</div>
+          <h3 style="font-family: var(--font-display); font-size: 20px; font-weight: 500; color: #FFF; margin-bottom: 10px; line-height: 1.3;">Projector Live Beam</h3>
+          <p style="font-size: 13.5px; color: rgba(255,255,255,0.65); line-height: 1.65; margin-bottom: 20px;">Stream a live, animated cinematic slideshow directly onto banquet LED walls and ballroom screens with integrated QR code.</p>
+          <div style="padding: 10px 14px; background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.2); border-radius: 10px; font-size: 11.5px; color: #DBEAFE; display: flex; align-items: center; gap: 8px; font-weight: 600;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="color: #60A5FA;"><polyline points="20 6 9 17 4 12"/></svg>
+            60FPS Ken Burns transitions
+          </div>
+        </div>
+
+        <div class="how-step-card" style="background: linear-gradient(165deg, rgba(16,28,24,0.85) 0%, rgba(10,18,15,0.95) 100%); border: 1px solid rgba(16,185,129,0.25); border-radius: 20px; padding: 32px 26px; text-align: left; position: relative; overflow: hidden; backdrop-filter: blur(16px); box-shadow: 0 12px 30px rgba(0,0,0,0.35); transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);">
+          <div style="position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(135deg, var(--emerald), var(--emerald-light));"></div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 22px;">
+            <div style="width: 44px; height: 44px; border-radius: 14px; background: linear-gradient(135deg, var(--emerald), var(--emerald-light)); color: #FFF; font-weight: 900; font-size: 15px; display: flex; align-items: center; justify-content: center;">04</div>
+            <div style="width: 38px; height: 38px; border-radius: 12px; background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.25); display: flex; align-items: center; justify-content: center; color: #34D399;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            </div>
+          </div>
+          <div style="font-size: 10.5px; font-weight: 800; letter-spacing: 0.14em; color: #34D399; text-transform: uppercase; margin-bottom: 8px;">RAZORPAY MONETIZE</div>
+          <h3 style="font-family: var(--font-display); font-size: 20px; font-weight: 500; color: #FFF; margin-bottom: 10px; line-height: 1.3;">Sell Photos & Proofing</h3>
+          <p style="font-size: 13.5px; color: rgba(255,255,255,0.65); line-height: 1.65; margin-bottom: 20px;">Set price per photo (e.g. ₹50) or unlock the whole album (₹499) with integrated Razorpay payments deposited directly to you.</p>
+          <div style="padding: 10px 14px; background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.2); border-radius: 10px; font-size: 11.5px; color: #D1FAE5; display: flex; align-items: center; gap: 8px; font-weight: 600;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="color: #34D399;"><polyline points="20 6 9 17 4 12"/></svg>
+            Instant payouts & sales tracking
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Live Beam & Interactive Tech Spotlight -->
+    <div class="glass-dark" style="background: linear-gradient(135deg, rgba(22,18,27,0.7) 0%, rgba(30,21,38,0.75) 50%, rgba(19,18,36,0.7) 100%); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); border: 1.5px solid rgba(199,168,107,0.3); border-top: 2px solid rgba(255,255,255,0.35); border-radius: var(--radius-xl); padding: 44px; display: grid; grid-template-columns: 1.2fr 1fr; gap: 40px; align-items: center; position: relative; overflow: hidden; box-shadow: 0 25px 60px rgba(0,0,0,0.5), inset 0 1px 2px rgba(255,255,255,0.15);">
+      
+      <!-- Ambient Backlight -->
+      <div style="position: absolute; -top: 100px; right: -50px; width: 350px; height: 350px; border-radius: 50%; background: radial-gradient(circle, rgba(199,168,107,0.15) 0%, transparent 70%); pointer-events: none;"></div>
+
+      <div>
+        <div style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; background: var(--gold-subtle); border: 1px solid var(--gold-border); border-radius: 20px; color: var(--gold); font-size: 11px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 16px;">
+          ✦ VENUE LIVE STREAMING
+        </div>
+        <h3 style="font-family: var(--font-display); font-size: clamp(26px, 3vw, 36px); font-weight: 400; color: var(--text-primary); margin-bottom: 14px; line-height: 1.2;">
+          Banquet Projector & LED Wall <span class="text-gradient-gold">Live Beam</span>
+        </h3>
+        <p style="font-size: 14px; color: var(--text-secondary); line-height: 1.7; margin-bottom: 24px;">
+          Plug any laptop or TV into the banquet screen. Photos shot by photographers appear with 60FPS Ken Burns cinematic animations instantly, paired with dynamic QR codes for guests to scan straight off the screen.
+        </p>
+
+        <div style="display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 24px;">
+          <div style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-primary); font-weight: 600;">
+            <span style="color: var(--gold); font-size: 16px;">✦</span> Zero Lag WebSockets
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-primary); font-weight: 600;">
+            <span style="color: var(--gold); font-size: 16px;">✦</span> Dynamic QR Watermark
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-primary); font-weight: 600;">
+            <span style="color: var(--gold); font-size: 16px;">✦</span> 4K Ultra-HD Output
+          </div>
+        </div>
+
+        <a href="/beam/" target="_blank" class="btn btn-gold" style="display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; border-radius: 12px; font-weight: 700; text-decoration: none; box-shadow: 0 4px 20px rgba(199,168,107,0.35);">
+          Launch Live Beam Demo
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </a>
+      </div>
+
+      <!-- Mockup Screen Visualizer -->
+      <div style="position: relative; border-radius: 20px; overflow: hidden; border: 2px solid rgba(199,168,107,0.35); box-shadow: 0 25px 60px rgba(0,0,0,0.7), 0 0 30px rgba(199,168,107,0.2);">
+        <img src="/static/images/live_beam_banquet.jpg" alt="Wedding Banquet Live Beam LED Screen" style="width: 100%; height: 260px; object-fit: cover; display: block; filter: brightness(0.95);">
+        <div style="position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.6) 100%);"></div>
+        
+        <div style="position: absolute; top: 14px; left: 14px; display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.7); backdrop-filter: blur(12px); padding: 5px 12px; border-radius: var(--radius-pill); border: 1px solid rgba(255,255,255,0.15);">
+          <span style="width: 8px; height: 8px; border-radius: 50%; background: #EF4444; box-shadow: 0 0 8px #EF4444; animation: pulse 1.5s infinite;"></span>
+          <span style="font-size: 10.5px; font-weight: 800; color: #FFF; letter-spacing: 0.08em;">LIVE BEAM ACTIVE</span>
+        </div>
+
+        <div style="position: absolute; bottom: 14px; right: 14px; background: rgba(255,255,255,0.9); backdrop-filter: blur(8px); padding: 8px 12px; border-radius: 12px; display: flex; align-items: center; gap: 10px; box-shadow: 0 8px 20px rgba(0,0,0,0.4);">
+          <div style="width: 32px; height: 32px; background: #111; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: #FFF; font-size: 11px; font-weight: 900;">QR</div>
+          <div style="font-size: 10px; font-weight: 800; color: #111; line-height: 1.2;">SCAN TO FIND<br>YOUR PHOTOS</div>
+        </div>
+      </div>
+
+    </div>
+
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════
+       FEATURES — Bento Grid with colored cards
+       ══════════════════════════════════════════════════════════ -->
+  <section data-animate style="background: var(--bg-dark); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 90px 32px; position: relative; overflow: hidden;">
+    
+    <!-- Ambient Light Blobs for Glass Depth -->
+    <div style="position: absolute; top: 10%; right: 15%; width: 450px; height: 450px; border-radius: 50%; background: radial-gradient(circle, rgba(124,58,237,0.15) 0%, transparent 65%); filter: blur(50px); pointer-events: none;"></div>
+    <div style="position: absolute; bottom: 15%; left: 10%; width: 400px; height: 400px; border-radius: 50%; background: radial-gradient(circle, rgba(199,168,107,0.12) 0%, transparent 65%); filter: blur(45px); pointer-events: none;"></div>
+
+    <div style="max-width: 1200px; margin: 0 auto; position: relative; z-index: 2;">
+      <div style="text-align: center; margin-bottom: 48px;">
+        <span class="badge badge-blue" style="margin-bottom: 16px;">AI-POWERED</span>
+        <h2 style="font-family: var(--font-display); font-size: clamp(32px, 4vw, 48px); font-weight: 300; color: var(--text-primary);">
+          Unlock the true potential of<br><span class="text-gradient-gold">your media assets</span>
+        </h2>
+      </div>
+
+      <!-- Bento Grid -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; grid-template-rows: auto auto; gap: 20px;">
+        
+        <!-- Large Feature Card -->
+        <div class="bento-card-gradient" style="grid-row: 1 / 3; padding: 36px 28px; display: flex; flex-direction: column; justify-content: space-between;">
+          <div>
+            <div class="feature-icon feature-icon-violet" style="margin-bottom: 20px;">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </div>
+            <h3 style="font-family: var(--font-display); font-size: 22px; font-weight: 400; color: var(--text-primary); margin-bottom: 10px;">AI Face Recognition Photo Sharing</h3>
+            <p style="font-size: 14px; color: var(--text-secondary); line-height: 1.7; margin-bottom: 20px;">Revolutionizing photo sharing with AI-powered face recognition. Auto-detects and tags faces, making it instant to find, organize, and share.</p>
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+              <div style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-primary); font-weight: 500;">
+                <span style="color: var(--violet);">&#10003;</span> Automated Face Tagging
+              </div>
+              <div style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-primary); font-weight: 500;">
+                <span style="color: var(--violet);">&#10003;</span> Smart & Secure Sharing
+              </div>
+              <div style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-primary); font-weight: 500;">
+                <span style="color: var(--violet);">&#10003;</span> Effortless Search
+              </div>
+            </div>
+          </div>
+          <a href="/signup/" class="btn btn-primary" style="margin-top: 24px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">Try AI Photo Sharing</a>
+        </div>
+
+        <!-- Monetize Card -->
+        <div class="bento-card-gold" style="padding: 28px;">
+          <div class="feature-icon feature-icon-gold" style="margin-bottom: 16px;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          </div>
+          <div style="font-size: 10px; font-weight: 700; color: var(--gold); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 4px;">MONETIZE</div>
+          <h3 style="font-family: var(--font-display); font-size: 18px; font-weight: 400; color: var(--text-primary); margin-bottom: 8px;">How you earn with KSHAN</h3>
+          <p style="font-size: 13px; color: var(--text-muted); line-height: 1.6;">Turn every shoot into a revenue stream. Sell individual photos or monetize the entire event.</p>
+        </div>
+
+        <!-- Gallery Card -->
+        <div class="bento-card" style="padding: 28px;">
+          <div class="feature-icon feature-icon-blue" style="margin-bottom: 16px;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          </div>
+          <div style="font-size: 10px; font-weight: 700; color: var(--blue); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 4px;">DELIVERY</div>
+          <h3 style="font-family: var(--font-display); font-size: 18px; font-weight: 400; color: var(--text-primary); margin-bottom: 8px;">Beautiful Cloud Gallery</h3>
+          <p style="font-size: 13px; color: var(--text-muted); line-height: 1.6;">Stunning customizable galleries with 14+ themes. No login required for guests.</p>
+        </div>
+
+        <!-- Camera2Cloud Card -->
+        <div class="bento-card" style="padding: 28px;">
+          <div class="feature-icon feature-icon-emerald" style="margin-bottom: 16px;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+          </div>
+          <div style="font-size: 10px; font-weight: 700; color: var(--emerald); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 4px;">INSTANT</div>
+          <h3 style="font-family: var(--font-display); font-size: 18px; font-weight: 400; color: var(--text-primary); margin-bottom: 8px;">Camera2Cloud + AI Editing</h3>
+          <p style="font-size: 13px; color: var(--text-muted); line-height: 1.6;">Deliver photos in minutes, not weeks. Superfast transfer with auto-editing AI.</p>
+        </div>
+
+        <!-- WhatsApp Bot Card -->
+        <div class="bento-card" style="padding: 28px;">
+          <div class="feature-icon" style="margin-bottom: 16px; background: rgba(37,211,102,0.08); border: 1px solid rgba(37,211,102,0.15); color: #25D366;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+          </div>
+          <div style="font-size: 10px; font-weight: 700; color: #25D366; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 4px;">ENGAGEMENT</div>
+          <h3 style="font-family: var(--font-display); font-size: 18px; font-weight: 400; color: var(--text-primary); margin-bottom: 8px;">Smart WhatsApp Bot</h3>
+          <p style="font-size: 13px; color: var(--text-muted); line-height: 1.6;">93% open rate. One-click actions. Friendly for all age groups.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════
+       GUEST ACCESS — Ultra Glassmorphism Event Portal
+       ══════════════════════════════════════════════════════════ -->
+  <section id="guest-access" class="section-dark" data-animate style="padding: 100px 32px; position: relative; overflow: hidden;">
+    
+    <!-- Ambient Luminous Mesh -->
+    <div style="position: absolute; top: -50px; left: 50%; transform: translateX(-50%); width: 650px; height: 350px; border-radius: 50%; background: radial-gradient(circle, rgba(199,168,107,0.16) 0%, rgba(124,58,237,0.1) 40%, transparent 70%); filter: blur(50px); pointer-events: none;"></div>
+
+    <div style="max-width: 680px; margin: 0 auto; text-align: center; position: relative; z-index: 2;">
+      <span class="badge badge-gold" style="margin-bottom: 16px; box-shadow: 0 0 15px rgba(199,168,107,0.25);">GUEST INSTANT ACCESS</span>
+      <h2 class="text-white" style="font-family: var(--font-display); font-size: clamp(34px, 4.5vw, 52px); font-weight: 300; margin-bottom: 14px; line-height: 1.15;">
+        Find Your <span class="text-gradient-gold">Event Moments</span>
+      </h2>
+      <p class="text-muted-light" style="font-size: 15.5px; line-height: 1.7; margin-bottom: 36px;">
+        Enter your event code or take a 1-second selfie. Our AI scans thousands of event photos in milliseconds.
+      </p>
+
+      <div class="glass-dark" style="padding: 38px 32px; border-radius: 28px; border: 1.5px solid rgba(255,255,255,0.18); border-top: 2px solid rgba(255,255,255,0.35); box-shadow: 0 30px 70px rgba(0,0,0,0.6), inset 0 1px 2px rgba(255,255,255,0.2);">
+        {% if error %}
+        <div style="background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.3); color: #FCA5A5; padding: 12px 16px; font-size: 13px; border-radius: 12px; margin-bottom: 20px; font-weight: 600;">
+          {{ error }}
+        </div>
+        {% endif %}
+        
+        <form onsubmit="handleFindEvent(event)" style="display: flex; gap: 10px; flex-wrap: wrap;">
+          <div style="flex: 1; min-width: 240px; position: relative;">
+            <input 
+              type="text" 
+              id="eventCodeInput" 
+              placeholder="ENTER EVENT CODE (E.G. SD1)" 
+              autocomplete="off" 
+              spellcheck="false"
+              required
+              style="width: 100%; border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.06); color: #FFF; font-weight: 800; text-transform: uppercase; letter-spacing: 0.12em; padding: 16px 20px; font-size: 15px; border-radius: 14px; outline: none; transition: all 0.3s; box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);"
+              class="input-dark"
+              onfocus="this.style.borderColor='var(--gold)'; this.style.background='rgba(255,255,255,0.1)';" onblur="this.style.borderColor='rgba(255,255,255,0.15)'; this.style.background='rgba(255,255,255,0.06)';"
+            >
+          </div>
+          <button type="submit" class="btn btn-gold" style="padding: 16px 28px; border-radius: 14px; font-weight: 800; font-size: 14.5px; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 20px rgba(199,168,107,0.4); cursor: pointer; transition: all 0.25s;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            Find My Album
+          </button>
+        </form>
+
+        <!-- Quick Demo Codes -->
+        <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 22px; flex-wrap: wrap;">
+          <span style="font-size: 12px; color: var(--text-muted); font-weight: 600;">Try live demo events:</span>
+          <button type="button" onclick="document.getElementById('eventCodeInput').value='DEMO1'; document.getElementById('eventCodeInput').focus();" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: var(--gold); padding: 4px 10px; border-radius: 8px; font-size: 11.5px; font-weight: 700; cursor: pointer; transition: all 0.2s;">
+            #DEMO1
+          </button>
+          <button type="button" onclick="document.getElementById('eventCodeInput').value='SD1'; document.getElementById('eventCodeInput').focus();" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: var(--gold); padding: 4px 10px; border-radius: 8px; font-size: 11.5px; font-weight: 700; cursor: pointer; transition: all 0.2s;">
+            #SD1
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════════════════════
+       TESTIMONIALS — Scrolling Carousel
+       ══════════════════════════════════════════════════════════ -->
+  <section data-animate style="padding: 90px 32px; overflow: hidden; background: var(--bg-dark); border-bottom: 1px solid var(--border); position: relative;">
+    
+    <!-- Ambient Light Blob -->
+    <div style="position: absolute; top: 30%; left: 50%; transform: translateX(-50%); width: 600px; height: 300px; border-radius: 50%; background: radial-gradient(circle, rgba(16,185,129,0.1) 0%, rgba(124,58,237,0.08) 50%, transparent 70%); filter: blur(50px); pointer-events: none;"></div>
+
+    <div style="max-width: 1200px; margin: 0 auto; text-align: center; margin-bottom: 48px; position: relative; z-index: 2;">
+      <span class="badge badge-emerald" style="margin-bottom: 16px; box-shadow: 0 0 15px rgba(16,185,129,0.25);">CLIENT EXPERIENCES</span>
+      <h2 style="font-family: var(--font-display); font-size: clamp(30px, 4vw, 44px); font-weight: 300; color: var(--text-primary);">
+        Loved by Top Indian <span class="text-gradient-gold">Studios & Planners</span>
+      </h2>
+    </div>
+
+    <div style="overflow: hidden; mask-image: linear-gradient(90deg, transparent, black 10%, black 90%, transparent); -webkit-mask-image: linear-gradient(90deg, transparent, black 10%, black 90%, transparent); position: relative; z-index: 2;">
+      <div class="testimonial-track">
+        <div class="testimonial-card" style="padding: 28px 24px; border-radius: 20px; min-width: 320px; max-width: 340px;">
+          <div style="display: flex; gap: 4px; color: var(--gold); margin-bottom: 14px; font-size: 14px;">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+          <p style="font-size: 14px; color: var(--text-secondary); line-height: 1.7; margin-bottom: 20px; font-style: italic;">"KSHAN revolutionized how we manage event photos. The facial recognition is a game-changer, ensuring guests automatically receive their images in seconds."</p>
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="width: 44px; height: 44px; border-radius: 50%; background: var(--gradient-violet); display: flex; align-items: center; justify-content: center; color: white; font-size: 14px; font-weight: 800; box-shadow: 0 4px 12px rgba(124,58,237,0.3);">PM</div>
+            <div>
+              <div style="font-size: 14px; font-weight: 800; color: var(--text-primary);">Priyal Mehta</div>
+              <div style="font-size: 11.5px; color: var(--gold); font-weight: 600;">Niche Events</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="testimonial-card" style="padding: 28px 24px; border-radius: 20px; min-width: 320px; max-width: 340px;">
+          <div style="display: flex; gap: 4px; color: var(--gold); margin-bottom: 14px; font-size: 14px;">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+          <p style="font-size: 14px; color: var(--text-secondary); line-height: 1.7; margin-bottom: 20px; font-style: italic;">"I love KSHAN's UI and gallery designs. The Live Beam projector screen streaming during sangeet nights creates pure guest awe."</p>
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="width: 44px; height: 44px; border-radius: 50%; background: var(--gradient-gold); display: flex; align-items: center; justify-content: center; color: #111; font-size: 14px; font-weight: 800; box-shadow: 0 4px 12px rgba(199,168,107,0.3);">AA</div>
+            <div>
+              <div style="font-size: 14px; font-weight: 800; color: var(--text-primary);">Akash Agarwal</div>
+              <div style="font-size: 11.5px; color: var(--gold); font-weight: 600;">Wedding Nama</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="testimonial-card" style="padding: 28px 24px; border-radius: 20px; min-width: 320px; max-width: 340px;">
+          <div style="display: flex; gap: 4px; color: var(--gold); margin-bottom: 14px; font-size: 14px;">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+          <p style="font-size: 14px; color: var(--text-secondary); line-height: 1.7; margin-bottom: 20px; font-style: italic;">"A game-changer for our destination weddings. Facial recognition matches 99.4% with glasses & headwear. Zero app downloads needed."</p>
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, var(--emerald), var(--emerald-light)); display: flex; align-items: center; justify-content: center; color: white; font-size: 14px; font-weight: 800; box-shadow: 0 4px 12px rgba(16,185,129,0.3);">SS</div>
+            <div>
+              <div style="font-size: 14px; font-weight: 800; color: var(--text-primary);">Stuti Sakhalkar</div>
+              <div style="font-size: 11.5px; color: var(--gold); font-weight: 600;">The Cheesecake Project</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="testimonial-card" style="padding: 28px 24px; border-radius: 20px; min-width: 320px; max-width: 340px;">
+          <div style="display: flex; gap: 4px; color: var(--gold); margin-bottom: 14px; font-size: 14px;">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+          <p style="font-size: 14px; color: var(--text-secondary); line-height: 1.7; margin-bottom: 20px; font-style: italic;">"Superfast Cam2Cloud sync. We monetized ₹85,000+ selling individual high-res guest photos through the integrated Razorpay checkout!"</p>
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, var(--blue), var(--blue-light)); display: flex; align-items: center; justify-content: center; color: white; font-size: 14px; font-weight: 800; box-shadow: 0 4px 12px rgba(37,99,235,0.3);">RS</div>
+            <div>
+              <div style="font-size: 14px; font-weight: 800; color: var(--text-primary);">Robin Saini</div>
+              <div style="font-size: 11.5px; color: var(--gold); font-weight: 600;">Robin Saini Photography</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="testimonial-card">
+          <div style="display: flex; gap: 4px; color: var(--gold); margin-bottom: 14px; font-size: 13px;">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+          <p style="font-size: 14px; color: var(--text-secondary); line-height: 1.7; margin-bottom: 18px; font-style: italic;">"Perfect solution for my company. We use it to manage all events. Our employees love it! Made our life so much easier."</p>
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, var(--rose), var(--rose-light)); display: flex; align-items: center; justify-content: center; color: white; font-size: 14px; font-weight: 700;">AM</div>
+            <div>
+              <div style="font-size: 13px; font-weight: 700; color: var(--text-primary);">Amar Nath Maurya</div>
+              <div style="font-size: 11px; color: var(--text-muted);">McLarens Insurance</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Duplicate for seamless scroll -->
+        <div class="testimonial-card">
+          <div style="display: flex; gap: 4px; color: var(--gold); margin-bottom: 14px; font-size: 13px;">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+          <p style="font-size: 14px; color: var(--text-secondary); line-height: 1.7; margin-bottom: 18px; font-style: italic;">"KSHAN revolutionized how we manage event photos. The facial recognition is a game-changer, ensuring guests automatically receive their images."</p>
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <div style="width: 40px; height: 40px; border-radius: 50%; background: var(--gradient-violet); display: flex; align-items: center; justify-content: center; color: white; font-size: 14px; font-weight: 700;">PM</div>
+            <div>
+              <div style="font-size: 13px; font-weight: 700; color: var(--text-primary);">Priyal Mehta</div>
+              <div style="font-size: 11px; color: var(--text-muted);">Niche Events</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="testimonial-card">
+          <div style="display: flex; gap: 4px; color: var(--gold); margin-bottom: 14px; font-size: 13px;">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+          <p style="font-size: 14px; color: var(--text-secondary); line-height: 1.7; margin-bottom: 18px; font-style: italic;">"I love KSHAN's UI and gallery designs. Netflix style video gallery with great presentation. The AI is super accurate in finding faces."</p>
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <div style="width: 40px; height: 40px; border-radius: 50%; background: var(--gradient-gold); display: flex; align-items: center; justify-content: center; color: white; font-size: 14px; font-weight: 700;">AA</div>
+            <div>
+              <div style="font-size: 13px; font-weight: 700; color: var(--text-primary);">Akash Agarwal</div>
+              <div style="font-size: 11px; color: var(--text-muted);">Wedding Nama</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="testimonial-card">
+          <div style="display: flex; gap: 4px; color: var(--gold); margin-bottom: 14px; font-size: 13px;">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+          <p style="font-size: 14px; color: var(--text-secondary); line-height: 1.7; margin-bottom: 18px; font-style: italic;">"A game-changer for our recent event. Facial recognition ensured all guests received their photos within seconds. Sharing was effortless."</p>
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, var(--emerald), var(--emerald-light)); display: flex; align-items: center; justify-content: center; color: white; font-size: 14px; font-weight: 700;">SS</div>
+            <div>
+              <div style="font-size: 13px; font-weight: 700; color: var(--text-primary);">Stuti Sakhalkar</div>
+              <div style="font-size: 11px; color: var(--text-muted);">The Cheesecake Project</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="testimonial-card">
+          <div style="display: flex; gap: 4px; color: var(--gold); margin-bottom: 14px; font-size: 13px;">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+          <p style="font-size: 14px; color: var(--text-secondary); line-height: 1.7; margin-bottom: 18px; font-style: italic;">"Super fast upload and download speeds. Face recognition works flawlessly. More affordable with no hidden charges and easy learning curve."</p>
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, var(--blue), var(--blue-light)); display: flex; align-items: center; justify-content: center; color: white; font-size: 14px; font-weight: 700;">RS</div>
+            <div>
+              <div style="font-size: 13px; font-weight: 700; color: var(--text-primary);">Robin Saini</div>
+              <div style="font-size: 11px; color: var(--text-muted);">Robin Saini Photography</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="testimonial-card">
+          <div style="display: flex; gap: 4px; color: var(--gold); margin-bottom: 14px; font-size: 13px;">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+          <p style="font-size: 14px; color: var(--text-secondary); line-height: 1.7; margin-bottom: 18px; font-style: italic;">"Perfect solution for my company. We use it to manage all events. Our employees love it! Made our life so much easier."</p>
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, var(--rose), var(--rose-light)); display: flex; align-items: center; justify-content: center; color: white; font-size: 14px; font-weight: 700;">AM</div>
+            <div>
+              <div style="font-size: 13px; font-weight: 700; color: var(--text-primary);">Amar Nath Maurya</div>
+              <div style="font-size: 11px; color: var(--text-muted);">McLarens Insurance</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════
+       COMPARISON TABLE
+       ══════════════════════════════════════════════════════════ -->
+  <section data-animate style="padding: 80px 32px; max-width: 1000px; margin: 0 auto; width: 100%;">
+    <div style="text-align: center; margin-bottom: 40px;">
+      <span class="badge badge-rose" style="margin-bottom: 16px;">WHY KSHAN</span>
+      <h2 style="font-family: var(--font-display); font-size: clamp(28px, 3.5vw, 40px); font-weight: 300; color: var(--text-primary);">
+        Other Platforms vs <span class="text-gradient-gold">KSHAN</span>
+      </h2>
+    </div>
+
+    <div class="glass-dark" style="border-radius: var(--radius-xl); overflow: hidden; border: 1.5px solid rgba(255,255,255,0.14); border-top: 2px solid rgba(255,255,255,0.3); box-shadow: 0 25px 60px rgba(0,0,0,0.5);">
+      <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; background: rgba(255,255,255,0.06); border-bottom: 1px solid rgba(255,255,255,0.1);">
+        <div style="padding: 18px 26px; font-size: 12px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em;">Feature</div>
+        <div style="padding: 18px 26px; font-size: 12px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; text-align: center;">Other Platforms</div>
+        <div style="padding: 18px 26px; font-size: 13px; font-weight: 900; color: var(--gold); text-transform: uppercase; letter-spacing: 0.1em; text-align: center; background: rgba(199,168,107,0.12);">KSHAN AI</div>
+      </div>
+      <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; border-bottom: 1px solid rgba(255,255,255,0.08);">
+        <div style="padding: 16px 26px; font-size: 14px; color: var(--text-primary); font-weight: 600;">AI Facial Recognition (99.4% Accuracy)</div>
+        <div style="padding: 16px 26px; text-align: center; color: var(--danger); font-size: 16px; font-weight: 700;">&#10007;</div>
+        <div style="padding: 16px 26px; text-align: center; color: #34D399; font-size: 18px; font-weight: 900; background: rgba(199,168,107,0.06);">&#10003;</div>
+      </div>
+      <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; border-bottom: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.02);">
+        <div style="padding: 16px 26px; font-size: 14px; color: var(--text-primary); font-weight: 600;">Camera2Cloud &bull; Realtime Sync</div>
+        <div style="padding: 16px 26px; text-align: center; color: var(--danger); font-size: 16px; font-weight: 700;">&#10007;</div>
+        <div style="padding: 16px 26px; text-align: center; color: #34D399; font-size: 18px; font-weight: 900; background: rgba(199,168,107,0.06);">&#10003;</div>
+      </div>
+      <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; border-bottom: 1px solid rgba(255,255,255,0.08);">
+        <div style="padding: 16px 26px; font-size: 14px; color: var(--text-primary); font-weight: 600;">Live Beam Projector Slideshow</div>
+        <div style="padding: 16px 26px; text-align: center; color: var(--danger); font-size: 16px; font-weight: 700;">&#10007;</div>
+        <div style="padding: 16px 26px; text-align: center; color: #34D399; font-size: 18px; font-weight: 900; background: rgba(199,168,107,0.06);">&#10003;</div>
+      </div>
+      <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; border-bottom: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.02);">
+        <div style="padding: 16px 26px; font-size: 14px; color: var(--text-primary); font-weight: 600;">Smart WhatsApp Automated Delivery</div>
+        <div style="padding: 16px 26px; text-align: center; color: var(--danger); font-size: 16px; font-weight: 700;">&#10007;</div>
+        <div style="padding: 16px 26px; text-align: center; color: #34D399; font-size: 18px; font-weight: 900; background: rgba(199,168,107,0.06);">&#10003;</div>
+      </div>
+      <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; border-bottom: 1px solid rgba(255,255,255,0.08);">
+        <div style="padding: 16px 26px; font-size: 14px; color: var(--text-primary); font-weight: 600;">Razorpay Monetization & Selling</div>
+        <div style="padding: 16px 26px; text-align: center; color: var(--danger); font-size: 16px; font-weight: 700;">&#10007;</div>
+        <div style="padding: 16px 26px; text-align: center; color: #34D399; font-size: 18px; font-weight: 900; background: rgba(199,168,107,0.06);">&#10003;</div>
+      </div>
+      <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; border-bottom: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.02);">
+        <div style="padding: 16px 26px; font-size: 14px; color: var(--text-primary); font-weight: 600;">14+ Luxury Gallery Themes</div>
+        <div style="padding: 16px 26px; text-align: center; color: var(--danger); font-size: 16px; font-weight: 700;">&#10007;</div>
+        <div style="padding: 16px 26px; text-align: center; color: #34D399; font-size: 18px; font-weight: 900; background: rgba(199,168,107,0.06);">&#10003;</div>
+      </div>
+      <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; background: rgba(255,255,255,0.02);">
+        <div style="padding: 16px 26px; font-size: 14px; color: var(--text-primary); font-weight: 600;">Original Uncompressed RAW/4K Downloads</div>
+        <div style="padding: 16px 26px; text-align: center; color: var(--danger); font-size: 16px; font-weight: 700;">&#10007;</div>
+        <div style="padding: 16px 26px; text-align: center; color: #34D399; font-size: 18px; font-weight: 900; background: rgba(199,168,107,0.06);">&#10003;</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════
+       PRICING — Dynamic 3-Way Billing Cycle & 5 Tier Cards
+       ══════════════════════════════════════════════════════════ -->
+  <section id="pricing" data-animate style="background: var(--bg-dark); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 90px 24px; position: relative; overflow: hidden;">
+    
+    <!-- Ambient Glass Lighting Blobs -->
+    <div style="position: absolute; top: 20%; left: 10%; width: 500px; height: 500px; border-radius: 50%; background: radial-gradient(circle, rgba(199,168,107,0.12) 0%, transparent 65%); filter: blur(50px); pointer-events: none;"></div>
+    <div style="position: absolute; bottom: 15%; right: 10%; width: 500px; height: 500px; border-radius: 50%; background: radial-gradient(circle, rgba(124,58,237,0.12) 0%, transparent 65%); filter: blur(50px); pointer-events: none;"></div>
+
+    <div style="max-width: 1320px; margin: 0 auto; position: relative; z-index: 2;">
+      <div style="text-align: center; margin-bottom: 36px;">
+        <span class="badge badge-gold" style="margin-bottom: 16px;">TRANSPARENT PRICING</span>
+        <h2 style="font-family: var(--font-display); font-size: clamp(30px, 4vw, 46px); font-weight: 300; color: var(--text-primary); margin-bottom: 12px;">
+          Choose the Perfect <span class="text-gradient-gold">Plan</span>
+        </h2>
+        <p style="color: var(--text-secondary); font-size: 15px; margin-bottom: 26px;">Start free with no credit card required. Upgrade or downgrade anytime.</p>
+
+        <!-- 3-Way Billing Cycle Switcher -->
+        <div style="display: inline-flex; background: rgba(255,255,255,0.06); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.14); border-radius: var(--radius-pill); padding: 5px; gap: 6px; box-shadow: 0 10px 30px rgba(0,0,0,0.35);">
+          <button id="cycleMonthlyBtn" onclick="setBillingCycle('monthly')" style="padding: 10px 22px; border-radius: var(--radius-pill); border: none; background: transparent; color: var(--text-muted); font-weight: 700; font-size: 13.5px; cursor: pointer; transition: all 0.25s;">
+            Monthly Plan
+          </button>
+          <button id="cycleHalfYearBtn" onclick="setBillingCycle('halfyear')" style="padding: 10px 22px; border-radius: var(--radius-pill); border: none; background: transparent; color: var(--text-muted); font-weight: 700; font-size: 13.5px; cursor: pointer; transition: all 0.25s;">
+            Half Year Plan
+          </button>
+          <button id="cycleAnnualBtn" onclick="setBillingCycle('annual')" style="padding: 10px 22px; border-radius: var(--radius-pill); border: none; background: var(--gradient-gold); color: #111; font-weight: 800; font-size: 13.5px; cursor: pointer; transition: all 0.25s; box-shadow: 0 2px 10px rgba(199,168,107,0.35);">
+            Annual Plan <span style="font-size: 10.5px; background: rgba(0,0,0,0.15); padding: 2px 6px; border-radius: 10px; margin-left: 4px;">BEST VALUE</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 5-Tier Pricing Grid -->
+      <div id="pricingGridContainer" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 18px; align-items: stretch;">
+        
+        <!-- Tier 1: STARTER (Free) -->
+        <div class="glass-dark" style="padding: 28px 22px; border-radius: 24px; display: flex; flex-direction: column; justify-content: space-between; border: 1px solid rgba(255,255,255,0.12); position: relative;">
+          <div>
+            <div style="font-size: 12px; font-weight: 800; color: var(--text-muted); letter-spacing: 0.12em; text-transform: uppercase; text-align: center; margin-bottom: 12px;">STARTER</div>
+            <div style="text-align: center; margin-bottom: 4px;">
+              <span style="font-family: var(--font-display); font-size: 38px; font-weight: 800; color: var(--text-primary);">FREE</span>
+            </div>
+            <div style="font-size: 12px; color: var(--text-muted); text-align: center; margin-bottom: 22px;">for Lifetime</div>
+            <div style="height: 1px; background: rgba(255,255,255,0.08); margin-bottom: 20px;"></div>
+
+            <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 26px; font-size: 13px;">
+              <div style="display: flex; align-items: center; gap: 10px; color: var(--text-primary); font-weight: 600;"><span style="color: #10B981; font-weight: 900;">✓</span> 1000 Images</div>
+              <div style="display: flex; align-items: center; gap: 10px; color: var(--text-primary); font-weight: 600;"><span style="color: #10B981; font-weight: 900;">✓</span> AI Face Search</div>
+              <div style="display: flex; align-items: center; gap: 10px; color: var(--text-primary); font-weight: 600;"><span style="color: #10B981; font-weight: 900;">✓</span> ReelIt</div>
+              <div style="display: flex; align-items: center; gap: 10px; color: var(--text-muted); opacity: 0.6;"><span style="color: #EF4444; font-weight: 900;">✕</span> Photo Selling</div>
+              <div style="display: flex; align-items: center; gap: 10px; color: var(--text-primary); font-weight: 600;"><span style="color: #10B981; font-weight: 900;">✓</span> Branding</div>
+              <div style="display: flex; align-items: center; gap: 10px; color: var(--text-muted); opacity: 0.6;"><span style="color: #EF4444; font-weight: 900;">✕</span> Beam Users</div>
+              <div style="display: flex; align-items: center; gap: 10px; color: var(--text-primary); font-weight: 600;"><span style="color: #10B981; font-weight: 900;">✓</span> Gallery Themes</div>
+            </div>
+          </div>
+          <a href="/signup/" class="btn btn-gold" style="width: 100%; justify-content: center; text-decoration: none; border-radius: 12px; font-weight: 700;">Start Now</a>
+        </div>
+
+        <!-- Tier 2: BASIC -->
+        <div id="tier2Card" class="glass-dark" style="padding: 28px 22px; border-radius: 24px; display: flex; flex-direction: column; justify-content: space-between; border: 1px solid rgba(255,255,255,0.12); position: relative;">
+          <div>
+            <div id="t2Name" style="font-size: 12px; font-weight: 800; color: var(--text-muted); letter-spacing: 0.12em; text-transform: uppercase; text-align: center; margin-bottom: 12px;">BASIC</div>
+            <div style="text-align: center; margin-bottom: 2px;">
+              <span id="t2Price" style="font-family: var(--font-display); font-size: 34px; font-weight: 800; color: var(--text-primary);">₹494</span>
+              <span style="font-size: 13px; color: var(--text-muted);"> Per Month</span>
+            </div>
+            <div id="t2Billing" style="font-size: 11.5px; color: var(--text-muted); text-align: center; margin-bottom: 22px;">Billed: Every Year</div>
+            <div style="height: 1px; background: rgba(255,255,255,0.08); margin-bottom: 20px;"></div>
+
+            <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 26px; font-size: 13px;">
+              <div id="t2Storage" style="display: flex; align-items: center; gap: 10px; color: var(--text-primary); font-weight: 600;"><span style="color: #10B981; font-weight: 900;">✓</span> 50GB</div>
+              <div style="display: flex; align-items: center; gap: 10px; color: var(--text-primary); font-weight: 600;"><span style="color: #10B981; font-weight: 900;">✓</span> AI Face Search</div>
+              <div style="display: flex; align-items: center; gap: 10px; color: var(--text-primary); font-weight: 600;"><span style="color: #10B981; font-weight: 900;">✓</span> ReelIt</div>
+              <div style="display: flex; align-items: center; gap: 10px; color: var(--text-primary); font-weight: 600;"><span style="color: #10B981; font-weight: 900;">✓</span> Photo Selling</div>
+              <div style="display: flex; align-items: center; gap: 8px; color: var(--text-primary); font-weight: 600;"><span style="color: #10B981; font-weight: 900;">✓</span> Branding</div>
+              <div style="display: flex; align-items: center; gap: 10px; color: var(--text-primary); font-weight: 600;"><span style="color: #10B981; font-weight: 900;">✓</span> Beam Users</div>
+              <div style="display: flex; align-items: center; gap: 10px; color: var(--text-primary); font-weight: 600;"><span style="color: #10B981; font-weight: 900;">✓</span> Gallery Themes</div>
+            </div>
+          </div>
+          <a href="/signup/" class="btn btn-gold" style="width: 100%; justify-content: center; text-decoration: none; border-radius: 12px; font-weight: 700;">Start Now</a>
+        </div>
+
+        <!-- Tier 3: ESSENTIAL -->
+        <div id="tier3Card" class="glass-dark" style="padding: 28px 22px; border-radius: 24px; display: flex; flex-direction: column; justify-content: space-between; border: 1px solid rgba(255,255,255,0.12); position: relative;">
+          <div>
+            <div style="font-size: 12px; font-weight: 800; color: var(--text-muted); letter-spacing: 0.12em; text-transform: uppercase; text-align: center; margin-bottom: 12px;">ESSENTIAL</div>
+            <div style="text-align: center; margin-bottom: 2px;">
+              <span id="t3Price" style="font-family: var(--font-display); font-size: 34px; font-weight: 800; color: var(--text-primary);">₹916</span>
+              <span style="font-size: 13px; color: var(--text-muted);"> Per Month</span>
+            </div>
+            <div id="t3Billing" style="font-size: 11.5px; color: var(--text-muted); text-align: center; margin-bottom: 22px;">Billed: Every Year</div>
+            <div style="height: 1px; background: rgba(255,255,255,0.08); margin-bottom: 20px;"></div>
+
+            <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 26px; font-size: 13px;">
+              <div style="display: flex; align-items: center; gap: 10px; color: var(--text-primary); font-weight: 600;"><span style="color: #10B981; font-weight: 900;">✓</span> 100GB</div>
+              <div style="display: flex; align-items: center; gap: 10px; color: var(--text-primary); font-weight: 600;"><span style="color: #10B981; font-weight: 900;">✓</span> AI Face Search</div>
+              <div style="display: flex; align-items: center; gap: 10px; color: var(--text-primary); font-weight: 600;"><span style="color: #10B981; font-weight: 900;">✓</span> ReelIt</div>
+              <div style="display: flex; align-items: center; gap: 10px; color: var(--text-primary); font-weight: 600;"><span style="color: #10B981; font-weight: 900;">✓</span> Photo Selling</div>
+              <div style="display: flex; align-items: center; gap: 10px; color: var(--text-primary); font-weight: 600;"><span style="color: #10B981; font-weight: 900;">✓</span> Branding</div>
+              <div style="display: flex; align-items: center; gap: 10px; color: var(--text-primary); font-weight: 600;"><span style="color: #10B981; font-weight: 900;">✓</span> Beam Users</div>
+              <div style="display: flex; align-items: center; gap: 10px; color: var(--text-primary); font-weight: 600;"><span style="color: #10B981; font-weight: 900;">✓</span> Gallery Themes</div>
+            </div>
+          </div>
+          <a href="/signup/" class="btn btn-gold" style="width: 100%; justify-content: center; text-decoration: none; border-radius: 12px; font-weight: 700;">Start Now</a>
+        </div>
+
+        <!-- Tier 4: PROFESSIONAL (Featured - Gold Card) -->
+        <div id="tier4Card" style="background: var(--gradient-gold); color: #111; padding: 32px 22px 28px; border-radius: 26px; display: flex; flex-direction: column; justify-content: space-between; position: relative; box-shadow: 0 16px 40px rgba(199,168,107,0.4); transform: scale(1.02); z-index: 3;">
+          <!-- Best Value Badge -->
+          <div style="position: absolute; top: -14px; left: 50%; transform: translateX(-50%); background: #111; color: #FFF; padding: 4px 14px; border-radius: 20px; font-size: 11px; font-weight: 800; display: flex; align-items: center; gap: 5px; box-shadow: 0 4px 12px rgba(0,0,0,0.4); letter-spacing: 0.05em;">
+            <span>✨</span> Best Value
+          </div>
+
+          <div>
+            <div style="font-size: 13px; font-weight: 900; color: #222; letter-spacing: 0.14em; text-transform: uppercase; text-align: center; margin-bottom: 12px;">PROFESSIONAL</div>
+            <div style="text-align: center; margin-bottom: 2px;">
+              <span id="t4Price" style="font-family: var(--font-display); font-size: 38px; font-weight: 900; color: #111;">₹1250</span>
+              <span style="font-size: 13.5px; font-weight: 800; color: #333;"> Per Month</span>
+            </div>
+            <div id="t4Billing" style="font-size: 12px; font-weight: 700; color: #444; text-align: center; margin-bottom: 22px;">Billed: Every Year</div>
+            <div style="height: 1px; background: rgba(0,0,0,0.15); margin-bottom: 20px;"></div>
+
+            <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 26px; font-size: 13.5px;">
+              <div id="t4Storage" style="display: flex; align-items: center; gap: 10px; color: #111; font-weight: 800;"><span style="color: #047857; font-weight: 900;">✓</span> 700GB</div>
+              <div style="display: flex; align-items: center; gap: 10px; color: #111; font-weight: 800;"><span style="color: #047857; font-weight: 900;">✓</span> AI Face Search</div>
+              <div style="display: flex; align-items: center; gap: 10px; color: #111; font-weight: 800;"><span style="color: #047857; font-weight: 900;">✓</span> ReelIt</div>
+              <div style="display: flex; align-items: center; gap: 10px; color: #111; font-weight: 800;"><span style="color: #047857; font-weight: 900;">✓</span> Photo Selling</div>
+              <div style="display: flex; align-items: center; gap: 10px; color: #111; font-weight: 800;"><span style="color: #047857; font-weight: 900;">✓</span> Branding</div>
+              <div style="display: flex; align-items: center; gap: 10px; color: #111; font-weight: 800;"><span style="color: #047857; font-weight: 900;">✓</span> Beam Users</div>
+              <div style="display: flex; align-items: center; gap: 10px; color: #111; font-weight: 800;"><span style="color: #047857; font-weight: 900;">✓</span> Gallery Themes</div>
+            </div>
+          </div>
+          <a href="/signup/" style="width: 100%; display: flex; align-items: center; justify-content: center; padding: 14px; background: #111; color: #FFF; text-decoration: none; border-radius: 12px; font-weight: 800; font-size: 14.5px; transition: all 0.2s;" onmouseover="this.style.background='#222'" onmouseout="this.style.background='#111'">Start Now</a>
+        </div>
+
+        <!-- Tier 5: STUDIO ELITE -->
+        <div id="tier5Card" class="glass-dark" style="padding: 28px 22px; border-radius: 24px; display: flex; flex-direction: column; justify-content: space-between; border: 1px solid rgba(255,255,255,0.12); position: relative;">
+          <div>
+            <div style="font-size: 12px; font-weight: 800; color: var(--text-muted); letter-spacing: 0.12em; text-transform: uppercase; text-align: center; margin-bottom: 12px;">STUDIO ELITE</div>
+            <div style="text-align: center; margin-bottom: 2px;">
+              <span id="t5Price" style="font-family: var(--font-display); font-size: 34px; font-weight: 800; color: var(--text-primary);">₹2083</span>
+              <span style="font-size: 13px; color: var(--text-muted);"> Per Month</span>
+            </div>
+            <div id="t5Billing" style="font-size: 11.5px; color: var(--text-muted); text-align: center; margin-bottom: 22px;">Billed: Every Year</div>
+            <div style="height: 1px; background: rgba(255,255,255,0.08); margin-bottom: 20px;"></div>
+
+            <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 26px; font-size: 13px;">
+              <div id="t5Storage" style="display: flex; align-items: center; gap: 10px; color: var(--text-primary); font-weight: 600;"><span style="color: #10B981; font-weight: 900;">✓</span> 1.3TB</div>
+              <div style="display: flex; align-items: center; gap: 10px; color: var(--text-primary); font-weight: 600;"><span style="color: #10B981; font-weight: 900;">✓</span> AI Face Search</div>
+              <div style="display: flex; align-items: center; gap: 10px; color: var(--text-primary); font-weight: 600;"><span style="color: #10B981; font-weight: 900;">✓</span> ReelIt</div>
+              <div style="display: flex; align-items: center; gap: 10px; color: var(--text-primary); font-weight: 600;"><span style="color: #10B981; font-weight: 900;">✓</span> Photo Selling</div>
+              <div style="display: flex; align-items: center; gap: 10px; color: var(--text-primary); font-weight: 600;"><span style="color: #10B981; font-weight: 900;">✓</span> Branding</div>
+              <div style="display: flex; align-items: center; gap: 10px; color: var(--text-primary); font-weight: 600;"><span style="color: #10B981; font-weight: 900;">✓</span> Beam Users</div>
+              <div style="display: flex; align-items: center; gap: 10px; color: var(--text-primary); font-weight: 600;"><span style="color: #10B981; font-weight: 900;">✓</span> Gallery Themes</div>
+            </div>
+          </div>
+          <a href="/signup/" class="btn btn-gold" style="width: 100%; justify-content: center; text-decoration: none; border-radius: 12px; font-weight: 700;">Start Now</a>
+        </div>
+
+      </div>
+
+      <div style="text-align: center; margin-top: 32px; font-size: 12px; color: var(--text-muted);">
+        * You can buy more credits and storage add-ons at any point of time
+      </div>
+    </div>
+  </section>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════
+       FAQ ACCORDION
+       ══════════════════════════════════════════════════════════ -->
+  <section data-animate style="padding: 80px 32px; max-width: 800px; margin: 0 auto; width: 100%;">
+    <div style="text-align: center; margin-bottom: 40px;">
+      <h2 style="font-family: var(--font-display); font-size: clamp(28px, 3.5vw, 40px); font-weight: 300; color: var(--text-primary);">
+        Frequently Asked Questions
+      </h2>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+      <div class="faq-item">
+        <button onclick="toggleFaq(this)" style="width: 100%; padding: 16px 20px; background: none; border: none; display: flex; justify-content: space-between; align-items: center; cursor: pointer; text-align: left;">
+          <span style="font-size: 14px; font-weight: 600; color: var(--text-primary);">What is KSHAN?</span>
+          <svg class="faq-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="transition: transform 0.3s var(--ease-out); color: var(--text-muted);"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="faq-content" style="max-height: 0; overflow: hidden; transition: max-height 0.3s var(--ease-out);">
+          <p style="padding: 0 20px 16px; font-size: 14px; color: var(--text-secondary); line-height: 1.7;">
+            KSHAN is an AI-powered photo delivery platform for events and photographers. It uses facial recognition to help guests instantly find their photos, delivers images in minutes via Camera2Cloud, and provides beautiful cloud galleries with WhatsApp integration.
+          </p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button onclick="toggleFaq(this)" style="width: 100%; padding: 16px 20px; background: none; border: none; display: flex; justify-content: space-between; align-items: center; cursor: pointer; text-align: left;">
+          <span style="font-size: 14px; font-weight: 600; color: var(--text-primary);">Is there a cost associated with using KSHAN?</span>
+          <svg class="faq-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="transition: transform 0.3s var(--ease-out); color: var(--text-muted);"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="faq-content" style="max-height: 0; overflow: hidden; transition: max-height 0.3s var(--ease-out);">
+          <p style="padding: 0 20px 16px; font-size: 14px; color: var(--text-secondary); line-height: 1.7;">
+            KSHAN offers a free tier for guests to search and view their photos. Photographers and businesses can sign up for affordable plans. No hidden charges.
+          </p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button onclick="toggleFaq(this)" style="width: 100%; padding: 16px 20px; background: none; border: none; display: flex; justify-content: space-between; align-items: center; cursor: pointer; text-align: left;">
+          <span style="font-size: 14px; font-weight: 600; color: var(--text-primary);">How safe is my data?</span>
+          <svg class="faq-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="transition: transform 0.3s var(--ease-out); color: var(--text-muted);"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="faq-content" style="max-height: 0; overflow: hidden; transition: max-height 0.3s var(--ease-out);">
+          <p style="padding: 0 20px 16px; font-size: 14px; color: var(--text-secondary); line-height: 1.7;">
+            All facial recognition is done on-device. Biometric data is never stored or sold. Photos are stored securely on Cloudflare R2 with enterprise-grade encryption.
+          </p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button onclick="toggleFaq(this)" style="width: 100%; padding: 16px 20px; background: none; border: none; display: flex; justify-content: space-between; align-items: center; cursor: pointer; text-align: left;">
+          <span style="font-size: 14px; font-weight: 600; color: var(--text-primary);">Who is KSHAN for?</span>
+          <svg class="faq-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="transition: transform 0.3s var(--ease-out); color: var(--text-muted);"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="faq-content" style="max-height: 0; overflow: hidden; transition: max-height 0.3s var(--ease-out);">
+          <p style="padding: 0 20px 16px; font-size: 14px; color: var(--text-secondary); line-height: 1.7;">
+            KSHAN is designed for professional event photographers, event planners, wedding hosts, corporate organisations, and anyone who wants to deliver event photos to guests instantly.
+          </p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button onclick="toggleFaq(this)" style="width: 100%; padding: 16px 20px; background: none; border: none; display: flex; justify-content: space-between; align-items: center; cursor: pointer; text-align: left;">
+          <span style="font-size: 14px; font-weight: 600; color: var(--text-primary);">How do I get started?</span>
+          <svg class="faq-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="transition: transform 0.3s var(--ease-out); color: var(--text-muted);"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="faq-content" style="max-height: 0; overflow: hidden; transition: max-height 0.3s var(--ease-out);">
+          <p style="padding: 0 20px 16px; font-size: 14px; color: var(--text-secondary); line-height: 1.7;">
+            Simply sign up for a free account, create your first event, upload photos, and share the QR code or link with your guests. No app downloads required for guests.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════
+       CTA BANNER — Vibrant gradient
+       ══════════════════════════════════════════════════════════ -->
+  <section class="cta-banner bg-gradient-hero" style="position: relative; overflow: hidden; padding: 72px 32px; text-align: center;">
+    <div style="position: absolute; inset: 0; pointer-events: none;">
+      <div style="position: absolute; top: -50%; right: -20%; width: 500px; height: 500px; border-radius: 50%; background: radial-gradient(circle, rgba(199,168,107,0.12) 0%, transparent 60%);"></div>
+      <div style="position: absolute; bottom: -50%; left: -20%; width: 400px; height: 400px; border-radius: 50%; background: radial-gradient(circle, rgba(124,58,237,0.08) 0%, transparent 60%);"></div>
+    </div>
+    <div style="max-width: 600px; margin: 0 auto; position: relative; z-index: 2;">
+      <h2 class="text-white" style="font-family: var(--font-display); font-size: clamp(28px, 3.5vw, 42px); font-weight: 300; margin-bottom: 12px;">
+        Join <span class="text-gradient-gold">KSHAN</span>
+      </h2>
+      <p class="text-muted-light" style="font-size: 15px; margin-bottom: 32px; line-height: 1.7;">
+        Host your next event for free and bring your ideas to life!
+      </p>
+      <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+        <a href="/signup/" class="btn btn-gold btn-lg" style="text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
+          Sign Up Free
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </a>
+        <a href="/login/" class="hero-cta-secondary" style="display: inline-flex; align-items: center; gap: 8px; padding: 16px 32px; border-radius: var(--radius-md); border: 1px solid rgba(255,255,255,0.15); color: rgba(255,255,255,0.8); font-weight: 600; font-size: 15px; text-decoration: none; transition: all 0.2s;" onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.15)'">
+          Studio Login
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════
+       UNIQPICTURE-STYLE FOOTER WITH OUTLINED BRAND BANNER
+       ══════════════════════════════════════════════════════════ -->
+  <footer class="uniq-footer">
+    
+    <!-- Giant Luxury Dramatic Curves Brand Baseline Banner (Top of Footer) -->
+    <div class="uniq-brand-baseline">
+      <div class="uniq-marquee-track">
+        <div class="uniq-marquee-group">
+          <span class="uniq-stroke-text" style="font-family: 'Cinzel Decorative', serif !important; font-weight: 700 !important; font-size: clamp(55px, 8.5vw, 110px) !important;">KSHAN</span>
+          <span class="uniq-stroke-hindi" style="font-family: 'Kalam', cursive !important; font-weight: 700 !important; font-size: clamp(55px, 8.5vw, 115px) !important; letter-spacing: 0.04em;">क्षण</span>
+          <span class="uniq-stroke-text" style="font-family: 'Cinzel Decorative', serif !important; font-weight: 700 !important; font-size: clamp(55px, 8.5vw, 110px) !important;">KSHAN</span>
+          <span class="uniq-stroke-hindi" style="font-family: 'Kalam', cursive !important; font-weight: 700 !important; font-size: clamp(55px, 8.5vw, 115px) !important; letter-spacing: 0.04em;">क्षण</span>
+        </div>
+        <div class="uniq-marquee-group" aria-hidden="true">
+          <span class="uniq-stroke-text" style="font-family: 'Cinzel Decorative', serif !important; font-weight: 700 !important; font-size: clamp(55px, 8.5vw, 110px) !important;">KSHAN</span>
+          <span class="uniq-stroke-hindi" style="font-family: 'Kalam', cursive !important; font-weight: 700 !important; font-size: clamp(55px, 8.5vw, 115px) !important; letter-spacing: 0.04em;">क्षण</span>
+          <span class="uniq-stroke-text" style="font-family: 'Cinzel Decorative', serif !important; font-weight: 700 !important; font-size: clamp(55px, 8.5vw, 110px) !important;">KSHAN</span>
+          <span class="uniq-stroke-hindi" style="font-family: 'Kalam', cursive !important; font-weight: 700 !important; font-size: clamp(55px, 8.5vw, 115px) !important; letter-spacing: 0.04em;">क्षण</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="uniq-footer-inner">
+      
+      <!-- Top Grid -->
+      <div class="uniq-footer-grid">
+        <!-- Brand Info -->
+        <div class="uniq-footer-brand">
+          <div class="uniq-brand-logo" style="display: flex; align-items: center; gap: 12px;">
+            <img src="/static/images/kshan_kalam_logo_gold.png" alt="क्षण KSHAN Logo" style="height: 36px; width: auto; object-fit: contain; filter: drop-shadow(0 2px 8px rgba(199,168,107,0.45));">
+            <span class="uniq-logo-text">KSHAN</span>
+          </div>
+          <p class="uniq-brand-desc">
+            India's leading AI-powered photo sharing platform with face recognition. Camera to cloud upload, instant guest delivery, and automated WhatsApp sharing.
+          </p>
+          <div class="uniq-socials">
+            <a href="#" class="uniq-social-link" title="Instagram">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+            </a>
+            <a href="#" class="uniq-social-link" title="YouTube">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z"/><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"/></svg>
+            </a>
+            <a href="#" class="uniq-social-link" title="Twitter">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"/></svg>
+            </a>
+          </div>
+        </div>
+
+        <!-- Links Columns -->
+        <div class="uniq-link-group">
+          <h4 class="uniq-link-heading">Product</h4>
+          <ul class="uniq-link-list">
+            <li><a href="/#guest-access" onclick="focusEventSearch()">Find Event</a></li>
+            <li><a href="/signup/">For Photographers</a></li>
+            <li><a href="/login/">Studio Portal</a></li>
+            <li><a href="#how-it-works">How It Works</a></li>
+          </ul>
+        </div>
+
+        <div class="uniq-link-group">
+          <h4 class="uniq-link-heading">Features</h4>
+          <ul class="uniq-link-list">
+            <li><a href="#guest-access">AI Face Search</a></li>
+            <li><a href="#how-it-works">Camera2Cloud</a></li>
+            <li><a href="#how-it-works">Live Beam Screen</a></li>
+            <li><a href="#how-it-works">WhatsApp Bot</a></li>
+          </ul>
+        </div>
+
+        <div class="uniq-link-group">
+          <h4 class="uniq-link-heading">Company</h4>
+          <ul class="uniq-link-list">
+            <li><a href="/login/">About Us</a></li>
+            <li><a href="/login/">Contact</a></li>
+            <li><a href="/login/">Privacy Policy</a></li>
+            <li><a href="/login/">Terms of Service</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Bottom Bar -->
+      <div class="uniq-footer-bottom">
+        <div>&copy; 2026 KSHAN (क्षण). All rights reserved.</div>
+        <div class="uniq-footer-tagline">AI-Powered Wedding & Event Photography Platform</div>
+      </div>
+
+    </div>
+  </footer>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function handleFindEvent(e) {
+  e.preventDefault();
+  const code = document.getElementById("eventCodeInput").value.trim().toUpperCase();
+  if (code) {
+    window.location.href = `/event/${encodeURIComponent(code)}/`;
+  }
+}
+
+/* ── Hero Typewriter ── */
+const typewriterWords = ["Weddings", "Haldi", "Sangeet", "Mehendi", "Celebrations", "Corporate"];
+let wordIndex = 0, charIndex = 0, isDeleting = false;
+const typewriterEl = document.getElementById('heroTypewriter');
+
+function typeEffect() {
+  const currentWord = typewriterWords[wordIndex];
+  if (isDeleting) {
+    typewriterEl.textContent = currentWord.substring(0, charIndex - 1);
+    charIndex--;
+  } else {
+    typewriterEl.textContent = currentWord.substring(0, charIndex + 1);
+    charIndex++;
+  }
+  if (!isDeleting && charIndex === currentWord.length) {
+    setTimeout(() => { isDeleting = true; typeEffect(); }, 2000);
+    return;
+  } else if (isDeleting && charIndex === 0) {
+    isDeleting = false;
+    wordIndex = (wordIndex + 1) % typewriterWords.length;
+  }
+  setTimeout(typeEffect, isDeleting ? 50 : 100);
+}
+document.addEventListener('DOMContentLoaded', () => { setTimeout(typeEffect, 800); });
+
+/* ── How It Works Switcher ── */
+function switchWorkflowTab(role) {
+  const guestDiv = document.getElementById('workflowGuest');
+  const photogDiv = document.getElementById('workflowPhotog');
+  const guestBtn = document.getElementById('tabGuestBtn');
+  const photogBtn = document.getElementById('tabPhotogBtn');
+
+  if (role === 'guest') {
+    guestDiv.style.display = 'block';
+    photogDiv.style.display = 'none';
+    guestBtn.classList.add('active');
+    photogBtn.classList.remove('active');
+  } else {
+    guestDiv.style.display = 'none';
+    photogDiv.style.display = 'block';
+    photogBtn.classList.add('active');
+    guestBtn.classList.remove('active');
+  }
+}
+
+/* ── FAQ Accordion ── */
+function toggleFaq(btn) {
+  const item = btn.closest('.faq-item');
+  const content = item.querySelector('.faq-content');
+  const chevron = item.querySelector('.faq-chevron');
+  const isOpen = content.style.maxHeight && content.style.maxHeight !== '0px';
+  document.querySelectorAll('.faq-content').forEach(c => c.style.maxHeight = '0px');
+  document.querySelectorAll('.faq-chevron').forEach(c => { c.style.transform = 'rotate(0deg)'; c.closest('.faq-item').classList.remove('open'); });
+  if (!isOpen) {
+    content.style.maxHeight = content.scrollHeight + 'px';
+    chevron.style.transform = 'rotate(180deg)';
+    item.classList.add('open');
+  }
+}
+
+/* ── Pricing Dynamic 3-Way Billing Switcher ── */
+const pricingPlans = {
+  monthly: {
+    btnId: 'cycleMonthlyBtn',
+    tier2: { name: 'BASIC', price: '₹1,300', billing: 'Billed: Every Month', storage: '100GB' },
+    tier3: { visible: false },
+    tier4: { name: 'PROFESSIONAL', price: '₹1,900', billing: 'Billed: Every Month', storage: '500GB' },
+    tier5: { name: 'STUDIO ELITE', price: '₹3,200', billing: 'Billed: Every Month', storage: '1TB' }
+  },
+  halfyear: {
+    btnId: 'cycleHalfYearBtn',
+    tier2: { name: 'BASIC', price: '₹1,050', billing: 'Billed: Every 6 Months', storage: '100GB' },
+    tier3: { visible: false },
+    tier4: { name: 'PROFESSIONAL', price: '₹1,550', billing: 'Billed: Every 6 Months', storage: '500GB' },
+    tier5: { name: 'STUDIO ELITE', price: '₹2,550', billing: 'Billed: Every 6 Months', storage: '1TB' }
+  },
+  annual: {
+    btnId: 'cycleAnnualBtn',
+    tier2: { name: 'BASIC', price: '₹294', billing: 'Billed: Every Year', storage: '50GB' },
+    tier3: { visible: true, name: 'ESSENTIAL', price: '₹716', billing: 'Billed: Every Year', storage: '100GB' },
+    tier4: { name: 'PROFESSIONAL', price: '₹1,050', billing: 'Billed: Every Year', storage: '700GB' },
+    tier5: { name: 'STUDIO ELITE', price: '₹1,883', billing: 'Billed: Every Year', storage: '1.3TB' }
+  }
+};
+
+function setBillingCycle(cycle) {
+  const data = pricingPlans[cycle];
+  if (!data) return;
+
+  // Reset button states
+  ['cycleMonthlyBtn', 'cycleHalfYearBtn', 'cycleAnnualBtn'].forEach(id => {
+    const btn = document.getElementById(id);
+    if (btn) {
+      if (id === data.btnId) {
+        btn.style.background = 'var(--gradient-gold)';
+        btn.style.color = '#111';
+        btn.style.boxShadow = '0 2px 10px rgba(199,168,107,0.35)';
+      } else {
+        btn.style.background = 'transparent';
+        btn.style.color = 'var(--text-muted)';
+        btn.style.boxShadow = 'none';
+      }
+    }
+  });
+
+  // Update Tier 2
+  const t2Name = document.getElementById('t2Name');
+  const t2Price = document.getElementById('t2Price');
+  const t2Billing = document.getElementById('t2Billing');
+  const t2Storage = document.getElementById('t2Storage');
+  if (t2Name) t2Name.textContent = data.tier2.name;
+  if (t2Price) t2Price.textContent = data.tier2.price;
+  if (t2Billing) t2Billing.textContent = data.tier2.billing;
+  if (t2Storage) t2Storage.innerHTML = `<span style="color: #10B981; font-weight: 900;">✓</span> ${data.tier2.storage}`;
+
+  // Update Tier 3 (Only shown in Annual, hidden in Monthly/Half-Year)
+  const tier3Card = document.getElementById('tier3Card');
+  if (tier3Card) {
+    if (data.tier3 && data.tier3.visible) {
+      tier3Card.style.display = 'flex';
+      const t3Price = document.getElementById('t3Price');
+      const t3Billing = document.getElementById('t3Billing');
+      if (t3Price) t3Price.textContent = data.tier3.price;
+      if (t3Billing) t3Billing.textContent = data.tier3.billing;
+    } else {
+      tier3Card.style.display = 'none';
+    }
+  }
+
+  // Update Tier 4 (Biker)
+  const t4Price = document.getElementById('t4Price');
+  const t4Billing = document.getElementById('t4Billing');
+  const t4Storage = document.getElementById('t4Storage');
+  if (t4Price) t4Price.textContent = data.tier4.price;
+  if (t4Billing) t4Billing.textContent = data.tier4.billing;
+  if (t4Storage) t4Storage.innerHTML = `<span style="color: #047857; font-weight: 900;">✓</span> ${data.tier4.storage}`;
+
+  // Update Tier 5 (Pilot)
+  const t5Price = document.getElementById('t5Price');
+  const t5Billing = document.getElementById('t5Billing');
+  const t5Storage = document.getElementById('t5Storage');
+  if (t5Price) t5Price.textContent = data.tier5.price;
+  if (t5Billing) t5Billing.textContent = data.tier5.billing;
+  if (t5Storage) t5Storage.innerHTML = `<span style="color: #10B981; font-weight: 900;">✓</span> ${data.tier5.storage}`;
+}
+
+// Initialize default Annual cycle on load
+document.addEventListener('DOMContentLoaded', () => {
+  setBillingCycle('annual');
+});
+</script>
+{% endblock %}

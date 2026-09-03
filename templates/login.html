@@ -1,0 +1,255 @@
+{% extends "base.html" %}
+
+{% block title %}Sign In — KSHAN Studio{% endblock %}
+
+{% block content %}
+<div class="auth-layout" style="flex: 1; display: grid; grid-template-columns: 1fr 1fr; min-height: calc(100vh - 68px); background: var(--bg-warm);">
+  
+  <!-- Left Side: Editorial Photography Panel with Balanced Moody Overlay -->
+  <div style="position: relative; background: #0C0B10; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; padding: 56px;">
+    <img src="/static/images/login_wedding_bg.jpg?v=20260902_couple_bal" alt="Indian Wedding Couple" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 25%; opacity: 0.58; filter: brightness(0.82) contrast(1.08);">
+    
+    <!-- Soft Cinematic Gradient Vignette -->
+    <div style="position: absolute; inset: 0; background: linear-gradient(180deg, rgba(12,11,16,0.6) 0%, rgba(12,11,16,0.15) 45%, rgba(12,11,16,0.75) 100%), radial-gradient(circle at center, transparent 40%, rgba(12,11,16,0.5) 100%); pointer-events: none; z-index: 1;"></div>
+    
+    <div style="position: relative; z-index: 2;">
+      <a href="/" class="kshan-brand" style="color: #FFFFFF; display: flex; align-items: center; gap: 12px; text-decoration: none;">
+        <img src="/static/images/kshan_kalam_logo_gold.png" alt="क्षण Logo" style="height: 32px; width: auto; object-fit: contain; filter: drop-shadow(0 2px 8px rgba(199,168,107,0.5));">
+        <span style="font-family: var(--font-display); font-size: 20px; font-weight: 700; letter-spacing: 0.12em;">KSHAN STUDIO</span>
+      </a>
+    </div>
+
+    <div style="position: relative; z-index: 2; max-width: 440px;">
+      <h2 style="font-family: var(--font-serif); font-size: 34px; color: #FFFFFF; line-height: 1.25; margin-bottom: 14px;">
+        "KSHAN transformed how we deliver wedding moments to our clients."
+      </h2>
+      <div style="font-size: 13px; color: var(--gold); font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em;">
+        Royal Moments Photography &bull; Mumbai
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Side: Authentication Form -->
+  <div style="display: flex; align-items: center; justify-content: center; padding: 48px; background: var(--bg-warm);">
+    <div style="max-width: 400px; width: 100%;">
+      
+      <div class="kshan-label" style="margin-bottom: 8px;">STUDIO ACCESS</div>
+      <h1 style="font-size: 30px; margin-bottom: 8px; color: var(--text-primary);">Welcome Back</h1>
+      <p style="color: var(--text-secondary); font-size: 14px; margin-bottom: 24px;">Sign in to your photographer studio workspace.</p>
+
+      {% if error %}
+      <div style="background: var(--danger-bg); border: 1px solid rgba(255, 137, 151, 0.42); color: var(--danger); padding: 12px 16px; font-size: 13px; border-radius: var(--radius-sm); margin-bottom: 20px; font-weight: 500;">
+        {{ error }}
+      </div>
+      {% endif %}
+
+      <!-- Auth Method Switcher -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; background: rgba(255,255,255,0.05); padding: 4px; border-radius: var(--radius-md); margin-bottom: 22px; border: 1px solid var(--border);">
+        <button type="button" id="tabOtpBtn" onclick="switchLoginMethod('otp')" style="padding: 10px; border: none; border-radius: var(--radius-sm); font-size: 12.5px; font-weight: 700; cursor: pointer; transition: all 0.2s; background: var(--gradient-gold); color: #111;">
+          ⚡ WhatsApp OTP
+        </button>
+        <button type="button" id="tabPassBtn" onclick="switchLoginMethod('password')" style="padding: 10px; border: none; border-radius: var(--radius-sm); font-size: 12.5px; font-weight: 600; cursor: pointer; transition: all 0.2s; background: transparent; color: var(--text-secondary);">
+          🔑 Password
+        </button>
+      </div>
+
+      <!-- Option 1: WhatsApp OTP Form -->
+      <div id="otpLoginForm" style="display: flex; flex-direction: column; gap: 16px;">
+        <div id="phoneStep">
+          <label class="kshan-label" style="display: block; margin-bottom: 6px;">WHATSAPP PHONE NUMBER</label>
+          <div style="display: flex; gap: 8px;">
+            <input type="tel" id="waPhoneInput" placeholder="+91 98765 43210" style="flex: 1; padding: 14px 16px; border-radius: var(--radius-md); border: 1.5px solid var(--border-strong); background: var(--bg-surface); color: var(--text-primary); font-size: 14px; outline: none;" autofocus>
+          </div>
+          <p style="font-size: 11.5px; color: var(--text-muted); margin-top: 6px;">We'll send a 6-digit one-time code to your WhatsApp via Meta Cloud API.</p>
+          
+          <button type="button" id="btnSendOtp" onclick="handleSendOtp()" class="btn btn-primary" style="padding: 14px; width: 100%; margin-top: 14px;">
+            <span>Send WhatsApp OTP</span>
+            <i data-lucide="arrow-right" style="width: 14px; height: 14px;"></i>
+          </button>
+        </div>
+
+        <div id="codeStep" style="display: none;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <label class="kshan-label">ENTER 6-DIGIT OTP</label>
+            <span id="targetPhoneBadge" style="font-size: 11px; color: var(--gold); font-weight: 700;"></span>
+          </div>
+          <input type="text" id="waOtpInput" placeholder="• • • • • •" maxlength="6" style="letter-spacing: 0.3em; text-align: center; font-size: 20px; font-weight: 800; padding: 12px; border-radius: var(--radius-md); border: 1.5px solid var(--gold-border); background: var(--bg-surface); color: var(--text-primary); width: 100%; outline: none;">
+          
+          <div id="mockOtpBadge" style="display: none; margin-top: 8px; padding: 8px 12px; border-radius: 8px; background: rgba(199,168,107,0.12); border: 1px dashed var(--gold); font-size: 12px; color: var(--gold);"></div>
+
+          <button type="button" id="btnVerifyOtp" onclick="handleVerifyOtp()" class="btn btn-primary" style="padding: 14px; width: 100%; margin-top: 14px;">
+            <span>Verify & Sign In</span>
+            <i data-lucide="check-circle" style="width: 14px; height: 14px;"></i>
+          </button>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
+            <button type="button" onclick="resetOtpPhone()" class="btn btn-ghost btn-sm" style="font-size: 11.5px; padding: 4px 8px;">
+              &larr; Change number
+            </button>
+            <button type="button" onclick="handleSendOtp()" class="btn btn-ghost btn-sm" style="font-size: 11.5px; color: var(--gold); padding: 4px 8px;">
+              Resend OTP
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Option 2: Traditional Password Form -->
+      <form id="passLoginForm" method="POST" action="/login/" style="display: none; flex-direction: column; gap: 18px;">
+        {% csrf_token %}
+        <div>
+          <label class="kshan-label" style="display: block; margin-bottom: 6px;">USERNAME OR EMAIL</label>
+          <input type="text" name="username" placeholder="Username" style="width: 100%; padding: 14px 16px; border-radius: var(--radius-md); border: 1.5px solid var(--border-strong); background: var(--bg-surface); color: var(--text-primary); font-size: 14px; outline: none;">
+        </div>
+
+        <div>
+          <label class="kshan-label" style="display: block; margin-bottom: 6px;">PASSWORD</label>
+          <input type="password" name="password" placeholder="Password" style="width: 100%; padding: 14px 16px; border-radius: var(--radius-md); border: 1.5px solid var(--border-strong); background: var(--bg-surface); color: var(--text-primary); font-size: 14px; outline: none;">
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="padding: 14px; width: 100%; margin-top: 6px;">
+          <span>Sign In with Password</span>
+          <i data-lucide="arrow-right" style="width: 14px; height: 14px;"></i>
+        </button>
+      </form>
+
+      <div style="text-align: center; margin-top: 24px; font-size: 13px; color: var(--text-secondary);">
+        Don't have a studio account? <a href="/signup/" style="color: var(--gold); font-weight: 700; text-decoration: none;">Create Studio</a>
+      </div>
+
+      <!-- Bottom Centered Brand Emblem -->
+      <div style="margin-top: 40px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; text-align: center;">
+        <a href="/" style="display: flex; align-items: center; justify-content: center; gap: 10px; text-decoration: none;">
+          <img src="/static/images/kshan_kalam_logo_gold.png" alt="क्षण Logo" style="height: 38px; width: auto; object-fit: contain; filter: drop-shadow(0 2px 10px rgba(199,168,107,0.55));">
+          <span style="font-family: var(--font-display); font-size: 20px; font-weight: 700; letter-spacing: 0.14em; color: var(--text-primary); text-transform: uppercase;">KSHAN</span>
+        </a>
+        <div style="font-size: 10px; font-weight: 800; letter-spacing: 0.2em; color: var(--gold); text-transform: uppercase;">STUDIO ACCESS</div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let currentOtpPhone = "";
+
+function switchLoginMethod(method) {
+  const otpForm = document.getElementById("otpLoginForm");
+  const passForm = document.getElementById("passLoginForm");
+  const tabOtp = document.getElementById("tabOtpBtn");
+  const tabPass = document.getElementById("tabPassBtn");
+
+  if (method === 'otp') {
+    otpForm.style.display = "flex";
+    passForm.style.display = "none";
+    tabOtp.style.background = "var(--gradient-gold)";
+    tabOtp.style.color = "#111";
+    tabPass.style.background = "transparent";
+    tabPass.style.color = "var(--text-secondary)";
+  } else {
+    otpForm.style.display = "none";
+    passForm.style.display = "flex";
+    tabPass.style.background = "var(--gradient-gold)";
+    tabPass.style.color = "#111";
+    tabOtp.style.background = "transparent";
+    tabOtp.style.color = "var(--text-secondary)";
+  }
+}
+
+async function handleSendOtp() {
+  const phoneInput = document.getElementById("waPhoneInput");
+  const phone = phoneInput.value.trim();
+  const btn = document.getElementById("btnSendOtp");
+
+  if (!phone) {
+    showToast("Please enter your WhatsApp phone number", "warning");
+    phoneInput.focus();
+    return;
+  }
+
+  btn.disabled = true;
+  btn.innerHTML = `<span>Sending WhatsApp OTP...</span>`;
+
+  try {
+    const res = await authFetch("/api/auth/whatsapp/send-otp/", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ phone, purpose: "login" })
+    });
+
+    const data = await res.json();
+    if (!res.ok || !data.success) {
+      showToast(data.error || "Failed to send WhatsApp code.", "danger");
+      return;
+    }
+
+    currentOtpPhone = data.phone;
+    document.getElementById("targetPhoneBadge").textContent = `+${data.phone}`;
+    document.getElementById("phoneStep").style.display = "none";
+    document.getElementById("codeStep").style.display = "block";
+    
+    if (data.mock && data.dev_otp) {
+      const mockBadge = document.getElementById("mockOtpBadge");
+      mockBadge.style.display = "block";
+      mockBadge.innerHTML = `⚡ <strong>Dev Simulation:</strong> Code is <strong>${data.dev_otp}</strong>`;
+      document.getElementById("waOtpInput").value = data.dev_otp;
+    }
+
+    showToast(data.message || "OTP code sent via WhatsApp!", "success");
+    document.getElementById("waOtpInput").focus();
+  } catch (err) {
+    showToast("Network error: " + err.message, "danger");
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = `<span>Send WhatsApp OTP</span>`;
+  }
+}
+
+async function handleVerifyOtp() {
+  const otpInput = document.getElementById("waOtpInput");
+  const otp_code = otpInput.value.trim();
+  const btn = document.getElementById("btnVerifyOtp");
+
+  if (!otp_code || otp_code.length < 6) {
+    showToast("Please enter the 6-digit code", "warning");
+    otpInput.focus();
+    return;
+  }
+
+  btn.disabled = true;
+  btn.innerHTML = `<span>Verifying...</span>`;
+
+  try {
+    const res = await authFetch("/api/auth/whatsapp/verify-otp/", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ phone: currentOtpPhone, otp_code, purpose: "login" })
+    });
+
+    const data = await res.json();
+    if (!res.ok || !data.success) {
+      showToast(data.error || "Verification failed.", "danger");
+      return;
+    }
+
+    showToast(data.message || "Signed in successfully!", "success");
+    setTimeout(() => {
+      window.location.href = data.redirect_url || "/admin/";
+    }, 800);
+  } catch (err) {
+    showToast("Error: " + err.message, "danger");
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = `<span>Verify & Sign In</span>`;
+  }
+}
+
+function resetOtpPhone() {
+  document.getElementById("codeStep").style.display = "none";
+  document.getElementById("phoneStep").style.display = "block";
+  document.getElementById("waPhoneInput").focus();
+}
+</script>
+{% endblock %}

@@ -1,0 +1,1695 @@
+{% extends "base.html" %}
+
+{% block title %}Workspace — {{ event.name }} | KSHAN Studio{% endblock %}
+
+{% block content %}
+<div class="studio-shell">
+
+  <!-- Sidebar -->
+  <aside class="studio-sidebar">
+    
+    <!-- Event Header -->
+    <div style="padding: 16px 16px 14px; border-bottom: 1px solid var(--border);">
+      <div style="display: inline-block; font-size: 9px; font-weight: 700; letter-spacing: 0.12em; color: var(--gold); text-transform: uppercase; background: rgba(199,168,107,0.08); padding: 2px 7px; border-radius: 4px; margin-bottom: 6px;">EVENT WORKSPACE</div>
+      <div style="font-family: var(--font-display); font-size: 15px; font-weight: 500; color: var(--text-primary); margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+        {{ event.name }}
+      </div>
+      <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px; display: flex; align-items: center; gap: 6px;">
+        <span style="width: 6px; height: 6px; border-radius: 50%; background: var(--success);"></span>
+        Code: {{ event.event_code }}
+      </div>
+    </div>
+
+    <nav style="flex: 1; display: flex; flex-direction: column; gap: 1px; overflow-y: auto; padding: 8px 0;">
+      
+      <div class="sidebar-section-label" style="padding: 4px 16px 2px; font-size: 9px; font-weight: 700; color: var(--text-muted); letter-spacing: 0.1em; text-transform: uppercase;">
+        Workspace
+      </div>
+      <a href="/admin/" class="sidebar-nav-item">
+        <span>Overview</span>
+      </a>
+      <a href="/admin/events/{{ event.event_code }}/" class="sidebar-nav-item active">
+        <span>Photos ({{ photos.count }})</span>
+      </a>
+      <a href="/admin/events/{{ event.event_code }}/share/" class="sidebar-nav-item">
+        <span>QR Poster & Share</span>
+      </a>
+
+      <div class="sidebar-divider" style="margin: 6px 16px; border-top: 1px solid var(--border);"></div>
+
+      <div class="sidebar-section-label" style="padding: 4px 16px 2px; font-size: 9px; font-weight: 700; color: var(--text-muted); letter-spacing: 0.1em; text-transform: uppercase;">
+        Operate
+      </div>
+      <a href="/event/{{ event.event_code }}/beam/" target="_blank" class="sidebar-nav-item" style="color: var(--peacock); font-weight: 600;">
+        <span>Live Beam Slideshow</span>
+      </a>
+      <a href="/event/{{ event.event_code }}/" target="_blank" class="sidebar-nav-item">
+        <span>Guest View</span>
+      </a>
+      <button onclick="reprocessAllPhotos()" class="sidebar-nav-item" style="color: var(--maroon); font-weight: 600;">
+        <span>Re-Index Embeddings</span>
+      </button>
+
+      <div class="sidebar-divider" style="margin: 6px 16px; border-top: 1px solid var(--border);"></div>
+
+      <div class="sidebar-section-label" style="padding: 4px 16px 2px; font-size: 9px; font-weight: 700; color: var(--text-muted); letter-spacing: 0.1em; text-transform: uppercase;">
+        Manage
+      </div>
+      <a href="/studio/guests/" class="sidebar-nav-item">
+        <span>Team & Guests</span>
+      </a>
+      <a href="/admin/settings/" class="sidebar-nav-item">
+        <span>Cloud Storage</span>
+      </a>
+
+      <div class="sidebar-divider" style="margin: 6px 16px; border-top: 1px solid var(--border);"></div>
+
+      <div class="sidebar-section-label" style="padding: 4px 16px 2px; font-size: 9px; font-weight: 700; color: var(--text-muted); letter-spacing: 0.1em; text-transform: uppercase;">
+        Account
+      </div>
+      <a href="/studio/billing/" class="sidebar-nav-item">
+        <span>Plans & Billing</span>
+        <span class="badge badge-gold" style="margin-left: auto; font-size: 8.5px; padding: 1px 5px;">PRO</span>
+      </a>
+      <a href="/admin/profile/" class="sidebar-nav-item">
+        <span>Studio Profile</span>
+      </a>
+      <a href="/admin/settings/" class="sidebar-nav-item">
+        <span>Account Settings</span>
+      </a>
+      <a href="/logout/" class="sidebar-nav-item" style="color: var(--danger); margin-top: 4px;">
+        <span>Sign Out</span>
+      </a>
+    </nav>
+
+    <!-- Photographer Card -->
+    <div style="padding: 10px 14px; border-top: 1px solid var(--border); display: flex; align-items: center; gap: 10px; background: rgba(250,247,242,0.04); margin: 0 10px 10px; border-radius: var(--radius-md);">
+      <div style="width: 32px; height: 32px; border-radius: 9px; background: linear-gradient(135deg, var(--maroon), var(--maroon-dark, #6B0F24)); color: var(--text-inverse); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 12px;">
+        {{ user.username|slice:":2"|upper }}
+      </div>
+      <div style="overflow: hidden; flex: 1;">
+        <div style="font-size: 11.5px; font-weight: 700; color: var(--text-primary); text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">{{ profile.display_name|default:user.username }}</div>
+        <div style="font-size: 9.5px; color: var(--gold); font-weight: 600;">Pro Photographer</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="studio-main" style="background: var(--bg-primary);">
+    
+    <!-- Hero Workspace Banner -->
+    <div style="background: rgba(255,255,255,0.05); backdrop-filter: blur(20px) saturate(180%); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 28px 32px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px;">
+      <div>
+        <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 10px;">
+          <span style="font-size: 10.5px; font-weight: 700; letter-spacing: 0.1em; color: var(--gold); background: rgba(199,168,107,0.08); padding: 4px 10px; border-radius: var(--radius-pill);">CODE: {{ event.event_code }}</span>
+          <span style="font-size: 10.5px; font-weight: 700; color: var(--text-muted); background: var(--bg-warm); padding: 4px 10px; border-radius: var(--radius-pill);">{{ event.get_event_type_display }}</span>
+          <span style="font-size: 10.5px; font-weight: 700; color: var(--success); background: rgba(22,163,74,0.08); padding: 4px 10px; border-radius: var(--radius-pill);">{{ event.get_status_display }}</span>
+        </div>
+
+        <h1 style="font-family: var(--font-display); font-size: 28px; font-weight: 400; color: var(--text-primary); margin-bottom: 6px;">{{ event.name }}</h1>
+        <div style="display: flex; gap: 16px; font-size: 13px; color: var(--text-muted); font-weight: 500; flex-wrap: wrap;">
+          {% if event.event_date %}<span>{{ event.event_date }}</span> &bull;{% endif %}
+          {% if event.location %}<span>{{ event.location }}</span> &bull;{% endif %}
+          <span>{{ guests_count }} Registered Guests</span> &bull;
+          <span>{{ albums_count }} Albums</span> &bull;
+          <span>{{ storage_mb }} MB Storage</span>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+        <button onclick="openEventSettingsModal()" class="btn btn-secondary btn-sm" style="display: flex; align-items: center; gap: 6px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          Settings
+        </button>
+        <a href="/admin/events/{{ event.event_code }}/share/" class="btn btn-gold btn-sm" style="text-decoration: none; display: flex; align-items: center; gap: 6px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          Share QR Poster
+        </a>
+        <a href="/event/{{ event.event_code }}/beam/" target="_blank" class="btn btn-secondary btn-sm" style="color: var(--peacock); font-weight: 600; text-decoration: none; display: flex; align-items: center; gap: 6px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          Live Beam
+        </a>
+        <a href="/event/{{ event.event_code }}/" target="_blank" class="btn btn-outline btn-sm" style="text-decoration: none; display: flex; align-items: center; gap: 6px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          Guest View
+        </a>
+      </div>
+    </div>
+
+    <!-- Quick Metrics Overview Grid -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; margin-bottom: 28px;">
+      <div style="background: rgba(255,255,255,0.04); backdrop-filter: blur(16px); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 18px 20px; transition: transform 0.2s var(--ease-spring), box-shadow 0.2s ease;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 16px rgba(0,0,0,0.06)'" onmouseout="this.style.transform=''; this.style.boxShadow=''">
+        <div style="font-size: 10px; font-weight: 700; letter-spacing: 0.1em; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px;">Total Photos</div>
+        <div style="font-family: var(--font-display); font-size: 26px; font-weight: 400; color: var(--text-primary);">{{ photos.count }}</div>
+        <div style="font-size: 11.5px; color: var(--text-muted); margin-top: 2px;">{{ storage_mb }} MB total</div>
+      </div>
+      <div style="background: rgba(255,255,255,0.04); backdrop-filter: blur(16px); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 18px 20px; transition: transform 0.2s var(--ease-spring), box-shadow 0.2s ease;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 16px rgba(0,0,0,0.06)'" onmouseout="this.style.transform=''; this.style.boxShadow=''">
+        <div style="font-size: 10px; font-weight: 700; letter-spacing: 0.1em; color: var(--gold); text-transform: uppercase; margin-bottom: 6px;">AI Faces Indexed</div>
+        <div style="font-family: var(--font-display); font-size: 26px; font-weight: 400; color: var(--gold);">{{ progress.faces_detected }}</div>
+        <div style="font-size: 11.5px; color: var(--text-muted); margin-top: 2px;">InsightFace 512-D</div>
+      </div>
+      <div style="background: rgba(255,255,255,0.04); backdrop-filter: blur(16px); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 18px 20px; transition: transform 0.2s var(--ease-spring), box-shadow 0.2s ease;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 16px rgba(0,0,0,0.06)'" onmouseout="this.style.transform=''; this.style.boxShadow=''">
+        <div style="font-size: 10px; font-weight: 700; letter-spacing: 0.1em; color: #60a5fa; text-transform: uppercase; margin-bottom: 6px;">Guest Searches</div>
+        <div style="font-family: var(--font-display); font-size: 26px; font-weight: 400; color: #60a5fa;">{{ searches_count }}</div>
+        <div style="font-size: 11.5px; color: var(--text-muted); margin-top: 2px;">Selfie matches run</div>
+      </div>
+      <div style="background: rgba(255,255,255,0.04); backdrop-filter: blur(16px); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 18px 20px; transition: transform 0.2s var(--ease-spring), box-shadow 0.2s ease;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 16px rgba(0,0,0,0.06)'" onmouseout="this.style.transform=''; this.style.boxShadow=''">
+        <div style="font-size: 10px; font-weight: 700; letter-spacing: 0.1em; color: var(--success); text-transform: uppercase; margin-bottom: 6px;">Photo Downloads</div>
+        <div style="font-family: var(--font-display); font-size: 26px; font-weight: 400; color: var(--success);">{{ downloads_count }}</div>
+        <div style="font-size: 11.5px; color: var(--text-muted); margin-top: 2px;">Single & batch downloads</div>
+      </div>
+      <div style="background: rgba(255,255,255,0.04); backdrop-filter: blur(16px); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 18px 20px; transition: transform 0.2s var(--ease-spring), box-shadow 0.2s ease;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 16px rgba(0,0,0,0.06)'" onmouseout="this.style.transform=''; this.style.boxShadow=''">
+        <div style="font-size: 10px; font-weight: 700; letter-spacing: 0.1em; color: #a78bfa; text-transform: uppercase; margin-bottom: 6px;">Guest RSVP</div>
+        <div style="font-family: var(--font-display); font-size: 26px; font-weight: 400; color: #a78bfa;">{{ guests_count }}</div>
+        <div style="font-size: 11.5px; color: var(--text-muted); margin-top: 2px;">Registered contacts</div>
+      </div>
+    </div>
+
+    <!-- Processing Pipeline Bar -->
+    <div style="background: rgba(255,255,255,0.04); backdrop-filter: blur(16px); border: 1px solid var(--border); border-radius: var(--radius-lg); margin-bottom: 28px; padding: 22px 28px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <div style="font-size: 10.5px; font-weight: 700; letter-spacing: 0.1em; color: var(--text-muted); text-transform: uppercase;">AI Recognition Pipeline</div>
+        </div>
+        <div id="processingPercentText" style="font-family: var(--font-display); font-weight: 400; color: var(--gold); font-size: 18px;">
+          {{ progress.percentage }}%
+        </div>
+      </div>
+
+      <div style="width: 100%; height: 6px; background: var(--bg-warm); border-radius: var(--radius-pill); overflow: hidden; margin-bottom: 16px;">
+        <div id="processingProgressBar" style="height: 100%; width: {{ progress.percentage }}%; background: linear-gradient(90deg, var(--gold), var(--gold-light, #D4A84B)); transition: width 0.3s ease; border-radius: var(--radius-pill);"></div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; font-size: 12px; font-weight: 600;">
+        <div style="color: var(--text-muted);">TOTAL: <strong id="progTotal" style="color: var(--text-primary);">{{ progress.total }}</strong></div>
+        <div style="color: var(--text-muted);">PROCESSED: <strong id="progCompleted" style="color: var(--success);">{{ progress.completed }}</strong></div>
+        <div style="color: var(--text-muted);">FACES: <strong id="progFaces" style="color: var(--gold);">{{ progress.faces_detected }}</strong></div>
+        <div style="color: var(--text-muted);">FAILED: <strong id="progFailed" style="color: var(--danger);">{{ progress.failed }}</strong></div>
+      </div>
+    </div>
+
+
+    <!-- Bulk Upload Zone -->
+    <div style="background: rgba(255,255,255,0.04); backdrop-filter: blur(16px); border: 2px dashed rgba(199,168,107,0.3); border-radius: var(--radius-lg); margin-bottom: 32px; padding: 44px 40px; text-align: center; cursor: pointer; transition: border-color 0.2s, background 0.2s;" onclick="document.getElementById('bulkFileInput').click()" onmouseover="this.style.borderColor='var(--gold)'; this.style.background='rgba(199,168,107,0.03)'" onmouseout="this.style.borderColor='rgba(199,168,107,0.3)'; this.style.background='rgba(255,255,255,0.04)'">
+      <input 
+        type="file" 
+        id="bulkFileInput" 
+        multiple 
+        accept="image/jpeg,image/png,image/webp,image/jpg" 
+        style="display: none;" 
+        onchange="handleBulkFilesSelected(this.files)"
+      >
+      <div style="width: 56px; height: 56px; border-radius: 16px; background: rgba(199,168,107,0.08); border: 1px solid rgba(199,168,107,0.15); display: flex; align-items: center; justify-content: center; color: var(--gold); margin: 0 auto 16px; font-size: 24px;">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      </div>
+      <h3 style="font-family: var(--font-display); font-size: 20px; font-weight: 400; margin-bottom: 6px; color: var(--text-primary);">Drop your event photos here</h3>
+      <p style="color: var(--text-secondary); font-size: 13.5px; max-width: 440px; margin: 0 auto 20px; line-height: 1.6;">
+        JPG, JPEG, PNG, WEBP supported. Duplicate SHA-256 detection & Cloudflare R2 backup.
+      </p>
+      <button class="btn btn-primary btn-sm" style="display: inline-flex; align-items: center; gap: 6px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        Browse Photos
+      </button>
+
+      <div id="uploadStatusBox" style="display: none; margin-top: 18px; padding: 12px; background: rgba(199,168,107,0.06); border: 1px solid rgba(199,168,107,0.2); color: var(--gold); font-size: 13px; font-weight: 600; border-radius: var(--radius-sm);">
+        <span id="uploadStatusText"></span>
+      </div>
+    </div>
+
+    <!-- Photo Manager Grid -->
+    <div style="background: rgba(255,255,255,0.04); backdrop-filter: blur(16px); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px 28px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
+        <div>
+          <h2 style="font-family: var(--font-display); font-size: 22px; font-weight: 400; color: var(--text-primary);">Event Photos ({{ photos.count }})</h2>
+          <span style="font-size: 12.5px; color: var(--text-muted);">&#9733; = Public Highlight &bull; &#128444; = Set Cover &bull; &#9745; = Bulk Select</span>
+          
+          <div style="display:flex; gap: 16px; margin-top: 12px; border-bottom: 1px solid var(--border);">
+            <button class="btn-tab active" onclick="filterPhotos('all')" style="background:none; border:none; color:var(--text-primary); padding-bottom:6px; border-bottom: 2px solid var(--gold); font-weight:600; font-size:13px; cursor:pointer;">All Photos</button>
+            <button class="btn-tab" onclick="filterPhotos('official')" style="background:none; border:none; color:var(--text-muted); padding-bottom:6px; font-weight:600; font-size:13px; cursor:pointer;">Official Uploads</button>
+            <button class="btn-tab" onclick="filterPhotos('guest')" style="background:none; border:none; color:var(--text-muted); padding-bottom:6px; font-weight:600; font-size:13px; cursor:pointer;">Guest Uploads</button>
+          </div>
+        </div>
+
+        {% if photos %}
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+          <button id="bulkSelectToggle" class="btn btn-secondary btn-sm" onclick="toggleBulkMode()" style="display: flex; align-items: center; gap: 6px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            Select
+          </button>
+          <button class="btn btn-secondary btn-sm" onclick="reprocessFailedPhotos()" style="display: flex; align-items: center; gap: 6px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+            Reprocess Failed
+          </button>
+          <button class="btn btn-danger btn-sm" onclick="deleteAllPhotos()" style="display: flex; align-items: center; gap: 6px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            Delete All
+          </button>
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- Bulk Actions Toolbar (shows when in select mode) -->
+      <div id="bulkToolbar" style="display:none; background: var(--bg-warm); border: 1px solid var(--gold-border); border-radius: 10px; padding: 12px 16px; margin-bottom: 16px; display: none; align-items: center; gap: 12px; flex-wrap: wrap;">
+        <span id="bulkCountLabel" style="font-size: 13px; font-weight: 700; color: var(--gold);">0 selected</span>
+        <button class="btn btn-secondary btn-sm" onclick="selectAllPhotos()">Select All</button>
+        <button class="btn btn-secondary btn-sm" onclick="deselectAllPhotos()">Deselect All</button>
+        <button class="btn btn-secondary btn-sm" onclick="bulkSetHighlight(true)">★ Set Highlight</button>
+        <button class="btn btn-secondary btn-sm" onclick="bulkSetHighlight(false)">☆ Unset Highlight</button>
+        <button class="btn btn-secondary btn-sm" onclick="bulkDownloadSelected()">⬇ Download Selected</button>
+        <button class="btn btn-danger btn-sm" onclick="bulkDeleteSelected()">🗑 Delete Selected</button>
+      </div>
+
+      <!-- View Controls + Sort (Modules C & F) -->
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 8px;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <label style="font-size: 12px; color: var(--text-muted); font-weight: 600;">SORT</label>
+          <select id="photoSortSelect" onchange="sortPhotos(this.value)" style="font-size: 12px; padding: 5px 10px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-surface); color: var(--text-primary);">
+            <option value="newest">Newest First</option>
+            <option value="oldest">Oldest First</option>
+            <option value="highlighted">Highlights First</option>
+            <option value="date_taken">Date Taken</option>
+            <option value="filename">Filename A-Z</option>
+          </select>
+        </div>
+        <div style="display: flex; gap: 4px;">
+            <button onclick="setGridView('masonry')" class="btn btn-secondary btn-sm" id="btnViewMasonry" title="Masonry" style="background: var(--gold); color: white; border-color: var(--gold);">⊞</button>
+            <button onclick="setGridView('grid')" class="btn btn-secondary btn-sm" id="btnViewGrid" title="Grid">⊟</button>
+            <button onclick="setGridView('list')" class="btn btn-secondary btn-sm" id="btnViewList" title="List">☰</button>
+            <button onclick="setGridView('theater')" class="btn btn-secondary btn-sm" id="btnViewTheater" title="Theater">▯</button>
+          </div>
+        </div>
+      </div>
+
+      {% if photos %}
+      <div id="photoGalleryContainer" class="kshan-gallery-masonry">
+        {% for p in photos %}
+        <div class="gallery-card" id="photoCard{{ p.id }}" data-upload-type="{{ p.uploaded_by_type|default:'official' }}" onclick="handlePhotoCardClick(event, {{ p.id }})" style="border-radius: var(--radius-md); overflow: hidden;">
+          <!-- Bulk Checkbox -->
+          <div class="bulk-checkbox-overlay" id="cb{{ p.id }}" style="display:none; position: absolute; top: 10px; left: 10px; z-index: 10;">
+            <div id="cbInner{{ p.id }}" style="width: 22px; height: 22px; border-radius: 6px; border: 2px solid white; background: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; font-size: 13px; cursor: pointer; transition: all 0.15s;"></div>
+          </div>
+
+          <!-- Face Badge -->
+          <div style="position: absolute; top: 10px; left: 10px; z-index: 5; background: rgba(17,17,17,0.9); backdrop-filter: blur(8px); border: 1px solid var(--border); padding: 4px 10px; border-radius: var(--radius-pill); display: flex; align-items: center; gap: 5px; box-shadow: var(--shadow-sm);" class="face-badge-label">
+            <span style="width: 6px; height: 6px; border-radius: 50%; background: {% if p.processing_status == 'completed' %}var(--gold){% elif p.processing_status == 'processing' %}#0284c7{% elif p.processing_status == 'failed' %}var(--danger){% else %}var(--text-muted){% endif %};"></span>
+            <span style="font-size: 10px; font-weight: 700; color: var(--text-primary);">
+              {% if p.processing_status == 'completed' %}
+                {{ p.faces.count }} Face{{ p.faces.count|pluralize }}
+              {% else %}
+                {{ p.processing_status|title }}
+              {% endif %}
+            </span>
+          </div>
+
+          <!-- Top Action Buttons -->
+          <div style="position: absolute; top: 10px; right: 10px; z-index: 5; display: flex; gap: 4px; opacity: 0; transition: opacity 0.2s;" class="photo-action-btns">
+            <button onclick="event.stopPropagation(); showPhotoInfo({{ p.id }})" title="Photo Info" style="background: rgba(17,17,17,0.85); backdrop-filter: blur(8px); color: var(--text-primary); border: 1px solid var(--border); border-radius: 8px; padding: 5px 8px; font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.15)'" onmouseout="this.style.background='rgba(17,17,17,0.85)'">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            </button>
+            <button onclick="event.stopPropagation(); toggleHighlight({{ p.id }})" title="Toggle Highlight" style="background: rgba(17,17,17,0.85); backdrop-filter: blur(8px); color: {% if p.is_highlight %}var(--gold){% else %}var(--text-muted){% endif %}; border: 1px solid var(--border); border-radius: 8px; padding: 5px 8px; font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.15)'" onmouseout="this.style.background='rgba(17,17,17,0.85)'">
+              {% if p.is_highlight %}&#9733;{% else %}&#9734;{% endif %}
+            </button>
+            <button onclick="event.stopPropagation(); setCoverPhoto({{ p.id }})" title="Set as Event Cover" style="background: rgba(17,17,17,0.85); backdrop-filter: blur(8px); color: var(--text-muted); border: 1px solid var(--border); border-radius: 8px; padding: 5px 8px; font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.15)'" onmouseout="this.style.background='rgba(17,17,17,0.85)'">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            </button>
+            <button onclick="event.stopPropagation(); downloadSinglePhoto({{ p.id }})" title="Download" style="background: rgba(17,17,17,0.85); backdrop-filter: blur(8px); color: var(--text-muted); border: 1px solid var(--border); border-radius: 8px; padding: 5px 8px; font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.15)'" onmouseout="this.style.background='rgba(17,17,17,0.85)'">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            </button>
+            <button class="btn-danger" style="padding: 4px 8px; border-radius: 8px; font-size: 12px; display: flex; align-items: center; justify-content: center; background: rgba(17,17,17,0.85); backdrop-filter: blur(8px); border: 1px solid var(--border);" onclick="event.stopPropagation(); deleteSinglePhoto({{ p.id }})">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
+
+          <!-- Thumbnail -->
+          <img src="{{ p.thumbnail_url }}" alt="{{ p.original_filename }}" loading="lazy">
+          
+          <!-- Bottom Overlay -->
+          <div class="gallery-overlay">
+            <span style="font-size: 11px; color: #FFFFFF; font-weight: 500; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">
+              {{ p.original_filename }}
+            </span>
+            <a href="{{ p.view_url }}" target="_blank" style="font-size: 11px; color: var(--gold); text-decoration: none; font-weight: 700; margin-top: 4px;">
+              View Original &nearr;
+            </a>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div style="text-align: center; padding: 60px 20px; color: var(--text-muted); font-size: 14px;">
+        <div style="width: 52px; height: 52px; border-radius: 14px; background: rgba(199,168,107,0.08); border: 1px solid rgba(199,168,107,0.15); display: flex; align-items: center; justify-content: center; color: var(--gold); margin: 0 auto 16px; font-size: 22px;">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+        </div>
+        Ready for the moments? Drag & drop photos into the upload area above.
+      </div>
+      {% endif %}
+    </div>
+
+  </main>
+</div>
+
+<!-- ── UPLOAD PROGRESS MODAL POPUP ───────────────────── -->
+<div id="uploadProgressModal" class="modal-backdrop" style="display: none; z-index: 9999;">
+  <div class="modal-window" style="max-width: 480px; text-align: center; padding: 36px 32px;">
+    
+    <div style="width: 52px; height: 52px; border-radius: 50%; background: var(--gold-subtle); border: 1.5px solid var(--gold); display: flex; align-items: center; justify-content: center; color: var(--gold); margin: 0 auto 18px;">
+      <i data-lucide="cloud-upload" style="width: 26px; height: 26px;"></i>
+    </div>
+
+    <div class="kshan-label" style="margin-bottom: 6px;">HIGH-RES BATCH UPLOADER</div>
+    <h2 id="modalUploadHeading" style="font-size: 22px; color: var(--text-primary); margin-bottom: 8px;">Uploading Event Photos</h2>
+    
+    <!-- Progress Bar -->
+    <div style="width: 100%; height: 8px; background: var(--bg-warm); border-radius: var(--radius-pill); overflow: hidden; margin: 20px 0 14px;">
+      <div id="modalUploadProgressBar" style="height: 100%; width: 0%; background: var(--gold); transition: width 0.2s ease; border-radius: var(--radius-pill);"></div>
+    </div>
+
+    <!-- Data Counters -->
+    <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; color: var(--text-primary); margin-bottom: 16px;">
+      <span id="modalUploadPercent">0%</span>
+      <span id="modalUploadBytes">0 MB / 0 MB</span>
+    </div>
+
+    <p id="modalUploadSubtext" style="font-size: 13px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 20px;">
+      Uploading batch... Please keep this tab open.
+    </p>
+
+    <!-- Run in Background Button -->
+    <button type="button" onclick="minimizeUploadModal()" class="btn btn-secondary" style="width: 100%; padding: 12px; font-size: 13.5px; font-weight: 700; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; gap: 8px; background: rgba(255,255,255,0.06); border: 1px solid var(--border);">
+      <i data-lucide="minimize-2" style="width: 16px; height: 16px; color: var(--gold);"></i>
+      <span>Run in Background (Keep Working)</span>
+    </button>
+
+  </div>
+</div>
+
+<!-- Floating Persistent Bottom-Right Background Upload Widget -->
+<div id="bgUploadWidget" onclick="restoreUploadModal()" style="display: none; position: fixed; bottom: 24px; right: 24px; z-index: 10000; background: rgba(14,14,20,0.95); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1.5px solid rgba(199,168,107,0.45); border-radius: 16px; padding: 14px 18px; box-shadow: 0 16px 40px rgba(0,0,0,0.65), 0 0 25px rgba(199,168,107,0.25); cursor: pointer; width: 320px; transition: transform 0.2s ease;" onmouseenter="this.style.transform='scale(1.02)'" onmouseleave="this.style.transform='scale(1)'">
+  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+    <div style="display: flex; align-items: center; gap: 8px;">
+      <span style="width: 8px; height: 8px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 8px var(--gold); animation: pulse 1.5s infinite;"></span>
+      <span style="font-size: 12px; font-weight: 800; color: #FFF; letter-spacing: 0.05em;">UPLOADING PHOTOS</span>
+    </div>
+    <span id="bgUploadPercent" style="font-size: 12px; font-weight: 800; color: var(--gold);">0%</span>
+  </div>
+  <div style="width: 100%; height: 5px; background: rgba(255,255,255,0.1); border-radius: 99px; overflow: hidden; margin-bottom: 6px;">
+    <div id="bgUploadProgressBar" style="height: 100%; width: 0%; background: var(--gradient-gold); border-radius: 99px; transition: width 0.2s ease;"></div>
+  </div>
+  <div style="display: flex; justify-content: space-between; font-size: 10.5px; color: rgba(255,255,255,0.6);">
+    <span id="bgUploadBytes">0 MB / 0 MB</span>
+    <span style="color: var(--gold); font-weight: 700;">Click to Expand &uarr;</span>
+  </div>
+</div>
+
+<!-- Event Settings Modal -->
+<div id="eventSettingsModal" class="modal-backdrop" style="display: none; z-index: 9999;">
+  <div class="modal-window" style="max-width: 560px; max-height: 90vh; overflow-y: auto;">
+    <button class="modal-close-btn" onclick="closeEventSettingsModal()" style="position: absolute; top: 18px; right: 18px; background: none; border: none; font-size: 22px; cursor: pointer; z-index: 10;">&times;</button>
+    <div class="kshan-label" style="margin-bottom: 8px;">EVENT CONFIGURATION</div>
+    <h2 style="font-size: 24px; margin-bottom: 20px; color: var(--text-primary);">Settings</h2>
+
+    <form onsubmit="handleSaveEventSettings(event)" style="display: flex; flex-direction: column; gap: 16px;">
+      <!-- Event Details -->
+      <div>
+        <label class="kshan-label" style="display: block; margin-bottom: 6px;">EVENT NAME</label>
+        <input type="text" id="settingsName" placeholder="Event name" value="{{ event.name }}">
+      </div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+        <div>
+          <label class="kshan-label" style="display: block; margin-bottom: 6px;">EVENT DATE</label>
+          <input type="text" id="settingsEventDate" placeholder="e.g. March 15, 2026" value="{{ event.event_date|default:'' }}">
+        </div>
+        <div>
+          <label class="kshan-label" style="display: block; margin-bottom: 6px;">LOCATION</label>
+          <input type="text" id="settingsLocation" placeholder="Venue location" value="{{ event.location|default:'' }}">
+        </div>
+      </div>
+
+      <!-- Cover Photo -->
+      <div>
+        <label class="kshan-label" style="display: block; margin-bottom: 6px;">COVER PHOTO</label>
+        <div style="display: flex; align-items: center; gap: 12px;">
+          {% if event.cover_photo %}
+          <img src="{{ event.cover_photo.thumbnail_url }}" style="width: 64px; height: 48px; object-fit: cover; border-radius: 6px; border: 1px solid var(--border);">
+          {% else %}
+          <div style="width: 64px; height: 48px; border-radius: 6px; border: 1px dashed var(--border); display: flex; align-items: center; justify-content: center; color: var(--text-muted); font-size: 10px;">No Cover</div>
+          {% endif %}
+          <div style="flex: 1;">
+            <input type="file" id="settingsCoverPhoto" accept="image/*" style="display: none;" onchange="handleCoverPhotoUpload(this)">
+            <button type="button" onclick="document.getElementById('settingsCoverPhoto').click()" class="btn btn-secondary btn-sm" style="width: 100%;">Change Cover Photo</button>
+          </div>
+        </div>
+      </div>
+
+      <div style="height: 1px; background: var(--border); margin: 4px 0;"></div>
+
+      <!-- Access & Security -->
+      <div>
+        <label class="kshan-label" style="display: block; margin-bottom: 6px;">EVENT PASSWORD</label>
+        <input type="text" id="settingsPassword" placeholder="Leave blank for public access" value="{{ event.password|default:'' }}">
+      </div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+        <div>
+          <label class="kshan-label" style="display: block; margin-bottom: 6px;">EVENT EXPIRY</label>
+          <input type="date" id="settingsExpiry" value="{{ event.expires_at|date:'Y-m-d'|default:'' }}">
+        </div>
+        <div>
+          <label class="kshan-label" style="display: block; margin-bottom: 6px;">VISIBILITY</label>
+          <select id="settingsVisibility">
+            <option value="public" {% if event.visibility == 'public' %}selected{% endif %}>Public</option>
+            <option value="invite" {% if event.visibility == 'invite' %}selected{% endif %}>Invite Only</option>
+            <option value="private" {% if event.visibility == 'private' %}selected{% endif %}>Private</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="height: 1px; background: var(--border); margin: 4px 0;"></div>
+
+      <!-- Toggles -->
+      <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px; background: var(--bg-warm); border-radius: var(--radius-sm);">
+        <div>
+          <div style="font-weight: 600; font-size: 14px; color: var(--text-primary);">Allow Guest Uploads</div>
+          <div style="font-size: 12px; color: var(--text-muted);">Guests can upload photos to the gallery</div>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="settingsGuestUpload" {% if event.allow_guest_upload %}checked{% endif %}>
+          <span class="slider round"></span>
+        </label>
+      </div>
+
+      <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px; background: var(--bg-warm); border-radius: var(--radius-sm);">
+        <div>
+          <div style="font-weight: 600; font-size: 14px; color: var(--text-primary);">Allow Guest Downloads</div>
+          <div style="font-size: 12px; color: var(--text-muted);">Guests can download original photos</div>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="settingsGuestDownload" {% if event.allow_guest_download %}checked{% endif %}>
+          <span class="slider round"></span>
+        </label>
+      </div>
+
+      <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px; background: var(--bg-warm); border-radius: var(--radius-sm);">
+        <div>
+          <div style="font-weight: 600; font-size: 14px; color: var(--text-primary);">Watermark Photos</div>
+          <div style="font-size: 12px; color: var(--text-muted);">Apply studio logo to guest downloads</div>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="settingsWatermark" {% if event.watermark_enabled %}checked{% endif %}>
+          <span class="slider round"></span>
+        </label>
+      </div>
+
+      <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px; background: var(--bg-warm); border-radius: var(--radius-sm);">
+        <div>
+          <div style="font-weight: 600; font-size: 14px; color: var(--text-primary);">Face Recognition</div>
+          <div style="font-size: 12px; color: var(--text-muted);">Enable AI face matching for guest search</div>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="settingsFaceRec" {% if event.public_gallery_enabled %}checked{% endif %}>
+          <span class="slider round"></span>
+        </label>
+      </div>
+
+      <div style="height: 1px; background: var(--border); margin: 4px 0;"></div>
+
+      <!-- Download Permissions -->
+      <div>
+        <label class="kshan-label" style="display: block; margin-bottom: 6px;">DOWNLOAD PERMISSIONS</label>
+        <select id="settingsDownloadPerm">
+          <option value="original" {% if event.download_permission == 'original' %}selected{% endif %}>High-Res Originals & Batch ZIP</option>
+          <option value="compressed" {% if event.download_permission == 'compressed' %}selected{% endif %}>Web Optimized Only</option>
+          <option value="disabled" {% if event.download_permission == 'disabled' %}selected{% endif %}>View Only (Downloads Disabled)</option>
+        </select>
+      </div>
+
+      <div style="height: 1px; background: var(--border); margin: 4px 0;"></div>
+
+      <!-- Guest Monetization (Razorpay) -->
+      <div>
+        <div class="kshan-label" style="display: block; margin-bottom: 6px; color: var(--gold);">GUEST MONETIZATION (RAZORPAY)</div>
+        <select id="settingsPricingModel" onchange="togglePricingInputs(this.value)">
+          <option value="free" {% if event.pricing_model == 'free' %}selected{% endif %}>Free Downloads (No Paywall)</option>
+          <option value="paid_per_photo" {% if event.pricing_model == 'paid_per_photo' %}selected{% endif %}>Paid Per Photo (₹)</option>
+          <option value="paid_full_event" {% if event.pricing_model == 'paid_full_event' %}selected{% endif %}>Paid Full Event Album Unlock (₹)</option>
+        </select>
+      </div>
+
+      <div id="pricingInputsBox" style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 10px;">
+        <div>
+          <label class="kshan-label" style="display: block; margin-bottom: 4px;">PRICE / PHOTO (₹)</label>
+          <input type="number" id="settingsPricePerPhoto" value="{{ event.price_per_photo }}" min="0" placeholder="e.g. 49">
+        </div>
+        <div>
+          <label class="kshan-label" style="display: block; margin-bottom: 4px;">FULL EVENT PASS (₹)</label>
+          <input type="number" id="settingsPriceFullEvent" value="{{ event.price_full_event }}" min="0" placeholder="e.g. 299">
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-primary" style="margin-top: 14px; width: 100%;">
+        Save Settings
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- Albums Panel Modal -->
+<div id="albumsPanelModal" class="modal-backdrop" style="display: none; z-index: 9999;">
+  <div class="modal-window" style="max-width: 500px;">
+    <button onclick="closeAlbumsPanel()" style="position: absolute; top: 18px; right: 18px; background: none; border: none; font-size: 22px; cursor: pointer; z-index: 10;">&times;</button>
+    <div class="kshan-label" style="margin-bottom: 8px;">ALBUMS</div>
+    <h2 style="font-size: 22px; margin-bottom: 16px; color: var(--text-primary);">Event Albums</h2>
+    
+    <div style="display: flex; gap: 8px; margin-bottom: 16px;">
+      <input type="text" id="newAlbumName" placeholder="New album name..." style="flex: 1; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-warm); color: var(--text-primary); font-size: 13px;">
+      <button onclick="createAlbum()" class="btn btn-primary btn-sm">Create</button>
+    </div>
+
+    <div id="albumsListContainer" style="max-height: 400px; overflow-y: auto;">
+      <div style="text-align:center;color:var(--text-muted);padding:20px;">Loading albums...</div>
+    </div>
+
+    <div style="margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--border);">
+      <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px;">TIP: Use ☑ Select mode to pick photos, then add them to an album.</p>
+      <button onclick="addSelectedToAlbum()" class="btn btn-secondary btn-sm" style="width: 100%;">+ Add Selected Photos to Album</button>
+    </div>
+  </div>
+</div>
+
+<!-- Admin Fullscreen Lightbox -->
+<div id="adminLightbox" class="modal-backdrop" style="display: none; z-index: 9999; background: rgba(0,0,0,0.95); flex-direction: column;">
+  
+  <!-- Toolbar -->
+  <div style="width: 100%; height: 60px; display: flex; align-items: center; justify-content: space-between; padding: 0 24px; background: linear-gradient(180deg, rgba(0,0,0,0.8) 0%, transparent 100%); position: absolute; top: 0; left: 0; z-index: 10000;">
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <span id="lightboxFilename" style="color: #fff; font-weight: 600; font-size: 14px; text-shadow: 0 1px 4px rgba(0,0,0,0.6);"></span>
+      <span id="lightboxCounter" style="color: rgba(255,255,255,0.5); font-size: 12px; font-weight: 500;">1 / 4</span>
+    </div>
+    <div style="display: flex; gap: 6px; align-items: center;">
+      <!-- Copy Link -->
+      <button onclick="lbActionCopyLink()" title="Copy Shareable Link" class="lb-tool-btn">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+      </button>
+
+      <!-- Download -->
+      <button onclick="lbActionDownload()" title="Download Original" class="lb-tool-btn">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      </button>
+
+      <!-- Print -->
+      <button onclick="lbActionPrint()" title="Print Photo" class="lb-tool-btn">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+      </button>
+
+      <!-- Share -->
+      <button onclick="lbActionShare()" title="Share" class="lb-tool-btn">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+      </button>
+
+      <!-- Slideshow -->
+      <button onclick="lbActionSlideshow()" title="Play Slideshow" class="lb-tool-btn">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+      </button>
+
+      <!-- Favorite -->
+      <button onclick="lbActionFavorite()" title="Toggle Favorite" id="lbFavBtn" class="lb-tool-btn">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      </button>
+
+      <!-- Reprocess (AI) -->
+      <button onclick="lbActionReprocess()" title="Reprocess (Re-run AI)" class="lb-tool-btn">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+      </button>
+
+      <!-- Info / EXIF -->
+      <button onclick="lbActionInfo()" title="Photo Info & EXIF" class="lb-tool-btn">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+      </button>
+
+      <div style="width: 1px; height: 18px; background: rgba(255,255,255,0.15); margin: 0 4px;"></div>
+
+      <!-- Delete -->
+      <button onclick="lbActionDelete()" title="Delete Photo" class="lb-tool-btn lb-tool-danger">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+      </button>
+
+      <div style="width: 1px; height: 18px; background: rgba(255,255,255,0.15); margin: 0 4px;"></div>
+
+      <!-- Close -->
+      <button onclick="closeAdminLightbox()" title="Close (Esc)" class="lb-tool-btn" style="color: rgba(255,255,255,0.85);">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Main Image Container -->
+  <div style="flex: 1; display: flex; align-items: center; justify-content: center; position: relative; width: 100%; height: 100%; overflow: hidden;">
+    <button id="lbPrev" onclick="prevLightboxPhoto()" style="position: absolute; left: 24px; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15); color: white; width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; backdrop-filter: blur(8px); z-index: 10000; transition: all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.2)';" onmouseout="this.style.background='rgba(255,255,255,0.1)';">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+
+    <img id="lightboxMainImage" src="" style="max-width: 90vw; max-height: 90vh; object-fit: contain; border-radius: 6px; box-shadow: 0 12px 48px rgba(0,0,0,0.6);">
+
+    <button id="lbNext" onclick="nextLightboxPhoto()" style="position: absolute; right: 24px; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15); color: white; width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; backdrop-filter: blur(8px); z-index: 10000; transition: all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.2)';" onmouseout="this.style.background='rgba(255,255,255,0.1)';">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+    </button>
+</div>
+
+<style>
+.lb-tool-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #FFFFFF;
+  cursor: pointer;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(8px);
+  transition: all 0.2s ease;
+}
+.lb-tool-btn:hover {
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-1px);
+}
+.lb-tool-btn.lb-tool-danger {
+  color: #F87171;
+  background: rgba(239, 68, 68, 0.12);
+  border-color: rgba(239, 68, 68, 0.25);
+}
+.lb-tool-btn.lb-tool-danger:hover {
+  background: rgba(239, 68, 68, 0.25);
+  border-color: rgba(239, 68, 68, 0.45);
+  color: #FFFFFF;
+}
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+window.EVENT_ID = {{ event.id }};
+let progressInterval = null;
+
+function openEventSettingsModal() {
+  document.getElementById('eventSettingsModal').style.display = 'flex';
+}
+
+function closeEventSettingsModal() {
+  document.getElementById('eventSettingsModal').style.display = 'none';
+}
+
+async function handleSaveEventSettings(e) {
+  e.preventDefault();
+  const body = {
+    name: document.getElementById('settingsName').value,
+    event_date: document.getElementById('settingsEventDate').value,
+    location: document.getElementById('settingsLocation').value,
+    password: document.getElementById('settingsPassword').value,
+    expires_at: document.getElementById('settingsExpiry').value,
+    visibility: document.getElementById('settingsVisibility').value,
+    allow_guest_upload: document.getElementById('settingsGuestUpload').checked,
+    allow_guest_download: document.getElementById('settingsGuestDownload').checked,
+    watermark_enabled: document.getElementById('settingsWatermark').checked,
+    public_gallery_enabled: document.getElementById('settingsFaceRec').checked,
+    download_permission: document.getElementById('settingsDownloadPerm').value,
+    pricing_model: document.getElementById('settingsPricingModel').value,
+    price_per_photo: document.getElementById('settingsPricePerPhoto').value || 0,
+    price_full_event: document.getElementById('settingsPriceFullEvent').value || 0
+  };
+
+  try {
+    const res = await authFetch(`/api/admin/events/${window.EVENT_ID}/settings/`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body)
+    });
+    
+    if (res.ok) {
+      showToast("Settings saved successfully", "success");
+      closeEventSettingsModal();
+      setTimeout(() => window.location.reload(), 1000);
+    } else {
+      const data = await res.json();
+      showToast("Error: " + (data.error || "Failed to save"), "danger");
+    }
+  } catch (err) {
+    showToast("Error saving settings", "danger");
+  }
+}
+
+
+document.addEventListener("DOMContentLoaded", () => {
+  startProgressPolling();
+});
+
+function formatBytes(bytes) {
+  if (bytes === 0) return '0 B';
+  const k = 1024;
+  const sizes = ['B', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+
+function uploadChunkWithProgress(url, formData, onProgress, timeoutMs = 180000) {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", url, true);
+    xhr.timeout = timeoutMs;
+    
+    const token = getCsrfToken();
+    if (token) {
+      xhr.setRequestHeader("X-CSRFToken", token);
+    }
+
+    xhr.upload.onprogress = function(e) {
+      if (e.lengthComputable && onProgress) {
+        onProgress(e.loaded, e.total);
+      }
+    };
+
+    xhr.onload = function() {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        try {
+          resolve(JSON.parse(xhr.responseText));
+        } catch(e) {
+          resolve({ success: true });
+        }
+      } else {
+        try {
+          const err = JSON.parse(xhr.responseText);
+          reject(new Error(err.error || `HTTP ${xhr.status}`));
+        } catch(e) {
+          reject(new Error(`Upload failed with status ${xhr.status}`));
+        }
+      }
+    };
+
+    xhr.ontimeout = function() {
+      reject(new Error("Server response timeout. Your photos are processing in background."));
+    };
+
+    xhr.onerror = function() {
+      reject(new Error("Network connection error during upload."));
+    };
+
+    xhr.send(formData);
+  });
+}
+
+let isUploadMinimized = false;
+
+function minimizeUploadModal() {
+  isUploadMinimized = true;
+  document.getElementById("uploadProgressModal").style.display = "none";
+  document.getElementById("bgUploadWidget").style.display = "block";
+  showToast("Upload continuing in background! You can continue managing your workspace.", "info");
+}
+
+function restoreUploadModal() {
+  isUploadMinimized = false;
+  document.getElementById("uploadProgressModal").style.display = "flex";
+  document.getElementById("bgUploadWidget").style.display = "none";
+}
+
+async function handleBulkFilesSelected(files) {
+  if (!files || files.length === 0) return;
+
+  const modal = document.getElementById("uploadProgressModal");
+  const heading = document.getElementById("modalUploadHeading");
+  const progressBar = document.getElementById("modalUploadProgressBar");
+  const percentText = document.getElementById("modalUploadPercent");
+  const bytesText = document.getElementById("modalUploadBytes");
+  const subtext = document.getElementById("modalUploadSubtext");
+
+  // Background widget elements
+  const bgWidget = document.getElementById("bgUploadWidget");
+  const bgProgressBar = document.getElementById("bgUploadProgressBar");
+  const bgPercentText = document.getElementById("bgUploadPercent");
+  const bgBytesText = document.getElementById("bgUploadBytes");
+
+  isUploadMinimized = false;
+  modal.style.display = "flex";
+  bgWidget.style.display = "none";
+  if (window.lucide) lucide.createIcons();
+
+  const fileList = Array.from(files);
+  const totalFiles = fileList.length;
+  let totalBytes = 0;
+  for (let i = 0; i < totalFiles; i++) {
+    totalBytes += fileList[i].size;
+  }
+
+  const formattedTotalSize = formatBytes(totalBytes);
+
+  // Dynamic intelligent batching: max 6 photos OR 25MB per batch to ensure fast, smooth, non-stalling transfers
+  const MAX_BATCH_BYTES = 25 * 1024 * 1024; // 25 MB
+  const MAX_BATCH_COUNT = 6;
+  const chunks = [];
+  let currentChunk = [];
+  let currentChunkSize = 0;
+
+  for (const file of fileList) {
+    if (currentChunk.length > 0 && (currentChunkSize + file.size > MAX_BATCH_BYTES || currentChunk.length >= MAX_BATCH_COUNT)) {
+      chunks.push(currentChunk);
+      currentChunk = [];
+      currentChunkSize = 0;
+    }
+    currentChunk.push(file);
+    currentChunkSize += file.size;
+  }
+  if (currentChunk.length > 0) {
+    chunks.push(currentChunk);
+  }
+
+  const totalChunks = chunks.length;
+  let totalUploadedPhotos = 0;
+  let overallBytesUploaded = 0;
+
+  for (let c = 0; c < totalChunks; c++) {
+    const chunk = chunks[c];
+    const chunkNum = c + 1;
+
+    let chunkBytes = 0;
+    chunk.forEach(f => chunkBytes += f.size);
+
+    const formData = new FormData();
+    for (const file of chunk) {
+      formData.append("photos", file);
+    }
+
+    try {
+      subtext.textContent = `Uploading batch ${chunkNum} of ${totalChunks} (${totalUploadedPhotos + chunk.length} / ${totalFiles} photos)...`;
+
+      await uploadChunkWithProgress(`/api/events/${window.EVENT_ID}/photos/`, formData, (loaded, chunkTotal) => {
+        const currentTotalUploadedBytes = overallBytesUploaded + loaded;
+        const percent = Math.min(99, Math.round((currentTotalUploadedBytes / totalBytes) * 100));
+
+        progressBar.style.width = `${percent}%`;
+        percentText.textContent = `${percent}%`;
+        bytesText.textContent = `${formatBytes(currentTotalUploadedBytes)} / ${formattedTotalSize}`;
+
+        if (bgProgressBar) bgProgressBar.style.width = `${percent}%`;
+        if (bgPercentText) bgPercentText.textContent = `${percent}%`;
+        if (bgBytesText) bgBytesText.textContent = `${formatBytes(currentTotalUploadedBytes)} / ${formattedTotalSize}`;
+      });
+
+      overallBytesUploaded += chunkBytes;
+      totalUploadedPhotos += chunk.length;
+
+      // Small 50ms yield for browser UI loop
+      await new Promise(r => setTimeout(r, 50));
+
+    } catch (err) {
+      modal.style.display = "none";
+      bgWidget.style.display = "none";
+      showToast(`Upload failed on batch ${chunkNum}: ` + err.message, "danger");
+      return;
+    }
+  }
+
+  // Completed State
+  progressBar.style.width = "100%";
+  percentText.textContent = "100%";
+  bytesText.textContent = `${formattedTotalSize} / ${formattedTotalSize}`;
+  heading.textContent = "Upload Complete! ✨";
+  subtext.textContent = `Successfully uploaded ${totalFiles} photos (${formattedTotalSize}). AI background indexing active.`;
+
+  if (bgProgressBar) bgProgressBar.style.width = "100%";
+  if (bgPercentText) bgPercentText.textContent = "100%";
+  if (bgBytesText) bgBytesText.textContent = "Done!";
+
+  showToast(`All ${totalFiles} photos uploaded (${formattedTotalSize})!`, "success");
+
+  setTimeout(() => {
+    window.location.reload();
+  }, 1000);
+}
+
+async function toggleHighlight(photoId) {
+  try {
+    const res = await authFetch(`/api/admin/photos/${photoId}/toggle-highlight/`, { method: "POST" });
+    const data = await res.json();
+    if (res.ok) {
+      showToast(data.message, "success");
+      setTimeout(() => window.location.reload(), 600);
+    }
+  } catch (err) {
+    showToast(err.message, "danger");
+  }
+}
+
+async function setCoverPhoto(photoId) {
+  try {
+    const res = await authFetch(`/api/admin/events/${window.EVENT_ID}/set-cover/${photoId}/`, { method: "POST" });
+    const data = await res.json();
+    if (res.ok) {
+      showToast("Event cover photo updated!", "success");
+      setTimeout(() => window.location.reload(), 600);
+    }
+  } catch (err) {
+    showToast(err.message, "danger");
+  }
+}
+
+async function deleteSinglePhoto(photoId) {
+  if (!confirm("Are you sure you want to remove this photograph and its facial embeddings?")) return;
+
+  try {
+    const res = await authFetch(`/api/admin/photos/${photoId}/`, { method: "DELETE" });
+    if (res.ok) {
+      showToast("Photo deleted", "info");
+      window.location.reload();
+    }
+  } catch (err) {
+    showToast("Delete failed: " + err.message, "danger");
+  }
+}
+
+async function deleteAllPhotos() {
+  const count = {{ photos.count|default:0 }};
+  if (!confirm(`Are you sure you want to permanently delete ALL ${count} photos, thumbnails, and facial embeddings?`)) return;
+
+  try {
+    const res = await authFetch(`/api/admin/events/${window.EVENT_ID}/delete-photos/`, { method: "POST" });
+    const data = await res.json();
+    if (res.ok) {
+      showToast("All photos deleted successfully", "success");
+      window.location.reload();
+    } else {
+      showToast("Delete failed: " + (data.error || "Server error"), "danger");
+    }
+  } catch (err) {
+    showToast("Delete failed: " + err.message, "danger");
+  }
+}
+
+async function reprocessFailedPhotos() {
+  try {
+    const res = await authFetch(`/api/admin/events/${window.EVENT_ID}/reprocess-failed/`, { method: "POST" });
+    if (res.ok) {
+      showToast("Failed photos queued for re-indexing", "info");
+      window.location.reload();
+    }
+  } catch (err) {
+    showToast("Request failed: " + err.message, "danger");
+  }
+}
+</script>
+
+<!-- \u2500\u2500 Photo Info Sidebar \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 -->
+<div id="photoInfoSidebar" style="position: fixed; top: 0; right: -380px; width: 360px; height: 100vh; background: var(--bg-surface, #141414); border-left: 1px solid rgba(255,255,255,0.07); z-index: 9000; display: flex; flex-direction: column; transition: right 0.3s ease; box-shadow: -8px 0 32px rgba(0,0,0,0.5); font-family: 'Outfit', sans-serif;">
+  <div style="padding: 20px 20px 16px; border-bottom: 1px solid rgba(255,255,255,0.07); display: flex; align-items: center; justify-content: space-between;">
+    <span style="font-size: 14px; font-weight: 700; color: #F5F5F5;">Media Info</span>
+    <button onclick="closePhotoInfo()" style="background: none; border: none; color: #737373; font-size: 22px; cursor: pointer; line-height: 1;">&times;</button>
+  </div>
+  <div id="photoInfoContent" style="flex: 1; overflow-y: auto; padding: 20px;">
+    <div style="text-align: center; color: #737373; padding: 40px 0;">Select a photo to see info</div>
+  </div>
+</div>
+<div id="photoInfoOverlay" style="display:none; position: fixed; inset: 0; z-index: 8999; background: rgba(0,0,0,0.3);" onclick="closePhotoInfo()"></div>
+
+{% block extra_scripts %}{% endblock %}
+<script>
+// \u2500\u2500 BULK SELECT MODE \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+let bulkMode = false;
+let selectedPhotoIds = new Set();
+
+function toggleBulkMode() {
+  bulkMode = !bulkMode;
+  const toolbar = document.getElementById('bulkToolbar');
+  const btn = document.getElementById('bulkSelectToggle');
+  if (bulkMode) {
+    toolbar.style.display = 'flex';
+    btn.textContent = '\u2715 Exit Select';
+    btn.style.background = 'rgba(239,68,68,0.15)';
+    btn.style.borderColor = 'rgba(239,68,68,0.4)';
+    btn.style.color = '#ef4444';
+    // Show all checkboxes
+    document.querySelectorAll('.bulk-checkbox-overlay').forEach(el => el.style.display = 'block');
+    // Hide face badges to avoid crowding
+    document.querySelectorAll('.face-badge-label').forEach(el => el.style.display = 'none');
+  } else {
+    toolbar.style.display = 'none';
+    btn.textContent = '\u2611 Select';
+    btn.style.background = '';
+    btn.style.borderColor = '';
+    btn.style.color = '';
+    selectedPhotoIds.clear();
+    document.querySelectorAll('.bulk-checkbox-overlay').forEach(el => el.style.display = 'none');
+    document.querySelectorAll('.face-badge-label').forEach(el => el.style.display = 'flex');
+    document.querySelectorAll('[id^="photoCard"]').forEach(el => el.style.outline = '');
+    document.querySelectorAll('[id^="cbInner"]').forEach(el => {
+      el.textContent = '';
+      el.style.background = 'rgba(0,0,0,0.4)';
+      el.style.borderColor = 'white';
+    });
+    updateBulkCount();
+  }
+}
+
+function updateBulkCount() {
+  const lbl = document.getElementById('bulkCountLabel');
+  if (lbl) lbl.textContent = `${selectedPhotoIds.size} selected`;
+}
+
+// ── FILTER BY UPLOAD TYPE (Module F) ────────────────────────
+let currentFilter = 'all';
+
+function filterPhotos(type) {
+  currentFilter = type;
+  document.querySelectorAll('.gallery-card[data-upload-type]').forEach(card => {
+    if (type === 'all' || card.dataset.uploadType === type) {
+      card.style.display = '';
+    } else {
+      card.style.display = 'none';
+    }
+  });
+  // Update tab active styles
+  document.querySelectorAll('.btn-tab').forEach(btn => {
+    btn.style.color = 'var(--text-muted)';
+    btn.style.borderBottom = 'none';
+    btn.classList.remove('active');
+  });
+  const targetTab = event && event.target ? event.target : null;
+  if (targetTab) {
+    targetTab.style.color = 'var(--text-primary)';
+    targetTab.style.borderBottom = '2px solid var(--gold)';
+    targetTab.classList.add('active');
+  }
+}
+
+// ── SORT PHOTOS (Module F) ───────────────────────────────────
+function sortPhotos(mode) {
+  const container = document.getElementById('photoGalleryContainer');
+  if (!container) return;
+  const cards = Array.from(container.querySelectorAll('.gallery-card'));
+  cards.sort((a, b) => {
+    if (mode === 'newest') {
+      return parseInt(b.id.replace('photoCard','')) - parseInt(a.id.replace('photoCard',''));
+    } else if (mode === 'oldest') {
+      return parseInt(a.id.replace('photoCard','')) - parseInt(b.id.replace('photoCard',''));
+    } else if (mode === 'highlighted') {
+      const aH = a.querySelector('[title="Toggle Highlight"]')?.textContent?.includes('★') ? -1 : 1;
+      const bH = b.querySelector('[title="Toggle Highlight"]')?.textContent?.includes('★') ? -1 : 1;
+      return aH - bH;
+    } else if (mode === 'date_taken') {
+      const aName = a.querySelector('img')?.alt || '';
+      const bName = b.querySelector('img')?.alt || '';
+      return aName.localeCompare(bName);
+    } else if (mode === 'filename') {
+      const aName = a.querySelector('.gallery-overlay span')?.textContent || '';
+      const bName = b.querySelector('.gallery-overlay span')?.textContent || '';
+      return aName.localeCompare(bName);
+    }
+    return 0;
+  });
+  cards.forEach(card => container.appendChild(card));
+}
+
+function setGridView(mode) {
+  const container = document.getElementById('photoGalleryContainer');
+  if (!container) return;
+  const btns = ['btnViewMasonry', 'btnViewGrid', 'btnViewList', 'btnViewTheater'];
+  btns.forEach(id => {
+    const btn = document.getElementById(id);
+    if (btn) { btn.style.background = ''; btn.style.color = ''; btn.style.borderColor = ''; }
+  });
+  if (mode === 'grid') {
+    container.className = 'kshan-gallery-grid';
+    document.getElementById('btnViewGrid').style.background = 'var(--gold)';
+    document.getElementById('btnViewGrid').style.color = 'white';
+    document.getElementById('btnViewGrid').style.borderColor = 'var(--gold)';
+  } else if (mode === 'list') {
+    container.className = '';
+    container.style.display = 'flex';
+    container.style.flexDirection = 'column';
+    container.style.gap = '4px';
+    document.querySelectorAll('.gallery-card').forEach(card => {
+      card.style.display = 'flex';
+      card.style.flexDirection = 'row';
+      card.style.alignItems = 'center';
+      card.style.height = '48px';
+      card.style.borderRadius = '6px';
+      const img = card.querySelector('img');
+      if (img) { img.style.width = '48px'; img.style.height = '48px'; img.style.borderRadius = '6px'; img.style.objectFit = 'cover'; }
+      const overlay = card.querySelector('.gallery-overlay');
+      if (overlay) { overlay.style.position = 'relative'; overlay.style.flex = '1'; overlay.style.padding = '0 12px'; }
+    });
+    document.getElementById('btnViewList').style.background = 'var(--gold)';
+    document.getElementById('btnViewList').style.color = 'white';
+    document.getElementById('btnViewList').style.borderColor = 'var(--gold)';
+  } else if (mode === 'theater') {
+    container.className = '';
+    container.style.display = 'flex';
+    container.style.flexDirection = 'column';
+    container.style.gap = '24px';
+    container.style.alignItems = 'center';
+    document.querySelectorAll('.gallery-card').forEach(card => {
+      card.style.display = 'block';
+      card.style.width = '100%';
+      card.style.maxWidth = '900px';
+      card.style.height = 'auto';
+      const img = card.querySelector('img');
+      if (img) { img.style.width = '100%'; img.style.height = 'auto'; img.style.borderRadius = '8px'; }
+    });
+    document.getElementById('btnViewTheater').style.background = 'var(--gold)';
+    document.getElementById('btnViewTheater').style.color = 'white';
+    document.getElementById('btnViewTheater').style.borderColor = 'var(--gold)';
+  } else {
+    container.className = 'kshan-gallery-masonry';
+    container.style = '';
+    document.querySelectorAll('.gallery-card').forEach(card => {
+      card.style = '';
+      const img = card.querySelector('img');
+      if (img) img.style = '';
+      const overlay = card.querySelector('.gallery-overlay');
+      if (overlay) overlay.style = '';
+    });
+    document.getElementById('btnViewMasonry').style.background = 'var(--gold)';
+    document.getElementById('btnViewMasonry').style.color = 'white';
+    document.getElementById('btnViewMasonry').style.borderColor = 'var(--gold)';
+  }
+}
+
+
+
+function handlePhotoCardClick(e, photoId) {
+  if (!bulkMode) {
+    e.stopPropagation();
+    openAdminLightbox(photoId);
+    return;
+  }
+  e.stopPropagation();
+  const card = document.getElementById('photoCard' + photoId);
+  const cbInner = document.getElementById('cbInner' + photoId);
+  if (selectedPhotoIds.has(photoId)) {
+    selectedPhotoIds.delete(photoId);
+    cbInner.textContent = '';
+    cbInner.style.background = 'rgba(0,0,0,0.4)';
+    cbInner.style.borderColor = 'white';
+    card.style.outline = '';
+  } else {
+    selectedPhotoIds.add(photoId);
+    cbInner.textContent = '\u2713';
+    cbInner.style.color = 'white';
+    cbInner.style.background = 'var(--gold, #C7A86B)';
+    cbInner.style.borderColor = 'var(--gold, #C7A86B)';
+    card.style.outline = '2px solid var(--gold, #C7A86B)';
+  }
+  updateBulkCount();
+}
+
+// ── ADMIN LIGHTBOX (MODULE B) ──────────────────────────
+const ADMIN_PHOTOS = [
+  {% for p in photos %}
+  { id: {{ p.id }}, view_url: "{{ p.view_url }}", filename: "{{ p.original_filename|escapejs }}" },
+  {% endfor %}
+];
+let currentLightboxIndex = 0;
+
+function openAdminLightbox(photoId) {
+  currentLightboxIndex = ADMIN_PHOTOS.findIndex(p => p.id === photoId);
+  if (currentLightboxIndex === -1) return;
+  document.getElementById('adminLightbox').style.display = 'flex';
+  updateLightboxView();
+}
+
+function closeAdminLightbox() {
+  document.getElementById('adminLightbox').style.display = 'none';
+  const img = document.getElementById('lightboxMainImage');
+  img.src = ""; // Stop loading
+}
+
+function prevLightboxPhoto() {
+  if (currentLightboxIndex > 0) {
+    currentLightboxIndex--;
+    updateLightboxView();
+  }
+}
+
+function nextLightboxPhoto() {
+  if (currentLightboxIndex < ADMIN_PHOTOS.length - 1) {
+    currentLightboxIndex++;
+    updateLightboxView();
+  }
+}
+
+function updateLightboxView() {
+  const photo = ADMIN_PHOTOS[currentLightboxIndex];
+  const img = document.getElementById('lightboxMainImage');
+  img.src = photo.view_url;
+  document.getElementById('lightboxFilename').textContent = photo.filename;
+  document.getElementById('lightboxCounter').textContent = `${currentLightboxIndex + 1} / ${ADMIN_PHOTOS.length}`;
+  
+  document.getElementById('lbPrev').style.opacity = currentLightboxIndex > 0 ? '1' : '0.3';
+  document.getElementById('lbPrev').style.pointerEvents = currentLightboxIndex > 0 ? 'auto' : 'none';
+  
+  document.getElementById('lbNext').style.opacity = currentLightboxIndex < ADMIN_PHOTOS.length - 1 ? '1' : '0.3';
+  document.getElementById('lbNext').style.pointerEvents = currentLightboxIndex < ADMIN_PHOTOS.length - 1 ? 'auto' : 'none';
+
+  // Stop slideshow on manual nav
+  if (slideshowInterval) {
+    clearInterval(slideshowInterval);
+    slideshowInterval = null;
+  }
+}
+
+function lbActionInfo() {
+  const photo = ADMIN_PHOTOS[currentLightboxIndex];
+  showPhotoInfo(photo.id); // Triggers sidebar
+}
+
+function lbActionPrint() {
+  const photo = ADMIN_PHOTOS[currentLightboxIndex];
+  const printWindow = window.open('', '_blank');
+  printWindow.document.write(`
+    <html>
+      <head><title>Print Photo - ${photo.filename}</title></head>
+      <body style="margin:0;display:flex;align-items:center;justify-content:center;height:100vh;">
+        <img src="${photo.view_url}" style="max-width:100%;max-height:100%;" onload="window.print();window.close();" />
+      </body>
+    </html>
+  `);
+  printWindow.document.close();
+}
+
+function lbActionDownload() {
+  const photo = ADMIN_PHOTOS[currentLightboxIndex];
+  window.open(`/api/photos/${photo.id}/download/`, '_blank');
+}
+
+function downloadSinglePhoto(photoId) {
+  window.open(`/api/photos/${photoId}/download/`, '_blank');
+}
+
+function lbActionDelete() {
+  const photo = ADMIN_PHOTOS[currentLightboxIndex];
+  deleteSinglePhoto(photo.id);
+}
+
+function lbActionCopyLink() {
+  const photo = ADMIN_PHOTOS[currentLightboxIndex];
+  const url = window.location.origin + photo.view_url;
+  navigator.clipboard.writeText(url).then(() => {
+    showToast('Shareable link copied to clipboard!', 'success');
+  }).catch(() => {
+    showToast('Failed to copy link', 'danger');
+  });
+}
+
+function lbActionShare() {
+  const photo = ADMIN_PHOTOS[currentLightboxIndex];
+  const url = window.location.origin + photo.view_url;
+  if (navigator.share) {
+    navigator.share({ title: photo.filename, url: url }).catch(() => {});
+  } else {
+    const text = encodeURIComponent(`Check out this photo: ${url}`);
+    window.open(`https://wa.me/?text=${text}`, '_blank');
+  }
+}
+
+function lbActionFavorite() {
+  const photo = ADMIN_PHOTOS[currentLightboxIndex];
+  toggleHighlight(photo.id).then(() => {
+    const btn = document.getElementById('lbFavBtn');
+    const card = document.getElementById('photoCard' + photo.id);
+    if (card) {
+      const highlightBtn = card.querySelector('[title="Toggle Highlight"]');
+      if (highlightBtn) {
+        btn.textContent = highlightBtn.textContent.includes('★') ? '★' : '♡';
+      }
+    }
+  });
+}
+
+let slideshowInterval = null;
+function lbActionSlideshow() {
+  if (slideshowInterval) {
+    clearInterval(slideshowInterval);
+    slideshowInterval = null;
+    showToast('Slideshow stopped', 'info');
+    return;
+  }
+  showToast('Slideshow started (3s interval)', 'success');
+  slideshowInterval = setInterval(() => {
+    if (currentLightboxIndex < ADMIN_PHOTOS.length - 1) {
+      nextLightboxPhoto();
+    } else {
+      currentLightboxIndex = -1;
+      nextLightboxPhoto();
+    }
+  }, 3000);
+}
+
+async function lbActionReprocess() {
+  const photo = ADMIN_PHOTOS[currentLightboxIndex];
+  try {
+    const res = await authFetch(`/api/admin/events/${window.EVENT_ID}/reprocess-failed/`, { method: 'POST' });
+    if (res.ok) {
+      showToast('Re-indexing queued for this photo', 'info');
+    }
+  } catch(e) {
+    showToast('Reprocess failed: ' + e.message, 'danger');
+  }
+}
+
+// Keyboard nav
+document.addEventListener('keydown', e => {
+  if (document.getElementById('adminLightbox').style.display === 'flex') {
+    if (e.key === 'ArrowLeft') prevLightboxPhoto();
+    if (e.key === 'ArrowRight') nextLightboxPhoto();
+    if (e.key === 'Escape') closeAdminLightbox();
+  }
+});
+
+function selectAllPhotos() {
+  document.querySelectorAll('[id^="photoCard"]').forEach(card => {
+    const id = parseInt(card.id.replace('photoCard', ''));
+    selectedPhotoIds.add(id);
+    const cbInner = document.getElementById('cbInner' + id);
+    if (cbInner) {
+      cbInner.textContent = '\u2713';
+      cbInner.style.color = 'white';
+      cbInner.style.background = 'var(--gold, #C7A86B)';
+      cbInner.style.borderColor = 'var(--gold, #C7A86B)';
+      card.style.outline = '2px solid var(--gold, #C7A86B)';
+    }
+  });
+  updateBulkCount();
+}
+
+function deselectAllPhotos() {
+  selectedPhotoIds.clear();
+  document.querySelectorAll('[id^="photoCard"]').forEach(card => {
+    const id = parseInt(card.id.replace('photoCard', ''));
+    const cbInner = document.getElementById('cbInner' + id);
+    if (cbInner) {
+      cbInner.textContent = '';
+      cbInner.style.background = 'rgba(0,0,0,0.4)';
+      cbInner.style.borderColor = 'white';
+    }
+    card.style.outline = '';
+  });
+  updateBulkCount();
+}
+
+function updateBulkCount() {
+  const label = document.getElementById('bulkCountLabel');
+  if (label) label.textContent = `${selectedPhotoIds.size} selected`;
+}
+
+function bulkDownloadSelected() {
+  if (!selectedPhotoIds.size) return showToast('No photos selected.', 'warning');
+  selectedPhotoIds.forEach(id => {
+    window.open(`/api/photos/${id}/download/`, '_blank');
+  });
+  showToast(`Downloading ${selectedPhotoIds.size} photo(s)`, 'success');
+}
+
+async function bulkDeleteSelected() {
+  if (!selectedPhotoIds.size) return showToast('No photos selected.', 'warning');
+  if (!confirm(`Permanently delete ${selectedPhotoIds.size} selected photo(s)?`)) return;
+  try {
+    const res = await authFetch(`/api/admin/events/${window.EVENT_ID}/photos/bulk-delete/`, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ photo_ids: Array.from(selectedPhotoIds) })
+    });
+    const data = await res.json();
+    if (res.ok) {
+      showToast(`Deleted ${data.deleted} photo(s)`, 'success');
+      setTimeout(() => window.location.reload(), 1000);
+    } else {
+      showToast(data.error || 'Delete failed', 'danger');
+    }
+  } catch(e) {
+    showToast('Error: ' + e.message, 'danger');
+  }
+}
+
+async function bulkSetHighlight(value) {
+  if (!selectedPhotoIds.size) return showToast('No photos selected.', 'warning');
+  try {
+    const res = await authFetch(`/api/admin/events/${window.EVENT_ID}/photos/bulk-highlight/`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ photo_ids: Array.from(selectedPhotoIds), highlight: value })
+    });
+    const data = await res.json();
+    if (res.ok) {
+      showToast(`Updated ${data.updated} photo(s)`, 'success');
+      setTimeout(() => window.location.reload(), 800);
+    }
+  } catch(e) {
+    showToast('Error: ' + e.message, 'danger');
+  }
+}
+
+// \u2500\u2500 PHOTO INFO SIDEBAR \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+async function showPhotoInfo(photoId) {
+  if (bulkMode) return;
+  const sidebar = document.getElementById('photoInfoSidebar');
+  const overlay = document.getElementById('photoInfoOverlay');
+  const content = document.getElementById('photoInfoContent');
+  content.innerHTML = '<div style="text-align:center;padding:40px;color:#737373">Loading\u2026</div>';
+  sidebar.style.right = '0';
+  overlay.style.display = 'block';
+
+  try {
+    const res = await authFetch(`/api/admin/photos/${photoId}/info/`);
+    const d = await res.json();
+    const fileSizeMB = d.file_size ? (d.file_size / 1024 / 1024).toFixed(2) + ' MB' : 'Unknown';
+    content.innerHTML = `
+      <img src="${d.thumbnail_url}" style="width:100%; border-radius:8px; margin-bottom:16px; object-fit:cover; aspect-ratio:4/3;">
+      <div style="display:flex;flex-direction:column;gap:10px;font-size:12.5px;">
+        <div style="display:flex;justify-content:space-between;"><span style="color:#737373">Filename</span><span style="color:#F5F5F5;font-weight:600;word-break:break-all;max-width:60%">${d.filename}</span></div>
+        <div style="display:flex;justify-content:space-between;"><span style="color:#737373">Uploaded by</span><span style="color:#F5F5F5;font-weight:600">${d.uploaded_by_type === 'guest' ? d.uploaded_by_guest_name : (d.uploaded_by_type === 'team' ? 'Team' : 'Official')}</span></div>
+        <div style="display:flex;justify-content:space-between;"><span style="color:#737373">Dimensions</span><span style="color:#F5F5F5;font-weight:600">${d.width} &times; ${d.height}</span></div>
+        <div style="display:flex;justify-content:space-between;"><span style="color:#737373">File Size</span><span style="color:#F5F5F5;font-weight:600">${fileSizeMB}</span></div>
+        
+        <div style="height:1px; background:rgba(255,255,255,0.07); margin:4px 0;"></div>
+        
+        <div style="display:flex;justify-content:space-between;"><span style="color:#737373">Camera</span><span style="color:#F5F5F5;font-weight:600">${d.exif_camera || 'N/A'}</span></div>
+        <div style="display:flex;justify-content:space-between;"><span style="color:#737373">Lens</span><span style="color:#F5F5F5;font-weight:600">${d.exif_lens || 'N/A'}</span></div>
+        <div style="display:flex;justify-content:space-between;"><span style="color:#737373">Focal length</span><span style="color:#F5F5F5;font-weight:600">${d.exif_focal_length || 'N/A'}</span></div>
+        <div style="display:flex;justify-content:space-between;"><span style="color:#737373">Aperture</span><span style="color:#F5F5F5;font-weight:600">${d.exif_aperture || 'N/A'}</span></div>
+        <div style="display:flex;justify-content:space-between;"><span style="color:#737373">Exposure time</span><span style="color:#F5F5F5;font-weight:600">${d.exif_exposure_time || 'N/A'}</span></div>
+        <div style="display:flex;justify-content:space-between;"><span style="color:#737373">ISO</span><span style="color:#F5F5F5;font-weight:600">${d.exif_iso || 'N/A'}</span></div>
+        <div style="display:flex;justify-content:space-between;"><span style="color:#737373">Date taken</span><span style="color:#F5F5F5;font-weight:600">${d.exif_date_taken || 'N/A'}</span></div>
+        
+        <div style="height:1px; background:rgba(255,255,255,0.07); margin:4px 0;"></div>
+
+        <div style="display:flex;justify-content:space-between;"><span style="color:#737373">Faces Detected</span><span style="color:#C7A86B;font-weight:700">${d.face_count}</span></div>
+        <div style="display:flex;justify-content:space-between;"><span style="color:#737373">Status</span><span style="color:#F5F5F5;font-weight:600">${d.processing_status}</span></div>
+        <div style="display:flex;justify-content:space-between;"><span style="color:#737373">Highlight</span><span style="color:#F5F5F5;font-weight:600">${d.is_highlight ? '★ Yes' : '☆ No'}</span></div>
+        ${d.sub_event ? `<div style="display:flex;justify-content:space-between;"><span style="color:#737373">Ceremony</span><span style="color:#F5F5F5;font-weight:600">${d.sub_event}</span></div>` : ''}
+        <div style="display:flex;justify-content:space-between;"><span style="color:#737373">Uploaded</span><span style="color:#F5F5F5;font-weight:600">${d.uploaded_at}</span></div>
+      </div>
+      <div style="margin-top:20px;display:flex;flex-direction:column;gap:8px;">
+        <a href="${d.view_url}" target="_blank" class="btn btn-secondary btn-sm" style="text-decoration:none;display:flex;align-items:center;justify-content:center;gap:6px;">🔗 View Original</a>
+        <button class="btn btn-danger btn-sm" onclick="closePhotoInfo(); deleteSinglePhoto(${photoId});">🗑 Delete Photo</button>
+      </div>`;
+  } catch(e) {
+    content.innerHTML = '<div style="color:#ef4444;padding:20px;">Failed to load photo info.</div>';
+  }
+}
+
+function closePhotoInfo() {
+  document.getElementById('photoInfoSidebar').style.right = '-380px';
+  document.getElementById('photoInfoOverlay').style.display = 'none';
+}
+
+function filterPhotos(type) {
+  // Update active tab styling
+  document.querySelectorAll('.btn-tab').forEach(tab => {
+    tab.classList.remove('active');
+    tab.style.color = 'var(--text-muted)';
+    tab.style.borderBottom = 'none';
+    if (
+      (type === 'all' && tab.textContent.includes('All')) ||
+      (type === 'official' && tab.textContent.includes('Official')) ||
+      (type === 'guest' && tab.textContent.includes('Guest'))
+    ) {
+      tab.classList.add('active');
+      tab.style.color = 'var(--text-primary)';
+      tab.style.borderBottom = '2px solid var(--gold)';
+    }
+  });
+
+  // Filter gallery items
+  const cards = document.querySelectorAll('.gallery-card');
+  cards.forEach(card => {
+    const cardType = card.getAttribute('data-upload-type');
+    if (type === 'all') {
+      card.style.display = 'block';
+    } else if (type === 'official' && cardType === 'official') {
+      card.style.display = 'block';
+    } else if (type === 'guest' && cardType === 'guest') {
+      card.style.display = 'block';
+    } else {
+      card.style.display = 'none';
+    }
+  });
+}
+
+// ── REPROCESS ALL (Module 8) ──────────────────────────────────
+async function reprocessAllPhotos() {
+  if (!confirm('Re-index all photos with AI face recognition? This may take a while.')) return;
+  try {
+    const res = await authFetch(`/api/admin/events/${window.EVENT_ID}/reprocess-all/`, { method: 'POST' });
+    const data = await res.json();
+    if (res.ok) {
+      showToast(data.message || 'Re-indexing started', 'info');
+      startProgressPolling();
+    }
+  } catch(e) {
+    showToast('Error: ' + e.message, 'danger');
+  }
+}
+
+// ── COVER PHOTO UPLOAD ────────────────────────────────────────
+function handleCoverPhotoUpload(input) {
+  if (!input.files || !input.files[0]) return;
+  const file = input.files[0];
+  const formData = new FormData();
+  formData.append('cover_photo', file);
+  showToast('Uploading cover photo...', 'info');
+  authFetch(`/api/admin/events/${window.EVENT_ID}/settings/`, {
+    method: 'PATCH',
+    body: formData
+  }).then(res => res.json()).then(data => {
+    if (data.message) {
+      showToast('Cover photo updated!', 'success');
+      setTimeout(() => window.location.reload(), 800);
+    }
+  }).catch(e => showToast('Upload failed: ' + e.message, 'danger'));
+}
+
+// ── PROGRESS POLLING ──────────────────────────────────────────
+function startProgressPolling() {
+  if (progressInterval) clearInterval(progressInterval);
+  progressInterval = setInterval(async () => {
+    try {
+      const res = await fetch(`/api/admin/events/${window.EVENT_ID}/progress/`);
+      const data = await res.json();
+      const pct = data.percentage || 0;
+      const bar = document.getElementById('processingProgressBar');
+      const txt = document.getElementById('processingPercentText');
+      if (bar) bar.style.width = pct + '%';
+      if (txt) txt.textContent = pct + '%';
+      const t = document.getElementById('progTotal'); if (t) t.textContent = data.total || 0;
+      const c = document.getElementById('progCompleted'); if (c) c.textContent = data.completed || 0;
+      const f = document.getElementById('progFaces'); if (f) f.textContent = data.faces_detected || 0;
+      const fail = document.getElementById('progFailed'); if (fail) fail.textContent = data.failed || 0;
+      if (pct >= 100 && progressInterval) {
+        clearInterval(progressInterval);
+        progressInterval = null;
+        showToast('All photos processed!', 'success');
+      }
+    } catch(e) {}
+  }, 2000);
+}
+
+// ── ALBUM MANAGEMENT (Module E) ───────────────────────────────
+async function openAlbumsPanel() {
+  const modal = document.getElementById('albumsPanelModal');
+  modal.style.display = 'flex';
+  await loadAlbumsList();
+}
+
+function closeAlbumsPanel() {
+  document.getElementById('albumsPanelModal').style.display = 'none';
+}
+
+async function loadAlbumsList() {
+  const list = document.getElementById('albumsListContainer');
+  list.innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:20px;">Loading albums...</div>';
+  try {
+    const res = await authFetch(`/api/admin/events/${window.EVENT_ID}/albums/`);
+    const data = await res.json();
+    if (!data.albums || data.albums.length === 0) {
+      list.innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:20px;">No albums yet. Create one to organize your photos.</div>';
+      return;
+    }
+    list.innerHTML = data.albums.map(a => `
+      <div style="display:flex;align-items:center;gap:12px;padding:10px;border:1px solid var(--border);border-radius:8px;margin-bottom:8px;">
+        ${a.cover_url ? `<img src="${a.cover_url}" style="width:48px;height:48px;border-radius:6px;object-fit:cover;">` : '<div style="width:48px;height:48px;border-radius:6px;background:var(--bg-warm);display:flex;align-items:center;justify-content:center;color:var(--text-muted);font-size:18px;">🎵</div>'}
+        <div style="flex:1;">
+          <div style="font-weight:600;font-size:14px;color:var(--text-primary);">${a.name}</div>
+          <div style="font-size:12px;color:var(--text-muted);">${a.photo_count} photos</div>
+        </div>
+        <button onclick="deleteAlbum(${a.id})" class="btn btn-danger btn-sm" style="padding:4px 8px;">✕</button>
+      </div>
+    `).join('');
+  } catch(e) {
+    list.innerHTML = '<div style="color:var(--danger);padding:20px;">Failed to load albums.</div>';
+  }
+}
+
+async function createAlbum() {
+  const name = document.getElementById('newAlbumName').value.trim();
+  if (!name) { showToast('Enter an album name', 'warning'); return; }
+  try {
+    const res = await authFetch(`/api/admin/events/${window.EVENT_ID}/albums/create/`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name })
+    });
+    if (res.ok) {
+      document.getElementById('newAlbumName').value = '';
+      showToast('Album created!', 'success');
+      await loadAlbumsList();
+    }
+  } catch(e) {
+    showToast('Failed to create album: ' + e.message, 'danger');
+  }
+}
+
+async function deleteAlbum(albumId) {
+  if (!confirm('Delete this album? Photos will not be deleted.')) return;
+  try {
+    await authFetch(`/api/admin/events/${window.EVENT_ID}/albums/${albumId}/delete/`, { method: 'DELETE' });
+    showToast('Album deleted', 'info');
+    await loadAlbumsList();
+  } catch(e) {
+    showToast('Delete failed: ' + e.message, 'danger');
+  }
+}
+
+async function addSelectedToAlbum() {
+  if (!selectedPhotoIds.size) { showToast('Select photos first using bulk mode', 'warning'); return; }
+  const albumName = prompt('Enter album name (or existing album name):');
+  if (!albumName) return;
+  // Find or create album
+  let albumId = null;
+  try {
+    const res = await authFetch(`/api/admin/events/${window.EVENT_ID}/albums/`);
+    const data = await res.json();
+    const existing = (data.albums || []).find(a => a.name.toLowerCase() === albumName.toLowerCase());
+    if (existing) {
+      albumId = existing.id;
+    } else {
+      const createRes = await authFetch(`/api/admin/events/${window.EVENT_ID}/albums/create/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: albumName })
+      });
+      const createData = await createRes.json();
+      albumId = createData.album.id;
+    }
+    if (albumId) {
+      await authFetch(`/api/admin/events/${window.EVENT_ID}/albums/${albumId}/add-photos/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ photo_ids: Array.from(selectedPhotoIds) })
+      });
+      showToast(`Added ${selectedPhotoIds.size} photos to "${albumName}"`, 'success');
+    }
+  } catch(e) {
+    showToast('Failed: ' + e.message, 'danger');
+  }
+}
+</script>
+{% endblock %}

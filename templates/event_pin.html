@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}PIN Required — {{ event.name }} | KSHAN{% endblock %}
+
+{% block content %}
+<div style="flex: 1; display: flex; align-items: center; justify-content: center; background: var(--bg-main); padding: 48px 24px;">
+  
+  <div class="kshan-card" style="max-width: 420px; width: 100%; padding: 40px 32px; text-align: center; box-shadow: var(--shadow-lg);">
+    <div style="font-size: 36px; color: var(--gold); margin-bottom: 12px;">🔒</div>
+    <div class="gold-label" style="margin-bottom: 8px;">PRIVATE EVENT ACCESS</div>
+    <h1 style="font-size: 26px; margin-bottom: 8px; color: var(--text-main);">{{ event.name }}</h1>
+    <p style="color: var(--text-muted); font-size: 13.5px; margin-bottom: 24px;">This event is protected by a PIN code provided by your host or photographer.</p>
+
+    <div id="pinErrorBox" style="display: none; background: var(--danger-bg); border: 1px solid rgba(255, 137, 151, 0.42); color: var(--danger); padding: 12px 14px; font-size: 13px; border-radius: 6px; margin-bottom: 16px;"></div>
+
+    <form onsubmit="handleVerifyPin(event)" style="display: flex; flex-direction: column; gap: 14px;">
+      <input type="password" id="pinInput" placeholder="ENTER 4-6 DIGIT PIN" required maxlength="10" style="text-align: center; font-size: 18px; letter-spacing: 0.25em; font-family: monospace; padding: 14px;" autofocus>
+      <button type="submit" class="btn-primary" style="padding: 14px;">
+        <span>Unlock Event &rarr;</span>
+      </button>
+    </form>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+async function handleVerifyPin(e) {
+  e.preventDefault();
+  const pin = document.getElementById("pinInput").value.trim();
+  const errBox = document.getElementById("pinErrorBox");
+  errBox.style.display = "none";
+
+  const formData = new FormData();
+  formData.append("pin", pin);
+
+  try {
+    const res = await authFetch(`/api/events/{{ event.event_code }}/verify-pin/`, {
+      method: "POST",
+      body: formData
+    });
+    const data = await res.json();
+    if (res.ok) {
+      window.location.reload();
+    } else {
+      errBox.textContent = data.error || "Incorrect PIN";
+      errBox.style.display = "block";
+    }
+  } catch (err) {
+    errBox.textContent = "Network error: " + err.message;
+    errBox.style.display = "block";
+  }
+}
+</script>
+{% endblock %}

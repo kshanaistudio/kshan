@@ -1,0 +1,10 @@
+{
+  "description": "Discover every photo you appear in at events by taking a selfie or scanning a QR code, while photographers manage galleries and access through a premium interface.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}

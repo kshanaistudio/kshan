@@ -1,0 +1,526 @@
+{% extends "base.html" %}
+
+{% block title %}Master Super Admin Control — KSHAN{% endblock %}
+
+{% block content %}
+<div style="min-height: calc(100vh - 80px); background: #0A090D; color: #FFF; padding: 40px 24px;">
+  <div style="max-width: 1400px; margin: 0 auto;">
+
+    <!-- Top Master Control Header -->
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; margin-bottom: 36px; padding-bottom: 24px; border-bottom: 1px solid rgba(255,255,255,0.1);">
+      <div style="display: flex; align-items: center; gap: 16px;">
+        <div style="width: 54px; height: 54px; border-radius: 16px; background: linear-gradient(135deg, #EF4444, #DC2626); display: flex; align-items: center; justify-content: center; font-size: 26px; box-shadow: 0 0 20px rgba(239,68,68,0.4);">
+          🛡️
+        </div>
+        <div>
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <h1 style="font-family: var(--font-display); font-size: 28px; font-weight: 700; margin: 0; color: #FFF;">KSHAN Master Control Center</h1>
+            <span style="background: rgba(239,68,68,0.2); border: 1px solid rgba(239,68,68,0.4); color: #FCA5A5; font-size: 11px; font-weight: 800; padding: 3px 10px; border-radius: 20px; letter-spacing: 0.08em;">SUPER ROOT</span>
+          </div>
+          <p style="font-size: 13px; color: rgba(255,255,255,0.6); margin: 4px 0 0;">Full system administrative authority over all studios, events, storage, and billing</p>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 12px; align-items: center;">
+        <span style="font-size: 13px; color: #34D399; font-weight: 700; display: flex; align-items: center; gap: 6px; background: rgba(16,185,129,0.12); padding: 8px 14px; border-radius: 12px; border: 1px solid rgba(16,185,129,0.25);">
+          <span style="width: 8px; height: 8px; border-radius: 50%; background: #10B981; box-shadow: 0 0 8px #10B981;"></span>
+          All Microservices Online
+        </span>
+        <a href="/thepranit/logout/" class="btn" style="background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.3); color: #FCA5A5; padding: 10px 18px; border-radius: 12px; font-size: 13px; font-weight: 700; text-decoration: none;">
+          Lock Panel
+        </a>
+      </div>
+    </div>
+
+    <!-- Overview Stats Metrics -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 18px; margin-bottom: 36px;">
+      
+      <div class="glass-dark" style="padding: 22px 20px; border-radius: 20px; border: 1px solid rgba(199,168,107,0.25); background: linear-gradient(145deg, rgba(199,168,107,0.08) 0%, rgba(20,18,24,0.95) 100%);">
+        <div style="font-size: 11px; font-weight: 800; color: var(--gold); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 8px;">TOTAL STUDIOS / USERS</div>
+        <div style="font-size: 32px; font-weight: 900; font-family: var(--font-display); color: #FFF;">{{ total_users|default:"0" }}</div>
+        <div style="font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 4px;">Registered Photographers</div>
+      </div>
+
+      <div class="glass-dark" style="padding: 22px 20px; border-radius: 20px; border: 1px solid rgba(168,85,247,0.25); background: linear-gradient(145deg, rgba(168,85,247,0.08) 0%, rgba(20,18,24,0.95) 100%);">
+        <div style="font-size: 11px; font-weight: 800; color: #C084FC; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 8px;">ACTIVE EVENTS</div>
+        <div style="font-size: 32px; font-weight: 900; font-family: var(--font-display); color: #FFF;">{{ total_events|default:"0" }}</div>
+        <div style="font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 4px;">Across all platforms</div>
+      </div>
+
+      <div class="glass-dark" style="padding: 22px 20px; border-radius: 20px; border: 1px solid rgba(59,130,246,0.25); background: linear-gradient(145deg, rgba(59,130,246,0.08) 0%, rgba(20,18,24,0.95) 100%);">
+        <div style="font-size: 11px; font-weight: 800; color: #60A5FA; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 8px;">PHOTOS INDEXED</div>
+        <div style="font-size: 32px; font-weight: 900; font-family: var(--font-display); color: #FFF;">{{ total_photos|default:"0" }}</div>
+        <div style="font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 4px;">RAW & JPEG assets</div>
+      </div>
+
+      <div class="glass-dark" style="padding: 22px 20px; border-radius: 20px; border: 1px solid rgba(16,185,129,0.25); background: linear-gradient(145deg, rgba(16,185,129,0.08) 0%, rgba(20,18,24,0.95) 100%);">
+        <div style="font-size: 11px; font-weight: 800; color: #34D399; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 8px;">AI FACIAL VECTORS</div>
+        <div style="font-size: 32px; font-weight: 900; font-family: var(--font-display); color: #FFF;">{{ total_faces|default:"0" }}</div>
+        <div style="font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 4px;">128-D Cosine Embeddings</div>
+      </div>
+
+      <div class="glass-dark" style="padding: 22px 20px; border-radius: 20px; border: 1px solid rgba(245,158,11,0.25); background: linear-gradient(145deg, rgba(245,158,11,0.08) 0%, rgba(20,18,24,0.95) 100%);">
+        <div style="font-size: 11px; font-weight: 800; color: #FBBF24; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 8px;">PLATFORM REVENUE</div>
+        <div style="font-size: 32px; font-weight: 900; font-family: var(--font-display); color: #FFF;">₹{{ total_revenue|default:"0" }}</div>
+        <div style="font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 4px;">Razorpay Gross Volume</div>
+      </div>
+
+    </div>
+
+    <!-- Tab Navigation for Sections -->
+    <div style="display: flex; gap: 10px; margin-bottom: 24px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 12px; flex-wrap: wrap;">
+      <button onclick="switchAdminTab('events')" id="adminTabEvents" style="background: var(--gradient-gold); color: #111; padding: 10px 22px; border-radius: 12px; border: none; font-weight: 800; font-size: 13.5px; cursor: pointer;">
+        All Events Database ({{ total_events }})
+      </button>
+      <button onclick="switchAdminTab('studios')" id="adminTabStudios" style="background: transparent; color: rgba(255,255,255,0.7); padding: 10px 22px; border-radius: 12px; border: none; font-weight: 700; font-size: 13.5px; cursor: pointer;">
+        Photographer Accounts ({{ total_users }})
+      </button>
+      <button onclick="switchAdminTab('orders')" id="adminTabOrders" style="background: transparent; color: rgba(255,255,255,0.7); padding: 10px 22px; border-radius: 12px; border: none; font-weight: 700; font-size: 13.5px; cursor: pointer;">
+        Transactions & Revenue Logs
+      </button>
+      <button onclick="switchAdminTab('watermark')" id="adminTabWatermark" style="background: transparent; color: rgba(255,255,255,0.7); padding: 10px 22px; border-radius: 12px; border: none; font-weight: 700; font-size: 13.5px; cursor: pointer;">
+        Global Site Watermark
+      </button>
+    </div>
+
+    <!-- Section 1: All Events Management Table -->
+    <div id="adminEventsSection" class="glass-dark" style="border-radius: 22px; overflow: hidden; border: 1px solid rgba(255,255,255,0.12); margin-bottom: 40px;">
+      <div style="padding: 20px 24px; background: rgba(255,255,255,0.03); border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+        <div>
+          <div style="font-size: 16px; font-weight: 800; color: #FFF;">Global Events Database</div>
+          <div style="font-size: 12px; color: rgba(255,255,255,0.5);">Inspect, publish/unpublish, or permanently delete any studio's event</div>
+        </div>
+        <input type="text" id="eventSearchInput" onkeyup="filterMasterTable('eventTable', this.value)" placeholder="Search by event title, code, studio..." style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); padding: 10px 18px; border-radius: 12px; color: #FFF; font-size: 13px; outline: none; width: 300px;">
+      </div>
+
+      <div style="overflow-x: auto;">
+        <table id="eventTable" style="width: 100%; border-collapse: collapse; text-align: left; font-size: 13.5px;">
+          <thead>
+            <tr style="background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.6); font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; border-bottom: 1px solid rgba(255,255,255,0.08);">
+              <th style="padding: 14px 20px;">Event Title</th>
+              <th style="padding: 14px 20px;">Code</th>
+              <th style="padding: 14px 20px;">Photographer Studio</th>
+              <th style="padding: 14px 20px;">Date</th>
+              <th style="padding: 14px 20px;">Photos</th>
+              <th style="padding: 14px 20px;">Status</th>
+              <th style="padding: 14px 20px; text-align: right;">Master Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for evt in all_events %}
+            <tr id="eventRow_{{ evt.id }}" style="border-bottom: 1px solid rgba(255,255,255,0.05); transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.03)'" onmouseout="this.style.background='transparent'">
+              <td style="padding: 16px 20px; font-weight: 700; color: #FFF;">
+                {{ evt.title }}
+              </td>
+              <td style="padding: 16px 20px;">
+                <span style="background: rgba(199,168,107,0.15); border: 1px solid rgba(199,168,107,0.3); color: var(--gold); font-weight: 800; padding: 3px 10px; border-radius: 8px; font-size: 12px;">#{{ evt.event_code }}</span>
+              </td>
+              <td style="padding: 16px 20px; color: rgba(255,255,255,0.8);">
+                {{ evt.photographer.profile.display_name|default:evt.photographer.username }}
+              </td>
+              <td style="padding: 16px 20px; color: rgba(255,255,255,0.6); font-size: 12.5px;">
+                {{ evt.event_date|default:evt.created_at|date:"M d, Y" }}
+              </td>
+              <td style="padding: 16px 20px; font-weight: 700; color: #60A5FA;">
+                {{ evt.photos.count }}
+              </td>
+              <td style="padding: 16px 20px;">
+                <button onclick="toggleEventPublish('{{ evt.id }}')" id="pubBtn_{{ evt.id }}" style="border: none; cursor: pointer; font-weight: 700; font-size: 12px; padding: 4px 10px; border-radius: 6px; {% if evt.is_published %}background: rgba(16,185,129,0.15); color: #34D399;{% else %}background: rgba(245,158,11,0.15); color: #FBBF24;{% endif %}">
+                  {% if evt.is_published %}● Published{% else %}○ Draft{% endif %}
+                </button>
+              </td>
+              <td style="padding: 16px 20px; text-align: right;">
+                <a href="/event/{{ evt.event_code }}/" target="_blank" style="color: var(--gold); text-decoration: none; font-weight: 700; margin-right: 10px; font-size: 12.5px;">Guest View</a>
+                <a href="/admin/events/{{ evt.event_code }}/" target="_blank" style="color: #60A5FA; text-decoration: none; font-weight: 700; margin-right: 10px; font-size: 12.5px;">Manage Event</a>
+                <button onclick="deleteMasterEvent('{{ evt.id }}', '{{ evt.title|escapejs }}')" style="background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.3); color: #FCA5A5; padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer;">Delete</button>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="7" style="padding: 30px; text-align: center; color: rgba(255,255,255,0.5);">No events registered in database yet.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Section 2: All Photographers / Studios Directory -->
+    <div id="adminStudiosSection" class="glass-dark" style="display: none; border-radius: 22px; overflow: hidden; border: 1px solid rgba(255,255,255,0.12); margin-bottom: 40px;">
+      <div style="padding: 20px 24px; background: rgba(255,255,255,0.03); border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+        <div>
+          <div style="font-size: 16px; font-weight: 800; color: #FFF;">Photographers & Studio Owners</div>
+          <div style="font-size: 12px; color: rgba(255,255,255,0.5);">Manage photographer subscription tiers, studio quotas, and contact records</div>
+        </div>
+        <input type="text" id="studioSearchInput" onkeyup="filterMasterTable('studioTable', this.value)" placeholder="Search by name, email, studio..." style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); padding: 10px 18px; border-radius: 12px; color: #FFF; font-size: 13px; outline: none; width: 300px;">
+      </div>
+
+      <div style="overflow-x: auto;">
+        <table id="studioTable" style="width: 100%; border-collapse: collapse; text-align: left; font-size: 13.5px;">
+          <thead>
+            <tr style="background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.6); font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; border-bottom: 1px solid rgba(255,255,255,0.08);">
+              <th style="padding: 14px 20px;">Photographer / User</th>
+              <th style="padding: 14px 20px;">Email</th>
+              <th style="padding: 14px 20px;">Studio Name</th>
+              <th style="padding: 14px 20px;">Phone</th>
+              <th style="padding: 14px 20px;">Total Events</th>
+              <th style="padding: 14px 20px;">Plan Tier</th>
+              <th style="padding: 14px 20px;">Joined</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for u in all_users %}
+            <tr style="border-bottom: 1px solid rgba(255,255,255,0.05); transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.03)'" onmouseout="this.style.background='transparent'">
+              <td style="padding: 16px 20px; font-weight: 700; color: #FFF; display: flex; align-items: center; gap: 10px;">
+                <div style="width: 32px; height: 32px; border-radius: 50%; background: var(--gradient-gold); color: #111; font-weight: 800; display: flex; align-items: center; justify-content: center; font-size: 13px;">
+                  {{ u.first_name|default:u.username|slice:":1"|upper }}
+                </div>
+                <div>
+                  <div>{{ u.get_full_name|default:u.username }}</div>
+                  <div style="font-size: 11px; color: rgba(255,255,255,0.4);">@{{ u.username }}</div>
+                </div>
+              </td>
+              <td style="padding: 16px 20px; color: rgba(255,255,255,0.7);">
+                {{ u.email|default:"No email provided" }}
+              </td>
+              <td style="padding: 16px 20px; color: var(--gold); font-weight: 600;">
+                {{ u.profile.studio_name|default:"KSHAN Studio" }}
+              </td>
+              <td style="padding: 16px 20px; color: rgba(255,255,255,0.6);">
+                {{ u.profile.phone|default:"—" }}
+              </td>
+              <td style="padding: 16px 20px; font-weight: 800; color: #60A5FA;">
+                {{ u.events.count }}
+              </td>
+              <td style="padding: 16px 20px;">
+                <select onchange="updateUserTier('{{ u.id }}', this.value)" style="background: rgba(20,18,26,0.9); border: 1px solid rgba(168,85,247,0.3); color: #C084FC; font-weight: 800; font-size: 11.5px; padding: 4px 8px; border-radius: 6px; outline: none; cursor: pointer;">
+                  <option value="starter" {% if u.profile.subscription_tier == 'starter' %}selected{% endif %}>STARTER</option>
+                  <option value="basic" {% if u.profile.subscription_tier == 'basic' %}selected{% endif %}>BASIC</option>
+                  <option value="essential" {% if u.profile.subscription_tier == 'essential' %}selected{% endif %}>ESSENTIAL</option>
+                  <option value="professional" {% if u.profile.subscription_tier == 'professional' %}selected{% endif %}>PROFESSIONAL</option>
+                  <option value="studio_elite" {% if u.profile.subscription_tier == 'studio_elite' %}selected{% endif %}>STUDIO ELITE</option>
+                </select>
+              </td>
+              <td style="padding: 16px 20px; color: rgba(255,255,255,0.5); font-size: 12px;">
+                {{ u.date_joined|date:"M d, Y" }}
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="7" style="padding: 30px; text-align: center; color: rgba(255,255,255,0.5);">No photographer accounts found.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Section 3: Transactions & Revenue Logs -->
+    <div id="adminOrdersSection" class="glass-dark" style="display: none; border-radius: 22px; overflow: hidden; border: 1px solid rgba(255,255,255,0.12); margin-bottom: 40px;">
+      <div style="padding: 20px 24px; background: rgba(255,255,255,0.03); border-bottom: 1px solid rgba(255,255,255,0.08);">
+        <div style="font-size: 16px; font-weight: 800; color: #FFF;">Recent Razorpay Payment Orders</div>
+        <div style="font-size: 12px; color: rgba(255,255,255,0.5);">Live audit trail of guest downloads, album unlocks, and subscription payments</div>
+      </div>
+
+      <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 13.5px;">
+          <thead>
+            <tr style="background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.6); font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; border-bottom: 1px solid rgba(255,255,255,0.08);">
+              <th style="padding: 14px 20px;">Order ID</th>
+              <th style="padding: 14px 20px;">Event</th>
+              <th style="padding: 14px 20px;">Type</th>
+              <th style="padding: 14px 20px;">Amount</th>
+              <th style="padding: 14px 20px;">Status</th>
+              <th style="padding: 14px 20px;">Payment ID</th>
+              <th style="padding: 14px 20px;">Time</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for o in all_orders %}
+            <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+              <td style="padding: 16px 20px; font-family: monospace; font-size: 12px; color: rgba(255,255,255,0.8);">
+                {{ o.order_id }}
+              </td>
+              <td style="padding: 16px 20px; font-weight: 700; color: #FFF;">
+                {{ o.event.title|default:"Platform Upgrade" }}
+              </td>
+              <td style="padding: 16px 20px; color: var(--gold); font-weight: 600; text-transform: uppercase; font-size: 11.5px;">
+                {{ o.payment_type }}
+              </td>
+              <td style="padding: 16px 20px; font-weight: 800; color: #34D399;">
+                ₹{{ o.amount }}
+              </td>
+              <td style="padding: 16px 20px;">
+                {% if o.status == 'paid' %}
+                <span style="color: #34D399; font-weight: 800; font-size: 11.5px; background: rgba(16,185,129,0.15); padding: 3px 8px; border-radius: 6px;">PAID</span>
+                {% else %}
+                <span style="color: #FBBF24; font-weight: 800; font-size: 11.5px; background: rgba(245,158,11,0.15); padding: 3px 8px; border-radius: 6px;">{{ o.status|upper }}</span>
+                {% endif %}
+              </td>
+              <td style="padding: 16px 20px; font-family: monospace; font-size: 11.5px; color: rgba(255,255,255,0.6);">
+                {{ o.payment_id|default:"—" }}
+              </td>
+              <td style="padding: 16px 20px; color: rgba(255,255,255,0.5); font-size: 12px;">
+                {{ o.created_at|date:"M d, H:i" }}
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="7" style="padding: 30px; text-align: center; color: rgba(255,255,255,0.5);">No payment orders logged yet.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Section 4: Global Site Watermark Management -->
+    <div id="adminWatermarkSection" class="glass-dark" style="display: none; border-radius: 22px; overflow: hidden; border: 1px solid rgba(255,255,255,0.12); margin-bottom: 40px; padding: 32px;">
+      <div style="margin-bottom: 24px;">
+        <span class="badge badge-gold" style="margin-bottom: 8px;">GLOBAL SYSTEM WATERMARK</span>
+        <h2 style="font-size: 22px; font-weight: 700; color: #FFF; margin: 4px 0 6px;">Site-Wide Photo Watermarking (/thepranit)</h2>
+        <p style="font-size: 13.5px; color: rgba(255,255,255,0.6); max-width: 680px; line-height: 1.5;">
+          Every photo uploaded across all photographers & events will automatically display this site logo watermark on the <b>bottom-right corner</b> by default.
+        </p>
+      </div>
+
+      <form onsubmit="saveSiteWatermark(event)" style="max-width: 620px; display: flex; flex-direction: column; gap: 20px;">
+        <input type="hidden" name="action" value="update_site_watermark">
+        <input type="hidden" name="remove_site_logo" id="removeSiteLogoInput" value="0">
+
+        <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.04); padding: 18px 20px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.08);">
+          <div>
+            <div style="font-weight: 700; font-size: 14.5px; color: #FFF;">Enable Bottom-Right Site Watermark</div>
+            <div style="font-size: 12px; color: rgba(255,255,255,0.5);">Stamps site logo on all event images automatically</div>
+          </div>
+          <label style="position: relative; display: inline-block; width: 44px; height: 24px; margin: 0; cursor: pointer;">
+            <input type="checkbox" id="siteWatermarkEnabled" {% if site_settings.site_watermark_enabled %}checked{% endif %} style="opacity: 0; width: 0; height: 0;">
+            <span style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(255,255,255,0.2); transition: .3s; border-radius: 24px;" onclick="this.previousElementSibling.checked = !this.previousElementSibling.checked; this.style.backgroundColor = this.previousElementSibling.checked ? '#C7A86B' : 'rgba(255,255,255,0.2)';"></span>
+          </label>
+        </div>
+
+        <div>
+          <label style="display: block; margin-bottom: 6px; font-size: 11px; font-weight: 700; color: var(--gold); letter-spacing: 0.1em; text-transform: uppercase;">SITE BRAND NAME / TEXT FALLBACK</label>
+          <input type="text" id="siteBrandName" value="{{ site_settings.site_brand_name|default:'KSHAN' }}" placeholder="e.g. KSHAN" style="width: 100%; padding: 12px 16px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.05); color: #FFF; font-size: 14px; outline: none;">
+        </div>
+
+        <div>
+          <label style="display: block; margin-bottom: 6px; font-size: 11px; font-weight: 700; color: var(--gold); letter-spacing: 0.1em; text-transform: uppercase;">SITE LOGO TRANSPARENT PNG (BOTTOM-RIGHT)</label>
+          <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
+            {% if site_settings.site_watermark_logo %}
+            <div id="currentSiteLogoBox" style="display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.08); padding: 8px 14px; border-radius: 10px;">
+              <img src="{{ site_settings.site_watermark_logo.url }}" alt="Site Logo" style="max-height: 36px; max-width: 120px; object-fit: contain;">
+              <button type="button" onclick="markSiteLogoForRemoval()" style="background: rgba(239,68,68,0.2); border: 1px solid rgba(239,68,68,0.4); color: #FCA5A5; font-size: 11px; padding: 4px 8px; border-radius: 6px; cursor: pointer;">Remove</button>
+            </div>
+            {% else %}
+            <div style="display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.06); padding: 8px 14px; border-radius: 10px;">
+              <img src="/static/images/kshan_kalam_logo_gold.png" alt="Default Kshan Logo" style="max-height: 36px; max-width: 120px; object-fit: contain;">
+              <span style="font-size: 11.5px; color: var(--gold); font-weight: 600;">(Default System Logo)</span>
+            </div>
+            {% endif %}
+            <input type="file" id="siteLogoFileInput" accept="image/png,image/svg+xml,image/webp" style="font-size: 13px;">
+          </div>
+        </div>
+
+        <div>
+          <label style="display: block; margin-bottom: 6px; font-size: 11px; font-weight: 700; color: var(--gold); letter-spacing: 0.1em; text-transform: uppercase;">WATERMARK OPACITY ({{ site_settings.site_watermark_opacity|default:'0.85' }})</label>
+          <input type="range" id="siteWatermarkOpacity" min="0.1" max="1.0" step="0.05" value="{{ site_settings.site_watermark_opacity|default:'0.85' }}" style="width: 100%; accent-color: var(--gold);" oninput="document.getElementById('opacityVal').innerText = this.value">
+          <div style="font-size: 11.5px; color: rgba(255,255,255,0.5); margin-top: 4px;">Current opacity: <span id="opacityVal" style="color: #FFF; font-weight: 700;">{{ site_settings.site_watermark_opacity|default:'0.85' }}</span></div>
+        </div>
+
+        <div style="padding-top: 10px;">
+          <button type="submit" class="btn btn-gold" style="padding: 14px 28px; font-size: 14px; font-weight: 800; cursor: pointer;">
+            Save Global Watermark Settings
+          </button>
+        </div>
+      </form>
+    </div>
+
+  </div>
+</div>
+
+<script>
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== '') {
+    const cookies = document.cookie.split(';');
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i].trim();
+      if (cookie.substring(0, name.length + 1) === (name + '=')) {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+}
+
+function switchAdminTab(tab) {
+  const evtSec = document.getElementById('adminEventsSection');
+  const stuSec = document.getElementById('adminStudiosSection');
+  const ordSec = document.getElementById('adminOrdersSection');
+  const wtrSec = document.getElementById('adminWatermarkSection');
+  
+  const evtBtn = document.getElementById('adminTabEvents');
+  const stuBtn = document.getElementById('adminTabStudios');
+  const ordBtn = document.getElementById('adminTabOrders');
+  const wtrBtn = document.getElementById('adminTabWatermark');
+
+  [evtSec, stuSec, ordSec, wtrSec].forEach(s => { if (s) s.style.display = 'none'; });
+  [evtBtn, stuBtn, ordBtn, wtrBtn].forEach(b => {
+    if (b) {
+      b.style.background = 'transparent';
+      b.style.color = 'rgba(255,255,255,0.7)';
+    }
+  });
+
+  if (tab === 'events' && evtSec) {
+    evtSec.style.display = 'block';
+    evtBtn.style.background = 'var(--gradient-gold)';
+    evtBtn.style.color = '#111';
+  } else if (tab === 'studios' && stuSec) {
+    stuSec.style.display = 'block';
+    stuBtn.style.background = 'var(--gradient-gold)';
+    stuBtn.style.color = '#111';
+  } else if (tab === 'orders' && ordSec) {
+    ordSec.style.display = 'block';
+    ordBtn.style.background = 'var(--gradient-gold)';
+    ordBtn.style.color = '#111';
+  } else if (tab === 'watermark' && wtrSec) {
+    wtrSec.style.display = 'block';
+    wtrBtn.style.background = 'var(--gradient-gold)';
+    wtrBtn.style.color = '#111';
+  }
+}
+
+function markSiteLogoForRemoval() {
+  document.getElementById('removeSiteLogoInput').value = '1';
+  const box = document.getElementById('currentSiteLogoBox');
+  if (box) box.style.opacity = '0.35';
+  alert('Site logo marked for removal. Click Save Global Watermark Settings to apply.');
+}
+
+async function saveSiteWatermark(e) {
+  e.preventDefault();
+  const formData = new FormData();
+  formData.append('action', 'update_site_watermark');
+  formData.append('site_watermark_enabled', document.getElementById('siteWatermarkEnabled').checked ? '1' : '0');
+  formData.append('site_brand_name', document.getElementById('siteBrandName').value);
+  formData.append('site_watermark_opacity', document.getElementById('siteWatermarkOpacity').value);
+  formData.append('remove_site_logo', document.getElementById('removeSiteLogoInput').value);
+
+  const fileInput = document.getElementById('siteLogoFileInput');
+  if (fileInput.files.length > 0) {
+    formData.append('site_watermark_logo', fileInput.files[0]);
+  }
+
+  try {
+    const res = await fetch('/thepranit/', {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': getCookie('csrftoken')
+      },
+      body: formData
+    });
+    const data = await res.json();
+    if (data.success) {
+      alert(data.message || 'Watermark settings saved!');
+      window.location.reload();
+    } else {
+      alert(data.error || 'Failed to save watermark settings');
+    }
+  } catch (err) {
+    alert('Error saving settings: ' + err.message);
+  }
+}
+
+function filterMasterTable(tableId, query) {
+  const filter = query.toUpperCase();
+  const table = document.getElementById(tableId);
+  const tr = table.getElementsByTagName("tr");
+  for (let i = 1; i < tr.length; i++) {
+    const text = tr[i].textContent || tr[i].innerText;
+    if (text.toUpperCase().indexOf(filter) > -1) {
+      tr[i].style.display = "";
+    } else {
+      tr[i].style.display = "none";
+    }
+  }
+}
+
+function deleteMasterEvent(eventId, title) {
+  if (!confirm(`Are you sure you want to permanently delete event "${title}" and all its photos?`)) return;
+
+  const formData = new FormData();
+  formData.append('action', 'delete_event');
+  formData.append('event_id', eventId);
+
+  fetch('/thepranit/', {
+    method: 'POST',
+    headers: { 'X-CSRFToken': getCookie('csrftoken') },
+    body: formData
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.success) {
+      const row = document.getElementById(`eventRow_${eventId}`);
+      if (row) row.remove();
+      alert('Event deleted successfully.');
+    } else {
+      alert('Error: ' + (data.error || 'Could not delete'));
+    }
+  })
+  .catch(err => alert('Network error: ' + err));
+}
+
+function toggleEventPublish(eventId) {
+  const formData = new FormData();
+  formData.append('action', 'toggle_publish');
+  formData.append('event_id', eventId);
+
+  fetch('/thepranit/', {
+    method: 'POST',
+    headers: { 'X-CSRFToken': getCookie('csrftoken') },
+    body: formData
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.success) {
+      const btn = document.getElementById(`pubBtn_${eventId}`);
+      if (btn) {
+        if (data.is_published) {
+          btn.style.background = 'rgba(16,185,129,0.15)';
+          btn.style.color = '#34D399';
+          btn.textContent = '● Published';
+        } else {
+          btn.style.background = 'rgba(245,158,11,0.15)';
+          btn.style.color = '#FBBF24';
+          btn.textContent = '○ Draft';
+        }
+      }
+    }
+  });
+}
+
+function updateUserTier(userId, newTier) {
+  const formData = new FormData();
+  formData.append('action', 'update_tier');
+  formData.append('user_id', userId);
+  formData.append('tier', newTier);
+
+  fetch('/thepranit/', {
+    method: 'POST',
+    headers: { 'X-CSRFToken': getCookie('csrftoken') },
+    body: formData
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.success) {
+      alert('User subscription tier updated to ' + newTier.toUpperCase());
+    } else {
+      alert('Failed to update tier: ' + (data.error || ''));
+    }
+  });
+}
+</script>
+{% endblock %}

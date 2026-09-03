@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}Create Studio Account — KSHAN{% endblock %}
+
+{% block content %}
+<div class="auth-layout" style="flex: 1; display: grid; grid-template-columns: 1fr 1fr; min-height: calc(100vh - 68px); background: var(--bg-warm);">
+  
+  <!-- Left Side: Editorial Photography Panel with Balanced Moody Overlay -->
+  <div style="position: relative; background: #0C0B10; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; padding: 56px;">
+    <img src="/static/images/login_wedding_bg.jpg?v=20260902_couple_bal" alt="Indian Wedding Couple" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 25%; opacity: 0.58; filter: brightness(0.82) contrast(1.08);">
+    
+    <!-- Soft Cinematic Gradient Vignette -->
+    <div style="position: absolute; inset: 0; background: linear-gradient(180deg, rgba(12,11,16,0.6) 0%, rgba(12,11,16,0.15) 45%, rgba(12,11,16,0.75) 100%), radial-gradient(circle at center, transparent 40%, rgba(12,11,16,0.5) 100%); pointer-events: none; z-index: 1;"></div>
+    
+    <div style="position: relative; z-index: 2;">
+      <a href="/" class="kshan-brand" style="color: #FFFFFF; display: flex; align-items: center; gap: 12px; text-decoration: none;">
+        <img src="/static/images/kshan_kalam_logo_gold.png" alt="क्षण Logo" style="height: 32px; width: auto; object-fit: contain; filter: drop-shadow(0 2px 8px rgba(199,168,107,0.5));">
+        <span style="font-family: var(--font-display); font-size: 20px; font-weight: 700; letter-spacing: 0.12em;">KSHAN STUDIO</span>
+      </a>
+    </div>
+
+    <div style="position: relative; z-index: 2; max-width: 440px;">
+      <h2 style="font-family: var(--font-serif); font-size: 34px; color: #FFFFFF; line-height: 1.25; margin-bottom: 14px;">
+        Empower your event photography with instant AI face discovery.
+      </h2>
+      <div style="font-size: 13px; color: var(--gold); font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em;">
+        Cloudflare R2 Backups &bull; Zero Egress Fees
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Side: Registration Form -->
+  <div style="display: flex; align-items: center; justify-content: center; padding: 48px; background: var(--bg-warm);">
+    <div style="max-width: 440px; width: 100%;">
+      
+      <div class="kshan-label" style="margin-bottom: 8px;">GET STARTED FREE</div>
+      <h1 style="font-size: 30px; margin-bottom: 8px; color: var(--text-primary);">Create Studio Account</h1>
+      <p style="color: var(--text-secondary); font-size: 14px; margin-bottom: 24px;">Start sharing face-recognized galleries with your clients.</p>
+
+      {% if error %}
+      <div style="background: var(--danger-bg); border: 1px solid rgba(255, 137, 151, 0.42); color: var(--danger); padding: 12px 16px; font-size: 13px; border-radius: var(--radius-sm); margin-bottom: 20px; font-weight: 500;">
+        {{ error }}
+      </div>
+      {% endif %}
+
+      <form method="POST" action="/signup/" style="display: flex; flex-direction: column; gap: 16px;">
+        {% csrf_token %}
+        <div>
+          <label class="kshan-label" style="display: block; margin-bottom: 6px;">STUDIO OR BRAND NAME</label>
+          <input type="text" name="studio_name" placeholder="e.g. Royal Moments Photography" required autofocus>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+          <div>
+            <label class="kshan-label" style="display: block; margin-bottom: 6px;">USERNAME</label>
+            <input type="text" name="username" placeholder="Username" required>
+          </div>
+          <div>
+            <label class="kshan-label" style="display: block; margin-bottom: 6px;">PHONE NUMBER</label>
+            <input type="tel" name="phone" placeholder="+91 98765 43210">
+          </div>
+        </div>
+
+        <div>
+          <label class="kshan-label" style="display: block; margin-bottom: 6px;">EMAIL ADDRESS</label>
+          <input type="email" name="email" placeholder="studio@example.com">
+        </div>
+
+        <div>
+          <label class="kshan-label" style="display: block; margin-bottom: 6px;">PASSWORD</label>
+          <input type="password" name="password" placeholder="Create strong password" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="padding: 14px; width: 100%; margin-top: 6px;">
+          <span>Create Studio Account</span>
+          <i data-lucide="arrow-right" style="width: 14px; height: 14px;"></i>
+        </button>
+
+        <div style="text-align: center; margin-top: 14px; font-size: 13px; color: var(--text-secondary);">
+          Already have an account? <a href="/login/" style="color: var(--gold); font-weight: 700; text-decoration: none;">Sign In</a>
+        </div>
+      </form>
+
+      <!-- Bottom Centered Brand Emblem -->
+      <div style="margin-top: 40px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; text-align: center;">
+        <a href="/" style="display: flex; align-items: center; justify-content: center; gap: 10px; text-decoration: none;">
+          <img src="/static/images/kshan_kalam_logo_gold.png" alt="क्षण Logo" style="height: 38px; width: auto; object-fit: contain; filter: drop-shadow(0 2px 10px rgba(199,168,107,0.55));">
+          <span style="font-family: var(--font-display); font-size: 20px; font-weight: 700; letter-spacing: 0.14em; color: var(--text-primary); text-transform: uppercase;">KSHAN</span>
+        </a>
+        <div style="font-size: 10px; font-weight: 800; letter-spacing: 0.2em; color: var(--gold); text-transform: uppercase;">STUDIO ACCESS</div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    container_name: kshan_app
+    restart: always
+    ports:
+      - "1212:1212"
+    volumes:
+      - ./.env:/app/.env
+      - ./storage:/app/storage
+      - ./db.sqlite3:/app/db.sqlite3
+    environment:
+      - DJANGO_SETTINGS_MODULE=kshan_project.settings
