@@ -15,9 +15,6 @@ db.sqlite3
 *.db
 *.zip
 *.pdf
-*.jpg
-*.jpeg
-*.png
 storage/events/*
 storage/temporary/*
 storage/logos/*
