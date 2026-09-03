@@ -209,6 +209,8 @@
 <div id="createEventModal" class="modal-backdrop" onclick="if(event.target===this) closeCreateEventModal()" style="display: none; position: fixed; inset: 0; width: 100vw; height: 100vh; background: rgba(5,5,8,0.85); backdrop-filter: blur(14px) saturate(160%); -webkit-backdrop-filter: blur(14px) saturate(160%); z-index: 99999; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box;">
   <div class="modal-window" style="border-radius: 24px; border: 1.5px solid rgba(199,168,107,0.35); border-top: 3.5px solid var(--gold); max-width: 560px; width: 100%; max-height: calc(100vh - 50px); display: flex; flex-direction: column; padding: 0; background: var(--bg-surface); box-shadow: 0 40px 100px -15px rgba(0,0,0,0.85), 0 0 50px rgba(199,168,107,0.18); overflow: hidden; margin: auto; position: relative;">
     
+    <!-- Modal Header -->
+    <div style="padding: 22px 28px 18px; background: linear-gradient(135deg, var(--bg-dark) 0%, #1a1018 100%); position: relative; overflow: hidden; flex-shrink: 0; border-bottom: 1px solid rgba(255,255,255,0.06);">
       <button type="button" onclick="closeCreateEventModal()" aria-label="Close" style="position: absolute; top: 18px; right: 18px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); width: 34px; height: 34px; border-radius: 50%; cursor: pointer; color: rgba(255,255,255,0.75); display: flex; align-items: center; justify-content: center; transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1); padding: 0; outline: none; z-index: 5;" onmouseenter="this.style.background='rgba(239,68,68,0.2)'; this.style.borderColor='rgba(239,68,68,0.4)'; this.style.color='#FF8080'; this.style.transform='rotate(90deg)'" onmouseleave="this.style.background='rgba(255,255,255,0.08)'; this.style.borderColor='rgba(255,255,255,0.12)'; this.style.color='rgba(255,255,255,0.75)'; this.style.transform='rotate(0deg)'">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
       </button>
@@ -219,6 +221,7 @@
       </div>
       <h2 style="font-size: 24px; color: #FFFFFF; font-weight: 400; font-family: var(--font-display); position: relative; z-index: 1; margin: 0;">Create New Event</h2>
     </div>
+
 
     <div style="padding: 22px 28px 26px; overflow-y: auto; flex: 1; box-sizing: border-box;">
       <form onsubmit="handleCreateEvent(event)" style="display: flex; flex-direction: column; gap: 15px;">
