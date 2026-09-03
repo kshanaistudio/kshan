@@ -37,7 +37,7 @@ META_WA_OTP_TEMPLATE_NAME = os.getenv('META_WA_OTP_TEMPLATE_NAME', '')
 
 # Security & Secret Key
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'django-insecure-kshan-face-gallery-key-2026-x99a!b')
-DEBUG = True
+DEBUG = os.getenv('DEBUG', 'False').lower() in ('true', '1', 't')
 ALLOWED_HOSTS = ['*']
 
 # Application definition
