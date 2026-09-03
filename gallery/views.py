@@ -326,6 +326,108 @@ def verify_whatsapp_otp_api(request):
 
     return JsonResponse({"success": True})
 
+@csrf_exempt
+def verify_firebase_otp_api(request):
+    """
+    Verifies Firebase ID Token from frontend phone auth via Google Identity Toolkit,
+    and logs the studio user in or creates a new studio/guest account securely.
+    """
+    if request.method != "POST":
+        return JsonResponse({"success": False, "error": "Method not allowed"}, status=405)
+
+    try:
+        data = json.loads(request.body.decode('utf-8'))
+    except Exception:
+        data = request.POST
+
+    id_token = data.get("id_token", "").strip()
+    purpose = data.get("purpose", "login")
+    studio_name = data.get("studio_name", "").strip()
+    phone_from_frontend = data.get("phone", "").strip()
+
+    if not id_token:
+        return JsonResponse({"success": False, "error": "Firebase authentication token is required."}, status=400)
+
+    # Verify ID Token directly with Google Identity Toolkit API
+    api_key = os.getenv("FIREBASE_API_KEY", "AIzaSyC0oJJ-j9nRAu6Hw55j21MGh2FgYH3nl6E")
+    url = f"https://identitytoolkit.googleapis.com/v1/accounts:lookup?key={api_key}"
+
+    try:
+        resp = requests.post(url, json={"idToken": id_token}, timeout=10)
+        resp_data = resp.json()
+
+        if resp.status_code != 200 or "users" not in resp_data:
+            return JsonResponse({"success": False, "error": "Invalid or expired Firebase verification."}, status=401)
+
+        user_info = resp_data["users"][0]
+        verified_phone = user_info.get("phoneNumber", phone_from_frontend).replace("+", "").replace(" ", "").strip()
+        last_10 = verified_phone[-10:] if len(verified_phone) >= 10 else verified_phone
+
+        from .models import PhotographerProfile
+        from .services.whatsapp_service import normalize_phone_number
+        norm_phone = normalize_phone_number(verified_phone)
+
+        if purpose in ('login', 'studio_access'):
+            # Find user by profile phone or username
+            profile = PhotographerProfile.objects.filter(phone__icontains=last_10).select_related('user').first()
+            user = profile.user if profile else None
+
+            if not user:
+                user = User.objects.filter(username=last_10).first()
+
+            if not user:
+                # Auto-create photographer account if not found
+                import uuid
+                user = User.objects.create_user(
+                    username=last_10,
+                    email=f"{last_10}@kshan.app",
+                    password=uuid.uuid4().hex
+                )
+                profile = PhotographerProfile.objects.create(
+                    user=user,
+                    studio_name=studio_name or f"Studio {last_10}",
+                    display_name=studio_name or last_10,
+                    phone=norm_phone
+                )
+
+            # Log user in
+            login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+            return JsonResponse({
+                "success": True,
+                "message": f"Welcome back, {profile.studio_name if profile else user.username}!",
+                "redirect_url": "/admin/"
+            })
+
+        elif purpose == 'signup':
+            final_username = last_10
+            user = User.objects.filter(username=final_username).first()
+            if not user:
+                import uuid
+                user = User.objects.create_user(
+                    username=final_username,
+                    email=f"{final_username}@kshan.app",
+                    password=uuid.uuid4().hex
+                )
+                PhotographerProfile.objects.create(
+                    user=user,
+                    studio_name=studio_name or f"Studio {final_username}",
+                    display_name=studio_name or final_username,
+                    phone=norm_phone
+                )
+
+            login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+            return JsonResponse({
+                "success": True,
+                "message": "Studio account verified and signed in!",
+                "redirect_url": "/admin/"
+            })
+
+        return JsonResponse({"success": True, "phone": norm_phone})
+
+    except Exception as e:
+        return JsonResponse({"success": False, "error": f"Verification error: {str(e)}"}, status=500)
+
+
 def logout_view(request):
     logout(request)
     return redirect('login')

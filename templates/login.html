@@ -46,24 +46,27 @@
       <!-- Auth Method Switcher -->
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; background: rgba(255,255,255,0.05); padding: 4px; border-radius: var(--radius-md); margin-bottom: 22px; border: 1px solid var(--border);">
         <button type="button" id="tabOtpBtn" onclick="switchLoginMethod('otp')" style="padding: 10px; border: none; border-radius: var(--radius-sm); font-size: 12.5px; font-weight: 700; cursor: pointer; transition: all 0.2s; background: var(--gradient-gold); color: #111;">
-          ⚡ WhatsApp OTP
+          ⚡ Phone SMS OTP
         </button>
         <button type="button" id="tabPassBtn" onclick="switchLoginMethod('password')" style="padding: 10px; border: none; border-radius: var(--radius-sm); font-size: 12.5px; font-weight: 600; cursor: pointer; transition: all 0.2s; background: transparent; color: var(--text-secondary);">
           🔑 Password
         </button>
       </div>
 
-      <!-- Option 1: WhatsApp OTP Form -->
+      <!-- Option 1: Firebase Phone SMS OTP Form -->
       <div id="otpLoginForm" style="display: flex; flex-direction: column; gap: 16px;">
         <div id="phoneStep">
-          <label class="kshan-label" style="display: block; margin-bottom: 6px;">WHATSAPP PHONE NUMBER</label>
+          <label class="kshan-label" style="display: block; margin-bottom: 6px;">PHONE NUMBER WITH COUNTRY CODE</label>
           <div style="display: flex; gap: 8px;">
-            <input type="tel" id="waPhoneInput" placeholder="+91 98765 43210" style="flex: 1; padding: 14px 16px; border-radius: var(--radius-md); border: 1.5px solid var(--border-strong); background: var(--bg-surface); color: var(--text-primary); font-size: 14px; outline: none;" autofocus>
+            <input type="tel" id="waPhoneInput" placeholder="+91 98765 43210" value="+91 " style="flex: 1; padding: 14px 16px; border-radius: var(--radius-md); border: 1.5px solid var(--border-strong); background: var(--bg-surface); color: var(--text-primary); font-size: 14px; outline: none;" autofocus>
           </div>
-          <p style="font-size: 11.5px; color: var(--text-muted); margin-top: 6px;">We'll send a 6-digit one-time code to your WhatsApp via Meta Cloud API.</p>
+          <p style="font-size: 11.5px; color: var(--text-muted); margin-top: 6px;">We'll send a 6-digit one-time code to your phone via Firebase SMS.</p>
           
-          <button type="button" id="btnSendOtp" onclick="handleSendOtp()" class="btn btn-primary" style="padding: 14px; width: 100%; margin-top: 14px;">
-            <span>Send WhatsApp OTP</span>
+          <!-- Invisible reCAPTCHA container -->
+          <div id="recaptcha-container"></div>
+
+          <button type="button" id="btnSendOtp" onclick="handleSendFirebaseOtp()" class="btn btn-primary" style="padding: 14px; width: 100%; margin-top: 14px;">
+            <span>Send SMS OTP</span>
             <i data-lucide="arrow-right" style="width: 14px; height: 14px;"></i>
           </button>
         </div>
@@ -75,9 +78,7 @@
           </div>
           <input type="text" id="waOtpInput" placeholder="• • • • • •" maxlength="6" style="letter-spacing: 0.3em; text-align: center; font-size: 20px; font-weight: 800; padding: 12px; border-radius: var(--radius-md); border: 1.5px solid var(--gold-border); background: var(--bg-surface); color: var(--text-primary); width: 100%; outline: none;">
           
-          <div id="mockOtpBadge" style="display: none; margin-top: 8px; padding: 8px 12px; border-radius: 8px; background: rgba(199,168,107,0.12); border: 1px dashed var(--gold); font-size: 12px; color: var(--gold);"></div>
-
-          <button type="button" id="btnVerifyOtp" onclick="handleVerifyOtp()" class="btn btn-primary" style="padding: 14px; width: 100%; margin-top: 14px;">
+          <button type="button" id="btnVerifyOtp" onclick="handleVerifyFirebaseOtp()" class="btn btn-primary" style="padding: 14px; width: 100%; margin-top: 14px;">
             <span>Verify & Sign In</span>
             <i data-lucide="check-circle" style="width: 14px; height: 14px;"></i>
           </button>
@@ -86,7 +87,7 @@
             <button type="button" onclick="resetOtpPhone()" class="btn btn-ghost btn-sm" style="font-size: 11.5px; padding: 4px 8px;">
               &larr; Change number
             </button>
-            <button type="button" onclick="handleSendOtp()" class="btn btn-ghost btn-sm" style="font-size: 11.5px; color: var(--gold); padding: 4px 8px;">
+            <button type="button" onclick="handleSendFirebaseOtp()" class="btn btn-ghost btn-sm" style="font-size: 11.5px; color: var(--gold); padding: 4px 8px;">
               Resend OTP
             </button>
           </div>
@@ -119,7 +120,7 @@
       <!-- Bottom Centered Brand Emblem -->
       <div style="margin-top: 40px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; text-align: center;">
         <a href="/" style="display: flex; align-items: center; justify-content: center; gap: 10px; text-decoration: none;">
-          <img src="/static/images/kshan_kalam_logo_gold.png" alt="क्षण Logo" style="height: 38px; width: auto; object-fit: contain; filter: drop-shadow(0 2px 10px rgba(199,168,107,0.55));">
+          <img src="/static/images/kshan_kalam_logo_gold.png" alt="Logo" style="height: 38px; width: auto; object-fit: contain; filter: drop-shadow(0 2px 10px rgba(199,168,107,0.55));">
           <span style="font-family: var(--font-display); font-size: 20px; font-weight: 700; letter-spacing: 0.14em; color: var(--text-primary); text-transform: uppercase;">KSHAN</span>
         </a>
         <div style="font-size: 10px; font-weight: 800; letter-spacing: 0.2em; color: var(--gold); text-transform: uppercase;">STUDIO ACCESS</div>
@@ -132,8 +133,32 @@
 {% endblock %}
 
 {% block scripts %}
+<!-- Firebase App & Auth SDKs -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
+  import { getAuth, RecaptchaVerifier, signInWithPhoneNumber } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyC0oJJ-j9nRAu6Hw55j21MGh2FgYH3nl6E",
+    authDomain: "kshanai.firebaseapp.com",
+    projectId: "kshanai",
+    storageBucket: "kshanai.firebasestorage.app",
+    messagingSenderId: "670415123364",
+    appId: "1:670415123364:web:2483260fa09f10c01b0731"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  auth.useDeviceLanguage();
+
+  window.firebaseAuth = auth;
+  window.RecaptchaVerifier = RecaptchaVerifier;
+  window.signInWithPhoneNumber = signInWithPhoneNumber;
+</script>
+
 <script>
-let currentOtpPhone = "";
+let confirmationResult = null;
+let currentPhone = "";
 
 function switchLoginMethod(method) {
   const otpForm = document.getElementById("otpLoginForm");
@@ -158,63 +183,74 @@ function switchLoginMethod(method) {
   }
 }
 
-async function handleSendOtp() {
+function initRecaptcha() {
+  if (!window.recaptchaVerifier && window.RecaptchaVerifier && window.firebaseAuth) {
+    window.recaptchaVerifier = new window.RecaptchaVerifier(window.firebaseAuth, 'recaptcha-container', {
+      'size': 'invisible',
+      'callback': (response) => {
+        // reCAPTCHA solved
+      }
+    });
+  }
+}
+
+async function handleSendFirebaseOtp() {
   const phoneInput = document.getElementById("waPhoneInput");
-  const phone = phoneInput.value.trim();
+  let phone = phoneInput.value.trim().replace(/\s+/g, '');
   const btn = document.getElementById("btnSendOtp");
 
-  if (!phone) {
-    showToast("Please enter your WhatsApp phone number", "warning");
+  if (!phone.startsWith('+')) {
+    phone = '+91' + phone.replace(/^0+/, '');
+  }
+
+  if (phone.length < 10) {
+    showToast("Please enter a valid phone number with country code (e.g. +91 98765 43210)", "warning");
     phoneInput.focus();
     return;
   }
 
   btn.disabled = true;
-  btn.innerHTML = `<span>Sending WhatsApp OTP...</span>`;
+  btn.innerHTML = `<span>Sending SMS OTP...</span>`;
 
   try {
-    const res = await authFetch("/api/auth/whatsapp/send-otp/", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ phone, purpose: "login" })
-    });
-
-    const data = await res.json();
-    if (!res.ok || !data.success) {
-      showToast(data.error || "Failed to send WhatsApp code.", "danger");
-      return;
-    }
-
-    currentOtpPhone = data.phone;
-    document.getElementById("targetPhoneBadge").textContent = `+${data.phone}`;
+    initRecaptcha();
+    const appVerifier = window.recaptchaVerifier;
+    confirmationResult = await window.signInWithPhoneNumber(window.firebaseAuth, phone, appVerifier);
+    
+    currentPhone = phone;
+    document.getElementById("targetPhoneBadge").textContent = phone;
     document.getElementById("phoneStep").style.display = "none";
     document.getElementById("codeStep").style.display = "block";
-    
-    if (data.mock && data.dev_otp) {
-      const mockBadge = document.getElementById("mockOtpBadge");
-      mockBadge.style.display = "block";
-      mockBadge.innerHTML = `⚡ <strong>Dev Simulation:</strong> Code is <strong>${data.dev_otp}</strong>`;
-      document.getElementById("waOtpInput").value = data.dev_otp;
-    }
 
-    showToast(data.message || "OTP code sent via WhatsApp!", "success");
+    showToast("OTP code sent to " + phone, "success");
     document.getElementById("waOtpInput").focus();
   } catch (err) {
-    showToast("Network error: " + err.message, "danger");
+    console.error("Firebase SMS Error:", err);
+    showToast(err.message || "Failed to send SMS. Ensure domain is authorized in Firebase.", "danger");
+    if (window.recaptchaVerifier) {
+      window.recaptchaVerifier.clear();
+      window.recaptchaVerifier = null;
+    }
   } finally {
     btn.disabled = false;
-    btn.innerHTML = `<span>Send WhatsApp OTP</span>`;
+    btn.innerHTML = `<span>Send SMS OTP</span>`;
   }
 }
 
-async function handleVerifyOtp() {
+async function handleVerifyFirebaseOtp() {
   const otpInput = document.getElementById("waOtpInput");
-  const otp_code = otpInput.value.trim();
+  const code = otpInput.value.trim();
   const btn = document.getElementById("btnVerifyOtp");
 
-  if (!otp_code || otp_code.length < 6) {
+  if (!code || code.length < 6) {
     showToast("Please enter the 6-digit code", "warning");
     otpInput.focus();
+    return;
+  }
+
+  if (!confirmationResult) {
+    showToast("Please request an OTP first.", "warning");
+    resetOtpPhone();
     return;
   }
 
@@ -222,24 +258,30 @@ async function handleVerifyOtp() {
   btn.innerHTML = `<span>Verifying...</span>`;
 
   try {
-    const res = await authFetch("/api/auth/whatsapp/verify-otp/", {
+    const result = await confirmationResult.confirm(code);
+    const user = result.user;
+    const idToken = await user.getIdToken();
+
+    // Send token to Django backend for session authentication
+    const res = await authFetch("/api/auth/firebase/verify-otp/", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ phone: currentOtpPhone, otp_code, purpose: "login" })
+      body: JSON.stringify({ id_token: idToken, phone: currentPhone, purpose: "login" })
     });
 
     const data = await res.json();
     if (!res.ok || !data.success) {
-      showToast(data.error || "Verification failed.", "danger");
+      showToast(data.error || "Backend verification failed.", "danger");
       return;
     }
 
-    showToast(data.message || "Signed in successfully!", "success");
+    showToast("Signed in successfully!", "success");
     setTimeout(() => {
       window.location.href = data.redirect_url || "/admin/";
-    }, 800);
+    }, 600);
   } catch (err) {
-    showToast("Error: " + err.message, "danger");
+    console.error("OTP verification error:", err);
+    showToast("Invalid code or verification expired.", "danger");
   } finally {
     btn.disabled = false;
     btn.innerHTML = `<span>Verify & Sign In</span>`;
@@ -253,3 +295,4 @@ function resetOtpPhone() {
 }
 </script>
 {% endblock %}
+

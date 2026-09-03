@@ -22,6 +22,9 @@ urlpatterns = [
     path('api/auth/whatsapp/send-otp', views.send_whatsapp_otp_api),
     path('api/auth/whatsapp/verify-otp/', views.verify_whatsapp_otp_api, name='verify_whatsapp_otp'),
     path('api/auth/whatsapp/verify-otp', views.verify_whatsapp_otp_api),
+    path('api/auth/firebase/verify-otp/', views.verify_firebase_otp_api, name='verify_firebase_otp'),
+    path('api/auth/firebase/verify-otp', views.verify_firebase_otp_api),
+
 
     # Master Super Admin Route (/thepranit)
     path('thepranit/', views.thepranit_admin_view, name='thepranit_admin'),
