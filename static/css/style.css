@@ -2967,3 +2967,295 @@ main {
   border-color: var(--gold) !important;
   background: rgba(255, 255, 255, 0.12) !important;
 }
+
+/* ==========================================================================
+   COMPREHENSIVE MOBILE & TABLET RESPONSIVE SYSTEM (100% MOBILE OPTIMIZATION)
+   ========================================================================== */
+
+/* ── Universal Responsive Touch & Layout Defaults ── */
+@media (max-width: 991px) {
+  html, body {
+    overflow-x: hidden !important;
+    width: 100% !important;
+  }
+
+  /* Responsive Spacings */
+  .kshan-navbar {
+    padding: 10px 16px !important;
+  }
+
+  .kshan-brand img {
+    height: 32px !important;
+  }
+
+  .kshan-brand span:first-child {
+    font-size: 18px !important;
+  }
+
+  /* Studio Workspace Shell on Mobile */
+  .studio-shell {
+    flex-direction: column !important;
+    min-height: auto !important;
+  }
+
+  .studio-sidebar {
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    max-height: none !important;
+    position: relative !important;
+    top: 0 !important;
+    border-right: none !important;
+    border-bottom: 1px solid var(--border) !important;
+    box-shadow: none !important;
+  }
+
+  .studio-sidebar nav {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+    padding: 8px 12px !important;
+    gap: 6px !important;
+  }
+
+  .studio-sidebar nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .sidebar-section-label,
+  .sidebar-divider,
+  .sidebar-user-card {
+    display: none !important;
+  }
+
+  .sidebar-nav-item {
+    white-space: nowrap !important;
+    padding: 8px 14px !important;
+    border-radius: 20px !important;
+    font-size: 12px !important;
+    border: 1px solid rgba(255,255,255,0.08) !important;
+    background: rgba(255,255,255,0.03) !important;
+    flex-shrink: 0 !important;
+  }
+
+  .sidebar-nav-item.active {
+    background: var(--gold-subtle) !important;
+    border-color: var(--gold-border) !important;
+    color: var(--gold) !important;
+  }
+
+  .studio-main {
+    padding: 16px 12px 60px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Universal Grids */
+  .auth-layout {
+    grid-template-columns: 1fr !important;
+  }
+  .auth-layout > div:first-child {
+    display: none !important;
+  }
+  .auth-layout > div:last-child {
+    padding: 32px 18px !important;
+  }
+
+  /* Bento and Metrics Grids */
+  div[style*="grid-template-columns: repeat(4, 1fr)"],
+  div[style*="grid-template-columns: repeat(4,1fr)"],
+  div[style*="grid-template-columns: 2fr 1fr"],
+  div[style*="grid-template-columns: 370px 1fr"],
+  div[style*="grid-template-columns: 1fr 1fr"],
+  .bento-grid-3,
+  .bento-grid-4 {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+
+  /* Form two-column grids */
+  form div[style*="grid-template-columns: 1fr 1fr"] {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  /* Modals */
+  .modal-window,
+  div[style*="max-width: 620px"],
+  div[style*="max-width: 580px"],
+  div[style*="max-width: 540px"] {
+    max-width: 95vw !important;
+    width: 95vw !important;
+    padding: 20px 16px !important;
+    margin: 10px !important;
+  }
+}
+
+/* ── Mobile Phone Specific (< 768px) ── */
+@media (max-width: 767px) {
+  /* Hero Section */
+  section.bg-gradient-hero {
+    padding: 36px 16px 40px !important;
+  }
+
+  section.bg-gradient-hero > div[style*="display: grid"] {
+    grid-template-columns: 1fr !important;
+    gap: 32px !important;
+  }
+
+  h1 {
+    font-size: clamp(28px, 8vw, 42px) !important;
+    line-height: 1.15 !important;
+  }
+
+  .hero-tagline {
+    font-size: 18px !important;
+    margin-bottom: 14px !important;
+  }
+
+  .hero-description {
+    font-size: 13.5px !important;
+    line-height: 1.5 !important;
+    margin-bottom: 24px !important;
+  }
+
+  /* Hero CTA button stacking */
+  section.bg-gradient-hero div[style*="display: flex; gap: 12px"] {
+    flex-direction: column !important;
+    width: 100% !important;
+  }
+
+  section.bg-gradient-hero div[style*="display: flex; gap: 12px"] .btn,
+  section.bg-gradient-hero div[style*="display: flex; gap: 12px"] a {
+    width: 100% !important;
+    justify-content: center !important;
+    text-align: center !important;
+  }
+
+  /* Guest Event Landing Page */
+  div[style*="max-width: 500px"] {
+    padding: 24px 16px !important;
+    border-radius: 20px !important;
+  }
+
+  /* Guest Photo Gallery */
+  header[style*="position: sticky"] {
+    padding: 12px 14px !important;
+    top: 56px !important;
+  }
+
+  header[style*="position: sticky"] > div {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 10px !important;
+  }
+
+  header[style*="position: sticky"] > div > div:last-child {
+    justify-content: space-between !important;
+    width: 100% !important;
+  }
+
+  .kshan-gallery-masonry {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+  }
+
+  .kshan-gallery-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 6px !important;
+  }
+
+  .kshan-gallery-grid .gallery-card {
+    height: 140px !important;
+  }
+
+  main[style*="padding: 32px"] {
+    padding: 16px 10px !important;
+  }
+
+  /* Selection Dock for Mobile */
+  #selectionDock {
+    width: calc(100% - 24px) !important;
+    bottom: 16px !important;
+    padding: 10px 14px !important;
+    justify-content: space-between !important;
+    gap: 8px !important;
+  }
+
+  #selectionDock span {
+    font-size: 11px !important;
+  }
+
+  #selectionDock .btn {
+    padding: 6px 12px !important;
+    font-size: 11px !important;
+  }
+
+  /* Studio Dashboard Banner */
+  div[style*="padding: 36px 40px"],
+  div[style*="padding: 32px 36px"],
+  div[style*="padding: 28px 32px"] {
+    padding: 20px 16px !important;
+    border-radius: 16px !important;
+  }
+
+  /* Event cards grid */
+  div[style*="repeat(auto-fill, minmax(340px, 1fr))"],
+  div[style*="repeat(auto-fill, minmax(260px, 1fr))"],
+  div[style*="repeat(auto-fit, minmax(260px, 1fr))"],
+  div[style*="repeat(auto-fit, minmax(210px, 1fr))"],
+  div[style*="repeat(auto-fit, minmax(170px, 1fr))"] {
+    grid-template-columns: 1fr !important;
+    gap: 14px !important;
+  }
+
+  /* Tables container: Horizontal Scroll support */
+  #table-wrapper,
+  .table-responsive,
+  div[style*="overflow: hidden"] > table {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+    width: 100% !important;
+    display: block !important;
+  }
+
+  /* QR Poster Designer Stack */
+  #printArea {
+    position: relative !important;
+    top: 0 !important;
+    width: 100% !important;
+  }
+
+  #posterCard {
+    width: 100% !important;
+    max-width: 320px !important;
+    margin: 0 auto !important;
+  }
+
+  /* Scrapbook Collage */
+  .scrapbook-canvas {
+    grid-template-columns: 1fr !important;
+    gap: 36px !important;
+  }
+
+  .scrapbook-card {
+    grid-column: 1 / -1 !important;
+    transform: none !important;
+    margin-bottom: 12px !important;
+  }
+
+  .uniq-stroke-text,
+  .uniq-stroke-hindi {
+    font-size: 42px !important;
+  }
+
+  .uniq-footer-grid {
+    grid-template-columns: 1fr !important;
+    gap: 28px !important;
+  }
+}
+
