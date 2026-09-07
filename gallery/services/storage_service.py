@@ -85,11 +85,6 @@ def save_uploaded_photo(event_code: str, original_filename: str, content: bytes)
     with open(target_path, "wb") as f:
         f.write(content)
 
-    # Automatically sync to Cloudflare R2 if enabled
-    if getattr(settings, 'R2_ENABLED', False):
-        r2_key = f"events/{event_code}/originals/{unique_filename}"
-        upload_to_r2(target_path, r2_key)
-
     return unique_filename, target_path
 
 def cleanup_temp_files(max_age_seconds: int = 1800):

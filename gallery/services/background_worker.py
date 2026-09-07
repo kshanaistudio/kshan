@@ -62,10 +62,14 @@ def process_single_photo(photo_id: int):
         # Always apply watermark (photographer custom branding + default bottom-right site watermark)
         apply_watermark(str(thumb_path), watermark_name, logo_path=logo_path)
 
-        # Upload thumbnail to Cloudflare R2
+        # Upload thumbnail and original to Cloudflare R2 asynchronously in background
         from .storage_service import upload_to_r2
         if getattr(settings, 'R2_ENABLED', False):
-            upload_to_r2(thumb_path, f"events/{event.event_code}/thumbnails/{thumb_path.name}")
+            try:
+                upload_to_r2(thumb_path, f"events/{event.event_code}/thumbnails/{thumb_path.name}")
+                upload_to_r2(original_path, f"events/{event.event_code}/originals/{photo.filename}")
+            except Exception as r2_err:
+                logger.warning(f"R2 background upload warning for photo {photo.id}: {r2_err}")
 
         # Clear existing faces if reprocessing
         Face.objects.filter(photo_id=photo.id).delete()
