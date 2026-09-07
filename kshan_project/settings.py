@@ -87,8 +87,12 @@ import dj_database_url
 # Database (Supabase PostgreSQL / SQLite fallback)
 DATABASE_URL = os.getenv('DATABASE_URL', '')
 if DATABASE_URL:
+    db_config = dj_database_url.parse(DATABASE_URL, conn_max_age=600, ssl_require=True)
+    db_config.setdefault('OPTIONS', {})
+    db_config['OPTIONS']['connect_timeout'] = 30
+    db_config['OPTIONS']['options'] = '-c statement_timeout=0'
     DATABASES = {
-        'default': dj_database_url.parse(DATABASE_URL, conn_max_age=600, ssl_require=True)
+        'default': db_config
     }
 else:
     DATABASES = {
