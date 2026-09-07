@@ -843,41 +843,15 @@ async function handleBulkFilesSelected(files) {
 
   const formattedTotalSize = formatBytes(totalBytes);
 
-  // Lightweight batching: max 3 photos OR 12MB per batch for ultra-fast, rock-solid transfers on all networks
-  const MAX_BATCH_BYTES = 12 * 1024 * 1024; // 12 MB
-  const MAX_BATCH_COUNT = 3;
-  const chunks = [];
-  let currentChunk = [];
-  let currentChunkSize = 0;
-
-  for (const file of fileList) {
-    if (currentChunk.length > 0 && (currentChunkSize + file.size > MAX_BATCH_BYTES || currentChunk.length >= MAX_BATCH_COUNT)) {
-      chunks.push(currentChunk);
-      currentChunk = [];
-      currentChunkSize = 0;
-    }
-    currentChunk.push(file);
-    currentChunkSize += file.size;
-  }
-  if (currentChunk.length > 0) {
-    chunks.push(currentChunk);
-  }
-
-  const totalChunks = chunks.length;
+  const totalPhotos = fileList.length;
   let totalUploadedPhotos = 0;
   let overallBytesUploaded = 0;
 
-  for (let c = 0; c < totalChunks; c++) {
-    const chunk = chunks[c];
-    const chunkNum = c + 1;
-
-    let chunkBytes = 0;
-    chunk.forEach(f => chunkBytes += f.size);
-
+  for (let i = 0; i < totalPhotos; i++) {
+    const file = fileList[i];
+    const photoNum = i + 1;
     const formData = new FormData();
-    for (const file of chunk) {
-      formData.append("photos", file);
-    }
+    formData.append("photos", file);
 
     let success = false;
     let attempts = 0;
@@ -887,10 +861,10 @@ async function handleBulkFilesSelected(files) {
       attempts++;
       try {
         if (attempts > 1) {
-          subtext.textContent = `Network glitch detected. Retrying batch ${chunkNum} (Attempt ${attempts}/${maxAttempts})...`;
-          await new Promise(r => setTimeout(r, 1500 * attempts));
+          subtext.textContent = `Reconnecting... Retrying photo ${photoNum} of ${totalPhotos} (Attempt ${attempts}/${maxAttempts})...`;
+          await new Promise(r => setTimeout(r, 1000 * attempts));
         } else {
-          subtext.textContent = `Uploading batch ${chunkNum} of ${totalChunks} (${totalUploadedPhotos + chunk.length} / ${totalFiles} photos)...`;
+          subtext.textContent = `Uploading photo ${photoNum} of ${totalPhotos}: ${file.name}...`;
         }
 
         await uploadChunkWithProgress(`/api/events/${window.EVENT_ID}/photos/`, formData, (loaded, chunkTotal) => {
@@ -906,18 +880,19 @@ async function handleBulkFilesSelected(files) {
           if (bgBytesText) bgBytesText.textContent = `${formatBytes(currentTotalUploadedBytes)} / ${formattedTotalSize}`;
         });
 
-        overallBytesUploaded += chunkBytes;
-        totalUploadedPhotos += chunk.length;
+        overallBytesUploaded += file.size;
+        totalUploadedPhotos++;
         success = true;
 
-        // Small 50ms yield for browser UI loop
-        await new Promise(r => setTimeout(r, 50));
+        // Yield for smooth browser rendering
+        await new Promise(r => setTimeout(r, 30));
 
       } catch (err) {
+        console.error(`Upload error on photo ${photoNum}:`, err);
         if (attempts >= maxAttempts) {
           modal.style.display = "none";
           bgWidget.style.display = "none";
-          showToast(`Upload paused on batch ${chunkNum} due to network interruption. Please check connection and retry.`, "danger");
+          showToast(`Upload failed on photo "${file.name}": ` + (err.message || "Network error"), "danger");
           return;
         }
       }
