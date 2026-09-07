@@ -27,5 +27,5 @@ ENV PORT=10000
 EXPOSE 10000
 
 # Run migrations, collect static, and start Gunicorn binding to dynamic Render $PORT
-CMD sh -c "python manage.py migrate --noinput && python manage.py collectstatic --noinput && gunicorn --bind 0.0.0.0:${PORT:-10000} --workers 1 --threads 4 --timeout 180 kshan_project.wsgi:application"
+CMD sh -c "python manage.py migrate --noinput && python manage.py collectstatic --noinput && gunicorn --bind 0.0.0.0:${PORT:-10000} --workers 1 --threads 8 --timeout 300 --keep-alive 65 --graceful-timeout 60 kshan_project.wsgi:application"
 

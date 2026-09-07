@@ -30,22 +30,47 @@ def process_single_photo(photo_id: int):
         if not Path(original_path).exists():
             raise FileNotFoundError(f"Original image file missing: {original_path}")
 
-        # Metadata
+        # ── Deduplication: compute SHA256 and check for existing photo ──
+        from .image_service import compute_sha256
+        file_hash = compute_sha256(original_path)
+        duplicate = Photo.objects.filter(
+            event=event,
+            file_hash=file_hash
+        ).exclude(id=photo.id).first()
+        if duplicate:
+            logger.info(f"Duplicate detected: photo {photo.id} matches photo {duplicate.id} — removing.")
+            try:
+                Path(original_path).unlink(missing_ok=True)
+            except Exception:
+                pass
+            photo.delete()
+            return
+        photo.file_hash = file_hash
+
+        # ── Extract EXIF and Metadata ──
         metadata = get_image_metadata(original_path)
         photo.width = metadata["width"]
         photo.height = metadata["height"]
         photo.file_size = metadata["file_size"]
+        exif = metadata.get("exif", {})
+        photo.exif_camera = exif.get("camera", "")
+        photo.exif_lens = exif.get("lens", "")
+        photo.exif_focal_length = exif.get("focal_length", "")
+        photo.exif_aperture = exif.get("aperture", "")
+        photo.exif_exposure_time = exif.get("exposure_time", "")
+        photo.exif_iso = exif.get("iso", "")
+        photo.exif_date_taken = exif.get("date_taken")
 
-        # Thumbnail
+        # ── Thumbnail ──
         thumb_path = get_event_thumbnail_path(event.event_code, f"thumb_{Path(photo.filename).stem}.jpg")
         create_thumbnail(original_path, str(thumb_path))
         photo.thumbnail_path = str(thumb_path)
 
-        # InsightFace ResNet-50 detection & embeddings on original unmodified photo
+        # ── InsightFace ResNet-50 detection & embeddings ──
         face_service = get_face_service()
         detected_faces = face_service.extract_faces_from_image(original_path)
 
-        # Apply Photographer Branding Watermark to Viewable Media / Thumbnails
+        # ── Apply watermark ──
         from .image_service import apply_watermark
         watermark_name = None
         logo_path = None
@@ -58,11 +83,9 @@ def process_single_photo(photo_id: int):
                 logo_path = str(prof.watermark_logo.path)
         elif event.photographer:
             watermark_name = event.photographer.username
-
-        # Always apply watermark (photographer custom branding + default bottom-right site watermark)
         apply_watermark(str(thumb_path), watermark_name, logo_path=logo_path)
 
-        # Upload thumbnail and original to Cloudflare R2 asynchronously in background
+        # ── Upload to Cloudflare R2 ──
         from .storage_service import upload_to_r2
         if getattr(settings, 'R2_ENABLED', False):
             try:
@@ -71,9 +94,8 @@ def process_single_photo(photo_id: int):
             except Exception as r2_err:
                 logger.warning(f"R2 background upload warning for photo {photo.id}: {r2_err}")
 
-        # Clear existing faces if reprocessing
+        # ── Save faces ──
         Face.objects.filter(photo_id=photo.id).delete()
-
         face_objects = [
             Face(
                 photo=photo,
@@ -88,7 +110,11 @@ def process_single_photo(photo_id: int):
             Face.objects.bulk_create(face_objects)
 
         photo.processing_status = "completed"
-        photo.save(update_fields=['width', 'height', 'file_size', 'thumbnail_path', 'processing_status'])
+        photo.save(update_fields=[
+            'file_hash', 'width', 'height', 'file_size', 'thumbnail_path',
+            'exif_camera', 'exif_lens', 'exif_focal_length', 'exif_aperture',
+            'exif_exposure_time', 'exif_iso', 'exif_date_taken', 'processing_status'
+        ])
         logger.info(f"Django Worker: Successfully processed photo {photo.id}: {len(detected_faces)} face(s) saved.")
 
     except Exception as e:

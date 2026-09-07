@@ -726,48 +726,41 @@ def upload_photos_api(request, event_id=None, event_code=None):
             errors.append(f"Unsupported format for {filename}")
             continue
 
-        content = f.read()
-        if len(content) == 0:
+        # Stream file directly to disk — do NOT read all content into RAM
+        # This keeps the upload request fast and avoids Render's 30s proxy timeout
+        import uuid as _uuid
+        from pathlib import Path as _Path
+        from gallery.services.storage_service import ensure_event_directories
+        originals_dir, _ = ensure_event_directories(event.event_code)
+        _ext = _Path(filename).suffix.lower() or ".jpg"
+        saved_filename = f"{_uuid.uuid4().hex[:12]}_{_Path(filename).stem}{_ext}"
+        saved_path = originals_dir / saved_filename
+
+        try:
+            with open(saved_path, "wb") as out:
+                for chunk in f.chunks(chunk_size=1024 * 1024):  # 1 MB chunks
+                    out.write(chunk)
+        except Exception as e:
+            errors.append(f"Failed to save {filename}: {e}")
             continue
 
-        saved_filename, saved_path = save_uploaded_photo(
-            event.event_code, 
-            filename, 
-            content
-        )
-        file_hash = compute_sha256(str(saved_path))
-
-        if Photo.objects.filter(event=event, file_hash=file_hash).exists():
-            try:
-                saved_path.unlink(missing_ok=True)
-            except Exception:
-                pass
-            skipped_duplicates += 1
+        if saved_path.stat().st_size == 0:
+            saved_path.unlink(missing_ok=True)
             continue
-            
-        # Extract EXIF and Image Metadata
-        meta = get_image_metadata(str(saved_path))
-        exif = meta.get("exif", {})
 
+        # Create a minimal Photo record immediately — background worker fills in the rest
         photo = Photo.objects.create(
             event=event,
             sub_event_id=sub_event_id if sub_event_id else None,
             filename=saved_filename,
             original_filename=filename,
             file_path=str(saved_path),
-            file_size=meta.get("file_size", len(content)),
-            width=meta.get("width", 0),
-            height=meta.get("height", 0),
-            file_hash=file_hash,
+            file_size=saved_path.stat().st_size,
+            width=0,
+            height=0,
+            file_hash="",  # Worker will compute SHA256 and deduplicate
             processing_status="pending",
             uploaded_by_type=uploaded_by_type,
-            exif_camera=exif.get("camera", ""),
-            exif_lens=exif.get("lens", ""),
-            exif_focal_length=exif.get("focal_length", ""),
-            exif_aperture=exif.get("aperture", ""),
-            exif_exposure_time=exif.get("exposure_time", ""),
-            exif_iso=exif.get("iso", ""),
-            exif_date_taken=exif.get("date_taken")
         )
         saved_photo_ids.append(photo.id)
 
