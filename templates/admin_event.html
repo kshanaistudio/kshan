@@ -879,33 +879,48 @@ async function handleBulkFilesSelected(files) {
       formData.append("photos", file);
     }
 
-    try {
-      subtext.textContent = `Uploading batch ${chunkNum} of ${totalChunks} (${totalUploadedPhotos + chunk.length} / ${totalFiles} photos)...`;
+    let success = false;
+    let attempts = 0;
+    const maxAttempts = 3;
 
-      await uploadChunkWithProgress(`/api/events/${window.EVENT_ID}/photos/`, formData, (loaded, chunkTotal) => {
-        const currentTotalUploadedBytes = overallBytesUploaded + loaded;
-        const percent = Math.min(99, Math.round((currentTotalUploadedBytes / totalBytes) * 100));
+    while (!success && attempts < maxAttempts) {
+      attempts++;
+      try {
+        if (attempts > 1) {
+          subtext.textContent = `Network glitch detected. Retrying batch ${chunkNum} (Attempt ${attempts}/${maxAttempts})...`;
+          await new Promise(r => setTimeout(r, 1500 * attempts));
+        } else {
+          subtext.textContent = `Uploading batch ${chunkNum} of ${totalChunks} (${totalUploadedPhotos + chunk.length} / ${totalFiles} photos)...`;
+        }
 
-        progressBar.style.width = `${percent}%`;
-        percentText.textContent = `${percent}%`;
-        bytesText.textContent = `${formatBytes(currentTotalUploadedBytes)} / ${formattedTotalSize}`;
+        await uploadChunkWithProgress(`/api/events/${window.EVENT_ID}/photos/`, formData, (loaded, chunkTotal) => {
+          const currentTotalUploadedBytes = overallBytesUploaded + loaded;
+          const percent = Math.min(99, Math.round((currentTotalUploadedBytes / totalBytes) * 100));
 
-        if (bgProgressBar) bgProgressBar.style.width = `${percent}%`;
-        if (bgPercentText) bgPercentText.textContent = `${percent}%`;
-        if (bgBytesText) bgBytesText.textContent = `${formatBytes(currentTotalUploadedBytes)} / ${formattedTotalSize}`;
-      });
+          progressBar.style.width = `${percent}%`;
+          percentText.textContent = `${percent}%`;
+          bytesText.textContent = `${formatBytes(currentTotalUploadedBytes)} / ${formattedTotalSize}`;
 
-      overallBytesUploaded += chunkBytes;
-      totalUploadedPhotos += chunk.length;
+          if (bgProgressBar) bgProgressBar.style.width = `${percent}%`;
+          if (bgPercentText) bgPercentText.textContent = `${percent}%`;
+          if (bgBytesText) bgBytesText.textContent = `${formatBytes(currentTotalUploadedBytes)} / ${formattedTotalSize}`;
+        });
 
-      // Small 50ms yield for browser UI loop
-      await new Promise(r => setTimeout(r, 50));
+        overallBytesUploaded += chunkBytes;
+        totalUploadedPhotos += chunk.length;
+        success = true;
 
-    } catch (err) {
-      modal.style.display = "none";
-      bgWidget.style.display = "none";
-      showToast(`Upload failed on batch ${chunkNum}: ` + err.message, "danger");
-      return;
+        // Small 50ms yield for browser UI loop
+        await new Promise(r => setTimeout(r, 50));
+
+      } catch (err) {
+        if (attempts >= maxAttempts) {
+          modal.style.display = "none";
+          bgWidget.style.display = "none";
+          showToast(`Upload paused on batch ${chunkNum} due to network interruption. Please check connection and retry.`, "danger");
+          return;
+        }
+      }
     }
   }
 
