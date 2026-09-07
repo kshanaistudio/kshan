@@ -843,9 +843,9 @@ async function handleBulkFilesSelected(files) {
 
   const formattedTotalSize = formatBytes(totalBytes);
 
-  // Dynamic intelligent batching: max 6 photos OR 25MB per batch to ensure fast, smooth, non-stalling transfers
-  const MAX_BATCH_BYTES = 25 * 1024 * 1024; // 25 MB
-  const MAX_BATCH_COUNT = 6;
+  // Lightweight batching: max 3 photos OR 12MB per batch for ultra-fast, rock-solid transfers on all networks
+  const MAX_BATCH_BYTES = 12 * 1024 * 1024; // 12 MB
+  const MAX_BATCH_COUNT = 3;
   const chunks = [];
   let currentChunk = [];
   let currentChunkSize = 0;
