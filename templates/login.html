@@ -62,8 +62,9 @@
           </div>
           <p style="font-size: 11.5px; color: var(--text-muted); margin-top: 6px;">We'll send a 6-digit one-time code to your phone via Firebase SMS.</p>
           
-          <!-- Invisible reCAPTCHA container -->
-          <div id="recaptcha-container"></div>
+          <!-- Hidden reCAPTCHA container -->
+          <div id="recaptcha-container" style="display: none;"></div>
+          <style>.grecaptcha-badge { visibility: hidden !important; opacity: 0 !important; pointer-events: none !important; }</style>
 
           <button type="button" id="btnSendOtp" onclick="handleSendFirebaseOtp()" class="btn btn-primary" style="padding: 14px; width: 100%; margin-top: 14px;">
             <span>Send SMS OTP</span>
@@ -183,7 +184,7 @@ function switchLoginMethod(method) {
   }
 }
 
-function initRecaptcha() {
+function getOrCreateRecaptcha() {
   if (!window.recaptchaVerifier && window.RecaptchaVerifier && window.firebaseAuth) {
     window.recaptchaVerifier = new window.RecaptchaVerifier(window.firebaseAuth, 'recaptcha-container', {
       'size': 'invisible',
@@ -192,6 +193,7 @@ function initRecaptcha() {
       }
     });
   }
+  return window.recaptchaVerifier;
 }
 
 async function handleSendFirebaseOtp() {
@@ -213,8 +215,7 @@ async function handleSendFirebaseOtp() {
   btn.innerHTML = `<span>Sending SMS OTP...</span>`;
 
   try {
-    initRecaptcha();
-    const appVerifier = window.recaptchaVerifier;
+    const appVerifier = getOrCreateRecaptcha();
     confirmationResult = await window.signInWithPhoneNumber(window.firebaseAuth, phone, appVerifier);
     
     currentPhone = phone;
@@ -226,11 +227,15 @@ async function handleSendFirebaseOtp() {
     document.getElementById("waOtpInput").focus();
   } catch (err) {
     console.error("Firebase SMS Error:", err);
-    showToast(err.message || "Failed to send SMS. Ensure domain is authorized in Firebase.", "danger");
-    if (window.recaptchaVerifier) {
-      window.recaptchaVerifier.clear();
-      window.recaptchaVerifier = null;
+    if (window.recaptchaVerifier && window.recaptchaVerifier.render) {
+      try {
+        const widgetId = await window.recaptchaVerifier.render();
+        if (window.grecaptcha && widgetId !== undefined) {
+          window.grecaptcha.reset(widgetId);
+        }
+      } catch (e) {}
     }
+    showToast(err.message || "Failed to send SMS. Ensure domain is authorized in Firebase.", "danger");
   } finally {
     btn.disabled = false;
     btn.innerHTML = `<span>Send SMS OTP</span>`;

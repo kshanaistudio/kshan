@@ -82,16 +82,24 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'kshan_project.wsgi.application'
 
-# Database
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-        'OPTIONS': {
-            'timeout': 30,
+import dj_database_url
+
+# Database (Supabase PostgreSQL / SQLite fallback)
+DATABASE_URL = os.getenv('DATABASE_URL', '')
+if DATABASE_URL:
+    DATABASES = {
+        'default': dj_database_url.parse(DATABASE_URL, conn_max_age=600, ssl_require=True)
+    }
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+            'OPTIONS': {
+                'timeout': 30,
+            }
         }
     }
-}
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
@@ -110,8 +118,9 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-# CSRF Trusted Origins (Allows Render, Hugging Face, & Cloudflare domains)
+# CSRF Trusted Origins (Allows Render, Hugging Face, AWS App Runner & Cloudflare domains)
 CSRF_TRUSTED_ORIGINS = [
+    'https://*.awsapprunner.com',
     'https://*.onrender.com',
     'https://*.hf.space',
     'https://*.trycloudflare.com',

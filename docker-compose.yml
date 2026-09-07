@@ -6,10 +6,13 @@ services:
     container_name: kshan_app
     restart: always
     ports:
-      - "1212:1212"
+      - "80:10000"
+    env_file:
+      - .env
     volumes:
-      - ./.env:/app/.env
       - ./storage:/app/storage
       - ./db.sqlite3:/app/db.sqlite3
     environment:
+      - PORT=10000
       - DJANGO_SETTINGS_MODULE=kshan_project.settings
+

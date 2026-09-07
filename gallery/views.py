@@ -25,7 +25,8 @@ from .services.storage_service import (
     save_uploaded_photo, 
     create_zip_archive, 
     delete_event_storage, 
-    cleanup_temp_files
+    cleanup_temp_files,
+    get_file_bytes_from_r2
 )
 from .services.background_worker import (
     queue_photo_processing, 
@@ -1075,15 +1076,33 @@ def get_thumbnail_view(request, photo_id):
         return FileResponse(open(photo.thumbnail_path, 'rb'), content_type="image/jpeg")
     if photo.file_path and Path(photo.file_path).exists():
         return FileResponse(open(photo.file_path, 'rb'), content_type="image/jpeg")
+    
+    # Fallback to Cloudflare R2
+    if getattr(settings, 'R2_ENABLED', False):
+        r2_key = f"events/{photo.event.event_code}/originals/{photo.filename}"
+        data = get_file_bytes_from_r2(r2_key)
+        if data:
+            return HttpResponse(data, content_type="image/jpeg")
+            
     raise Http404("Photo image not found")
 
 def view_photo_full(request, photo_id):
     photo = get_object_or_404(Photo, id=photo_id)
-    if not photo.file_path or not Path(photo.file_path).exists():
-        raise Http404("Photo not found")
-    ext = Path(photo.file_path).suffix.lower()
-    content_type = "image/png" if ext == ".png" else "image/webp" if ext == ".webp" else "image/jpeg"
-    return FileResponse(open(photo.file_path, 'rb'), content_type=content_type)
+    if photo.file_path and Path(photo.file_path).exists():
+        ext = Path(photo.file_path).suffix.lower()
+        content_type = "image/png" if ext == ".png" else "image/webp" if ext == ".webp" else "image/jpeg"
+        return FileResponse(open(photo.file_path, 'rb'), content_type=content_type)
+        
+    # Fallback to Cloudflare R2
+    if getattr(settings, 'R2_ENABLED', False):
+        r2_key = f"events/{photo.event.event_code}/originals/{photo.filename}"
+        data = get_file_bytes_from_r2(r2_key)
+        if data:
+            ext = Path(photo.filename).suffix.lower()
+            content_type = "image/png" if ext == ".png" else "image/webp" if ext == ".webp" else "image/jpeg"
+            return HttpResponse(data, content_type=content_type)
+            
+    raise Http404("Photo not found")
 
 def check_guest_download_access(event, photo=None, session_id=None, user=None):
     """

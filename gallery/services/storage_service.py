@@ -47,6 +47,19 @@ def upload_to_r2(local_path: str | Path, r2_key: str) -> bool:
         logger.error(f"Failed uploading to R2: {e}")
         return False
 
+def get_file_bytes_from_r2(r2_key: str) -> bytes | None:
+    """Downloads bytes for an object stored in Cloudflare R2."""
+    s3 = get_s3_client()
+    if not s3:
+        return None
+    try:
+        bucket = settings.R2_BUCKET_NAME
+        response = s3.get_object(Bucket=bucket, Key=r2_key)
+        return response['Body'].read()
+    except Exception as e:
+        logger.warning(f"Could not fetch {r2_key} from R2: {e}")
+        return None
+
 def ensure_event_directories(event_code: str) -> tuple[Path, Path]:
     event_dir = settings.EVENTS_STORAGE_DIR / event_code
     originals_dir = event_dir / "originals"
