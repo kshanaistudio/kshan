@@ -16,7 +16,36 @@
   <!-- Razorpay Standard Checkout SDK -->
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
   
-  <!-- Global Utilities (authFetch, getCsrfToken, showToast) -->
+  <!-- Global Utilities Inline (Guaranteed zero-delay availability) -->
+  <script>
+    function getCsrfToken() {
+      const name = 'csrftoken';
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          if (cookie.substring(0, name.length + 1) === (name + '=')) {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+    function authFetch(url, options = {}) {
+      options.headers = options.headers || {};
+      const token = getCsrfToken();
+      if (token) {
+        if (options.headers instanceof Headers) {
+          options.headers.set('X-CSRFToken', token);
+        } else {
+          options.headers['X-CSRFToken'] = token;
+        }
+      }
+      return fetch(url, options);
+    }
+  </script>
   <script src="/static/js/main.js"></script>
   
   {% block extra_head %}{% endblock %}
