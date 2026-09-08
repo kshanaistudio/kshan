@@ -13,6 +13,20 @@ from .storage_service import get_event_thumbnail_path
 logger = logging.getLogger("kshan.background_worker")
 executor = ThreadPoolExecutor(max_workers=2, thread_name_prefix="kshan_django_worker")
 
+def _is_enough_memory_for_face_detection(min_free_mb: int = 350) -> bool:
+    """Check if there's enough free RAM to safely run InsightFace (~500MB model)."""
+    try:
+        import psutil
+        free_mb = psutil.virtual_memory().available / (1024 * 1024)
+        if free_mb < min_free_mb:
+            logger.warning(f"Low memory ({free_mb:.0f} MB free) — skipping face detection to prevent OOM crash.")
+            return False
+        return True
+    except ImportError:
+        # psutil not installed — assume ok
+        return True
+
+
 def process_single_photo(photo_id: int):
     close_old_connections()
     try:
@@ -67,8 +81,18 @@ def process_single_photo(photo_id: int):
         photo.thumbnail_path = str(thumb_path)
 
         # ── InsightFace ResNet-50 detection & embeddings ──
-        face_service = get_face_service()
-        detected_faces = face_service.extract_faces_from_image(original_path)
+        # Only run if enabled AND there is enough free RAM (model needs ~500MB)
+        detected_faces = []
+        face_recognition_enabled = getattr(settings, 'FACE_RECOGNITION_ENABLED', True)
+        if face_recognition_enabled and _is_enough_memory_for_face_detection():
+            try:
+                face_service = get_face_service()
+                detected_faces = face_service.extract_faces_from_image(original_path)
+            except Exception as face_err:
+                logger.warning(f"Face detection skipped for photo {photo.id}: {face_err}")
+        else:
+            if not face_recognition_enabled:
+                logger.info(f"Face recognition disabled — skipping for photo {photo.id}")
 
         # ── Apply watermark ──
         from .image_service import apply_watermark

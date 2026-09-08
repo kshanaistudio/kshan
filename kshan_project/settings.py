@@ -105,6 +105,14 @@ else:
         }
     }
 
+# Session Configuration — persistent DB-backed sessions that survive Render restarts
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+SESSION_COOKIE_AGE = 86400 * 30          # 30 days
+SESSION_COOKIE_SECURE = False             # Allow both HTTP and HTTPS
+SESSION_COOKIE_HTTPONLY = True
+SESSION_SAVE_EVERY_REQUEST = True         # Refresh session on every request
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False   # Keep session even after closing browser
+
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
@@ -154,3 +162,7 @@ MIN_FACE_SIZE = 30                    # Minimum face width/height in pixels
 DETECTION_SIZE = (640, 640)
 THUMBNAIL_MAX_SIZE = 500
 SUPPORTED_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.webp'}
+
+# Set to False on memory-constrained hosts (e.g. Render free tier 512MB)
+# Face detection requires ~500MB RAM; if disabled, photos upload but face search won't work
+FACE_RECOGNITION_ENABLED = os.getenv('FACE_RECOGNITION_ENABLED', 'True').lower() in ('true', '1', 't')
