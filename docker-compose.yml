@@ -6,13 +6,27 @@ services:
     container_name: kshan_app
     restart: always
     ports:
-      - "80:10000"
+      - "80:8000"
     env_file:
       - .env
     volumes:
-      - ./storage:/app/storage
-      - ./db.sqlite3:/app/db.sqlite3
+      # Persistent storage: photos survive container restarts/updates
+      - kshan_storage:/app/storage
+      - kshan_logs:/app/logs
     environment:
-      - PORT=10000
+      - PORT=8000
       - DJANGO_SETTINGS_MODULE=kshan_project.settings
+      - FACE_RECOGNITION_ENABLED=True
+      - INSIGHTFACE_MODEL=buffalo_s
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
 
+volumes:
+  kshan_storage:
+    driver: local
+  kshan_logs:
+    driver: local
