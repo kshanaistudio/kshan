@@ -715,9 +715,14 @@ def upload_photos_api(request, event_id=None, event_code=None):
     if not files:
         return JsonResponse({"error": "No image files found in upload payload."}, status=400)
 
+    import uuid as _uuid
+    from gallery.services.storage_service import ensure_event_directories
+
     saved_photo_ids = []
     skipped_duplicates = 0
     errors = []
+
+    originals_dir, _ = ensure_event_directories(event.event_code)
 
     for f in files:
         filename = f.name or "photo.jpg"
@@ -726,14 +731,8 @@ def upload_photos_api(request, event_id=None, event_code=None):
             errors.append(f"Unsupported format for {filename}")
             continue
 
-        # Stream file directly to disk — do NOT read all content into RAM
-        # This keeps the upload request fast and avoids Render's 30s proxy timeout
-        import uuid as _uuid
-        from pathlib import Path as _Path
-        from gallery.services.storage_service import ensure_event_directories
-        originals_dir, _ = ensure_event_directories(event.event_code)
-        _ext = _Path(filename).suffix.lower() or ".jpg"
-        saved_filename = f"{_uuid.uuid4().hex[:12]}_{_Path(filename).stem}{_ext}"
+        # Stream file directly to disk — no f.read() to avoid loading into RAM
+        saved_filename = f"{_uuid.uuid4().hex[:12]}_{Path(filename).stem}{ext}"
         saved_path = originals_dir / saved_filename
 
         try:
@@ -742,30 +741,41 @@ def upload_photos_api(request, event_id=None, event_code=None):
                     out.write(chunk)
         except Exception as e:
             errors.append(f"Failed to save {filename}: {e}")
+            try:
+                saved_path.unlink(missing_ok=True)
+            except Exception:
+                pass
             continue
 
         if saved_path.stat().st_size == 0:
             saved_path.unlink(missing_ok=True)
             continue
 
-        # Create a minimal Photo record immediately — background worker fills in the rest
-        photo = Photo.objects.create(
-            event=event,
-            sub_event_id=sub_event_id if sub_event_id else None,
-            filename=saved_filename,
-            original_filename=filename,
-            file_path=str(saved_path),
-            file_size=saved_path.stat().st_size,
-            width=0,
-            height=0,
-            file_hash="",  # Worker will compute SHA256 and deduplicate
-            processing_status="pending",
-            uploaded_by_type=uploaded_by_type,
-        )
-        saved_photo_ids.append(photo.id)
-
-    if saved_photo_ids:
-        queue_batch_processing(saved_photo_ids)
+        # Create a minimal Photo record — background worker fills in metadata/faces
+        try:
+            photo = Photo.objects.create(
+                event=event,
+                sub_event_id=sub_event_id if sub_event_id else None,
+                filename=saved_filename,
+                original_filename=filename,
+                file_path=str(saved_path),
+                file_size=saved_path.stat().st_size,
+                width=0,
+                height=0,
+                file_hash="",
+                processing_status="pending",
+                uploaded_by_type=uploaded_by_type,
+            )
+            saved_photo_ids.append(photo.id)
+            # Queue immediately so background work starts while remaining files upload
+            queue_photo_processing(photo.id)
+        except Exception as e:
+            errors.append(f"DB error for {filename}: {e}")
+            try:
+                saved_path.unlink(missing_ok=True)
+            except Exception:
+                pass
+            continue
 
     return JsonResponse({
         "message": f"Uploaded {len(saved_photo_ids)} photo(s). {skipped_duplicates} duplicate(s) skipped.",
