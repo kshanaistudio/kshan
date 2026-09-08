@@ -155,13 +155,13 @@ FILE_UPLOAD_MAX_MEMORY_SIZE = 100 * 1024 * 1024        # 100 MB per file in-memo
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000                  # Support up to 10,000 files in one payload
 
 # Face Recognition Settings
-# buffalo_s = lightweight model (~150MB RAM) — works on Render free 512MB
-# buffalo_l = large model (~500MB RAM) — needs 2GB+ RAM, use on dedicated servers
+# buffalo_s = lightweight model (~150MB RAM) — fast and accurate on CPU
+# buffalo_l = large model (~500MB RAM) — needs 2GB+ RAM
 INSIGHTFACE_MODEL_NAME = os.getenv('INSIGHTFACE_MODEL', 'buffalo_s')
-FACE_MATCH_THRESHOLD = 0.44           # Calibrated ArcFace cosine threshold for event photography
-MIN_DET_SCORE = 0.50                  # Detection confidence score threshold
-MIN_FACE_SIZE = 30                    # Minimum face width/height in pixels
-DETECTION_SIZE = (480, 480)           # Reduced from 640x640 to save ~100MB RAM on inference
+FACE_MATCH_THRESHOLD = 0.40           # Calibrated ArcFace cosine threshold for event photography
+MIN_DET_SCORE = 0.40                  # Detection confidence score threshold for candid / angled faces
+MIN_FACE_SIZE = 25                    # Minimum face width/height in pixels
+DETECTION_SIZE = (640, 640)           # Standard InsightFace input size for maximum detection accuracy
 THUMBNAIL_MAX_SIZE = 500
 SUPPORTED_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.webp'}
 

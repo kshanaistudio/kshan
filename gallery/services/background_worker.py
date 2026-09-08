@@ -172,16 +172,16 @@ def process_single_photo(photo_id: int):
         apply_watermark(str(thumb_path), watermark_name, logo_path=logo_path)
 
         # ── 5. Face detection ────────────────────────────────────────────────
-        # Only runs when: FACE_RECOGNITION_ENABLED=True AND enough free RAM
-        # Images auto-resized to 1280px in load_cv2_image_safe to prevent OOM
+        # Images are auto-resized to 1280px in load_cv2_image_safe (~5MB RAM)
         detected_faces = []
         face_enabled = getattr(settings, 'FACE_RECOGNITION_ENABLED', True)
-        if face_enabled and _has_enough_ram():
+        if face_enabled:
             try:
                 face_service = get_face_service()
                 detected_faces = face_service.extract_faces_from_image(original_path)
+                logger.info(f"Photo {photo.id}: detected {len(detected_faces)} face(s)")
             except Exception as face_err:
-                logger.warning(f"Face detection failed for photo {photo.id}: {face_err}")
+                logger.warning(f"Face detection error on photo {photo.id}: {face_err}")
 
         # ── 6. Save faces ────────────────────────────────────────────────────
         Face.objects.filter(photo_id=photo.id).delete()
