@@ -11,13 +11,15 @@ echo "  🚀 KSHAN Native Setup (Direct Python 3 + Systemd Service)"
 echo "══════════════════════════════════════════════════════════════"
 echo ""
 
-# 1. Free up disk space (clean all docker leftovers)
-echo "▶ [1/7] Cleaning up unused disk space..."
+# 1. Free up disk space (clean all docker leftovers & caches)
+echo "▶ [1/7] Aggressively cleaning disk space..."
 sudo systemctl stop docker 2>/dev/null || true
 sudo apt purge -y docker-ce docker-ce-cli containerd.io docker.io docker-compose 2>/dev/null || true
 sudo rm -rf /var/lib/docker /var/lib/containerd
 sudo apt autoremove -y
 sudo apt clean
+sudo journalctl --vacuum-size=50M 2>/dev/null || true
+sudo rm -rf /tmp/* /var/tmp/* ~/.cache/pip
 
 # 2. Add 2GB Swap (critical for 1GB RAM)
 echo "▶ [2/7] Checking 2GB swap space..."
@@ -50,9 +52,9 @@ if [ ! -d "venv" ]; then
 fi
 
 source venv/bin/activate
-echo "   Installing requirements (takes ~2-3 mins)..."
-pip install --upgrade pip
-pip install -r requirements.txt
+echo "   Installing requirements without disk caching..."
+pip install --no-cache-dir --upgrade pip
+pip install --no-cache-dir -r requirements.txt
 
 # 6. Django database migrate and static files
 echo "▶ [5/7] Running database migrations and collecting static files..."
