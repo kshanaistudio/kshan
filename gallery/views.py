@@ -512,11 +512,15 @@ def admin_event_view(request, event_code):
         return redirect('/login/')
 
     code = event_code.strip().upper()
-    # Superusers and Master SuperAdmin can inspect any event; photographers can only view their own
-    if (request.user.is_authenticated and request.user.is_superuser) or is_master:
-        event = get_object_or_404(Event, event_code=code)
-    else:
-        event = get_object_or_404(Event, event_code=code, photographer=request.user)
+    # Case-insensitive lookup to prevent 404 from case mismatch
+    event = Event.objects.filter(event_code__iexact=code).first()
+    if not event:
+        raise Http404(f"Event with code '{code}' not found")
+
+    # If event is unassigned, associate with current user
+    if not event.photographer and request.user.is_authenticated:
+        event.photographer = request.user
+        event.save(update_fields=['photographer'])
 
     photos = Photo.objects.filter(event=event).order_by('-uploaded_at')
     progress = get_event_progress(event.id)
