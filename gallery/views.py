@@ -501,37 +501,14 @@ def admin_dashboard_view(request):
 def studio_events_view(request):
     user = request.user
     profile = get_or_create_profile(user)
-    events = Event.objects.filter(photographer=user).select_related('cover_photo').prefetch_related('photos', 'faces').order_by('-created_at')
-    
-    event_ids = [ev.id for ev in events]
+    events = Event.objects.filter(photographer=user).select_related('cover_photo').prefetch_related('photos')
     total_events = events.count()
-    total_photos = Photo.objects.filter(event_id__in=event_ids).count()
-    total_faces = Face.objects.filter(event_id__in=event_ids).count()
-    total_guests = GuestRegistration.objects.filter(event_id__in=event_ids).count()
-    total_searches = SearchLog.objects.filter(event_id__in=event_ids).count()
-    
-    total_bytes = Photo.objects.filter(event_id__in=event_ids).aggregate(total=Sum('file_size'))['total'] or 0
-    storage_gb = round(total_bytes / (1024 * 1024 * 1024), 2)
-    storage_percent = min(round((storage_gb / 100.0) * 100, 1), 100.0)
-    if total_bytes >= 1024 * 1024 * 1024:
-        storage_display = f"{total_bytes / (1024 * 1024 * 1024):.2f} GB"
-    elif total_bytes >= 1024 * 1024:
-        storage_display = f"{total_bytes / (1024 * 1024):.1f} MB"
-    else:
-        storage_display = f"{total_bytes / 1024:.1f} KB" if total_bytes > 0 else "0 GB"
 
     return render(request, "studio_events.html", {
         "user": user,
         "profile": profile,
         "events": events,
         "total_events": total_events,
-        "total_photos": total_photos,
-        "total_faces": total_faces,
-        "total_guests": total_guests,
-        "total_searches": total_searches,
-        "storage_display": storage_display,
-        "storage_gb": storage_gb,
-        "storage_percent": storage_percent,
     })
 
 def admin_event_view(request, event_code):

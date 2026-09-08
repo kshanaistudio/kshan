@@ -4,913 +4,869 @@
 
 {% block content %}
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,400;1,600&family=JetBrains+Mono:wght@500;700&display=swap');
-
-  /* Hide Generic Global Navbar */
-  .kshan-navbar { display: none !important; }
+  @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cormorant+Garamond:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
 
   :root {
-    --m-bg: #faf7f2;
-    --m-surface: #ffffff;
-    --m-surface-glass: rgba(255, 255, 255, 0.88);
-    --m-text-main: #181512;
-    --m-text-muted: #6e6761;
-    --m-text-faint: #a09890;
-    --m-gold: #b38c4b;
-    --m-gold-light: #dfc28a;
-    --m-gold-soft: rgba(179, 140, 75, 0.12);
-    --m-border: rgba(179, 140, 75, 0.22);
-    --m-border-subtle: rgba(0, 0, 0, 0.07);
-    --m-shadow: 0 20px 60px -15px rgba(24, 21, 18, 0.08), 0 0 1px rgba(0,0,0,0.1);
-    --m-shadow-hover: 0 28px 70px -12px rgba(179, 140, 75, 0.16), 0 0 1px rgba(0,0,0,0.1);
-    --m-radius: 24px;
-    --font-sans: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, sans-serif;
-    --font-serif: "Cormorant Garamond", Georgia, serif;
-    --font-mono: "JetBrains Mono", monospace;
+    --k-ink: #08070b;
+    --k-ink-soft: #100d13;
+    --k-gold: #c7a86b;
+    --k-gold-light: #f0d9a4;
+    --k-ivory: #f8f1e6;
+    --k-muted: #aaa2a8;
+    --k-burgundy: #5d132b;
+    --k-teal: #0d615f;
+    --k-glass: rgba(255, 255, 255, .055);
+    --k-line: rgba(218, 185, 119, .28);
+    --k-shadow: 0 28px 80px rgba(0, 0, 0, .48);
+    --k-radius: 28px;
   }
 
   * { box-sizing: border-box; }
 
-  body {
-    background: var(--m-bg) !important;
-    color: var(--m-text-main);
-    font-family: var(--font-sans);
-    -webkit-font-smoothing: antialiased;
-    overflow-x: hidden;
-  }
+  body { background: var(--k-ink); }
 
-  .m-page {
+  .kshan-event-page {
+    position: relative;
     min-height: 100vh;
-    position: relative;
+    overflow: hidden;
+    color: var(--k-ivory);
     background:
-      radial-gradient(circle at 10% 8%, rgba(223, 194, 138, 0.3), transparent 35rem),
-      radial-gradient(circle at 90% 12%, rgba(200, 180, 150, 0.2), transparent 35rem),
-      linear-gradient(180deg, #fdfbf7 0%, #faf7f2 100%);
-    padding-bottom: 90px;
+      radial-gradient(circle at 7% 8%, rgba(93, 19, 43, .40), transparent 31rem),
+      radial-gradient(circle at 93% 20%, rgba(13, 97, 95, .25), transparent 34rem),
+      radial-gradient(circle at 50% 52%, rgba(199, 168, 107, .055), transparent 34rem),
+      linear-gradient(145deg, #08070b 0%, #0d0a10 47%, #070609 100%);
+    font-family: "Plus Jakarta Sans", sans-serif;
+    isolation: isolate;
   }
 
-  /* 01: Top Minimalist Navigation */
-  .m-top-bar {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 24px 32px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .m-brand {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    text-decoration: none;
-    color: inherit;
-  }
-
-  .m-brand-mark {
-    width: 32px;
-    height: 32px;
-    border-radius: 8px;
-    background: var(--m-gold);
-    color: #fff;
-    display: grid;
-    place-items: center;
-    font-weight: 800;
-    font-size: 14px;
-    letter-spacing: 0.05em;
-  }
-
-  .m-brand-name {
-    font-size: 0.86rem;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--m-text-main);
-  }
-
-  .m-code-badge {
-    font-family: var(--font-mono);
-    font-size: 0.72rem;
-    font-weight: 700;
-    letter-spacing: 0.06em;
-    padding: 6px 14px;
-    border-radius: 999px;
-    background: #fff;
-    border: 1px solid var(--m-border);
-    color: var(--m-gold);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.03);
-  }
-
-  .m-shell {
-    max-width: 1080px;
-    margin: 0 auto;
-    padding: 0 24px;
-  }
-
-  /* 02: Hero Header */
-  .m-hero {
-    text-align: center;
-    padding: clamp(36px, 5vw, 64px) 0 32px;
-  }
-
-  .m-eyebrow {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 0.72rem;
-    font-weight: 700;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--m-gold);
-    margin-bottom: 14px;
-  }
-
-  .m-title {
-    font-family: var(--font-serif);
-    font-size: clamp(3rem, 6.5vw, 5.6rem);
-    font-weight: 600;
-    line-height: 0.98;
-    letter-spacing: -0.025em;
-    color: var(--m-text-main);
-    margin: 0 auto 18px;
-    max-width: 860px;
-  }
-
-  .m-meta-strip {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 8px;
-    margin-bottom: 36px;
-  }
-
-  .m-meta-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 6px 14px;
-    border-radius: 999px;
-    background: rgba(255, 255, 255, 0.75);
-    border: 1px solid var(--m-border-subtle);
-    color: var(--m-text-muted);
-    font-size: 0.76rem;
-    font-weight: 500;
-  }
-
-  .m-meta-pill svg { width: 13px; height: 13px; color: var(--m-gold); }
-
-  /* 03: Floating Hero Discovery Card */
-  .m-card-main {
-    max-width: 720px;
-    margin: 0 auto clamp(60px, 8vw, 90px);
-    background: var(--m-surface-glass);
-    border: 1px solid var(--m-border);
-    border-radius: var(--m-radius);
-    padding: clamp(36px, 5vw, 54px);
-    text-align: center;
-    box-shadow: var(--m-shadow);
-    backdrop-filter: blur(20px);
-    position: relative;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-  }
-
-  .m-card-main:hover {
-    box-shadow: var(--m-shadow-hover);
-  }
-
-  .m-icon-crest {
-    width: 68px;
-    height: 68px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, rgba(223, 194, 138, 0.25), rgba(179, 140, 75, 0.08));
-    border: 1px solid var(--m-border);
-    margin: 0 auto 20px;
-    display: grid;
-    place-items: center;
-    color: var(--m-gold);
-  }
-
-  .m-icon-crest svg { width: 26px; height: 26px; }
-
-  .m-card-h2 {
-    font-family: var(--font-serif);
-    font-size: clamp(2rem, 4vw, 3rem);
-    font-weight: 600;
-    margin: 0 0 10px;
-    color: var(--m-text-main);
-  }
-
-  .m-card-p {
-    color: var(--m-text-muted);
-    font-size: 0.94rem;
-    line-height: 1.65;
-    max-width: 520px;
-    margin: 0 auto 30px;
-  }
-
-  .m-action-group {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 12px;
-    margin-bottom: 22px;
-  }
-
-  .m-btn {
-    min-height: 50px;
-    padding: 0 24px;
-    border-radius: 999px;
-    font-size: 0.84rem;
-    font-weight: 700;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    cursor: pointer;
-    text-decoration: none;
-    border: none;
-    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-
-  .m-btn-gold {
-    background: var(--m-gold);
-    color: #ffffff;
-    box-shadow: 0 4px 16px rgba(179, 140, 75, 0.3);
-  }
-
-  .m-btn-gold:hover {
-    background: #9d773c;
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(179, 140, 75, 0.4);
-  }
-
-  .m-btn-outline {
-    background: #ffffff;
-    border: 1px solid var(--m-border);
-    color: var(--m-text-main);
-  }
-
-  .m-btn-outline:hover {
-    border-color: var(--m-gold);
-    color: var(--m-gold);
-    transform: translateY(-2px);
-  }
-
-  .m-gallery-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    color: var(--m-gold);
-    font-size: 0.8rem;
-    font-weight: 700;
-    text-decoration: none;
-  }
-
-  .m-gallery-link:hover { text-decoration: underline; }
-
-  /* 04: Three Clean Steps */
-  .m-section {
-    padding-bottom: clamp(60px, 8vw, 90px);
-  }
-
-  .m-section-header {
-    text-align: center;
-    margin-bottom: 36px;
-  }
-
-  .m-section-header h2 {
-    font-family: var(--font-serif);
-    font-size: clamp(2rem, 3.8vw, 3rem);
-    font-weight: 600;
-    margin: 0 0 8px;
-  }
-
-  .m-section-header p {
-    color: var(--m-text-muted);
-    font-size: 0.88rem;
-  }
-
-  .m-steps-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 16px;
-  }
-
-  .m-step-card {
-    background: #ffffff;
-    border: 1px solid var(--m-border-subtle);
-    border-radius: 18px;
-    padding: 26px;
-    box-shadow: var(--m-shadow);
-    transition: transform 0.2s ease, border-color 0.2s ease;
-  }
-
-  .m-step-card:hover {
-    transform: translateY(-4px);
-    border-color: var(--m-border);
-  }
-
-  .m-step-num {
-    font-family: var(--font-mono);
-    font-size: 0.78rem;
-    font-weight: 700;
-    color: var(--m-gold);
-    margin-bottom: 12px;
-  }
-
-  .m-step-card h3 {
-    font-family: var(--font-serif);
-    font-size: 1.5rem;
-    font-weight: 600;
-    margin: 0 0 8px;
-  }
-
-  .m-step-card p {
-    color: var(--m-text-muted);
-    font-size: 0.82rem;
-    line-height: 1.6;
-    margin: 0;
-  }
-
-  /* 05: Curated Highlights */
-  .m-highlights {
-    columns: 3 240px;
-    column-gap: 16px;
-  }
-
-  .m-highlight-card {
-    break-inside: avoid;
-    margin-bottom: 16px;
-    border-radius: 16px;
-    overflow: hidden;
-    border: 1px solid var(--m-border-subtle);
-    box-shadow: var(--m-shadow);
-    background: #fff;
-  }
-
-  .m-highlight-card img {
-    width: 100%;
-    display: block;
-    object-fit: cover;
-    transition: transform 0.4s ease;
-  }
-
-  .m-highlight-card:hover img {
-    transform: scale(1.03);
-  }
-
-  /* 06: Photographer Studio Footer */
-  .m-footer-card {
-    background: #ffffff;
-    border: 1px solid var(--m-border);
-    border-radius: 20px;
-    padding: 24px 32px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 20px;
-    box-shadow: var(--m-shadow);
-  }
-
-  .m-studio-meta {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-  }
-
-  .m-studio-avatar {
-    width: 52px;
-    height: 52px;
-    border-radius: 50%;
-    background: var(--m-gold-soft);
-    border: 1px solid var(--m-border);
-    display: grid;
-    place-items: center;
-    font-family: var(--font-serif);
-    font-size: 1.4rem;
-    font-weight: 700;
-    color: var(--m-gold);
-    overflow: hidden;
-  }
-
-  .m-studio-avatar img { width: 100%; height: 100%; object-fit: cover; }
-
-  .m-studio-copy small {
-    display: block;
-    font-size: 0.68rem;
-    font-weight: 700;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--m-gold);
-  }
-
-  .m-studio-copy h3 {
-    font-family: var(--font-serif);
-    font-size: 1.5rem;
-    margin: 2px 0 0;
-    color: var(--m-text-main);
-  }
-
-  /* Modals */
-  .m-modal {
+  .kshan-event-page::before {
+    content: "";
     position: fixed;
     inset: 0;
-    z-index: 99999;
-    display: grid;
-    place-items: center;
-    padding: 16px;
-    background: rgba(24, 21, 18, 0.65);
-    backdrop-filter: blur(16px);
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.25s ease;
+    z-index: -2;
+    pointer-events: none;
+    opacity: .24;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.11'/%3E%3C/svg%3E");
   }
 
-  .m-modal.is-open {
-    opacity: 1;
-    visibility: visible;
-  }
-
-  .m-modal-panel {
-    width: min(100%, 520px);
-    max-height: calc(100dvh - 32px);
-    overflow-y: auto;
-    background: #ffffff;
-    border-radius: 24px;
-    padding: 32px;
-    position: relative;
-    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.2);
-  }
-
-  .m-close-btn {
+  .k-orb {
     position: absolute;
-    top: 20px;
-    right: 20px;
-    width: 32px;
-    height: 32px;
+    width: 26rem;
+    aspect-ratio: 1;
     border-radius: 50%;
-    border: 1px solid var(--m-border-subtle);
-    background: #f7f5f2;
-    cursor: pointer;
-    display: grid;
-    place-items: center;
-    color: var(--m-text-main);
-    font-size: 14px;
-  }
-
-  /* Camera Box */
-  .m-cam-box {
-    position: relative;
-    aspect-ratio: 4/5;
-    border-radius: 18px;
-    overflow: hidden;
-    background: #000;
-    margin: 16px 0;
-  }
-
-  .m-cam-box video {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transform: scaleX(-1);
-  }
-
-  .m-face-guide {
-    position: absolute;
-    left: 50%;
-    top: 48%;
-    width: 55%;
-    height: 65%;
-    transform: translate(-50%, -50%);
-    border: 2px solid var(--m-gold-light);
-    border-radius: 50% 50% 45% 45%;
-    box-shadow: 0 0 0 999px rgba(0,0,0,0.25);
+    filter: blur(110px);
+    opacity: .12;
+    z-index: -1;
     pointer-events: none;
   }
+  .k-orb--one { background: #8f2848; top: 28rem; left: -16rem; }
+  .k-orb--two { background: #24a29b; top: 64rem; right: -17rem; }
 
-  .m-shutter {
-    width: 64px;
-    height: 64px;
+  .k-shell { width: min(1180px, calc(100% - 36px)); margin-inline: auto; }
+
+  .k-hero { padding: clamp(48px, 8vw, 104px) 0 34px; text-align: center; }
+
+  .k-brand-badge {
+    width: 78px;
+    height: 78px;
+    margin: 0 auto 28px;
+    display: grid;
+    place-items: center;
+    position: relative;
+    border: 1px solid rgba(232, 205, 148, .5);
     border-radius: 50%;
-    background: #fff;
-    border: 3px solid var(--m-gold);
-    padding: 4px;
-    margin: 0 auto;
-    display: block;
-    cursor: pointer;
+    background: linear-gradient(145deg, rgba(255,255,255,.11), rgba(255,255,255,.025));
+    box-shadow: 0 0 0 7px rgba(199,168,107,.04), 0 18px 50px rgba(0,0,0,.42);
+    color: var(--k-gold-light);
+    font: 700 1.15rem/1 "Cinzel Decorative", serif;
+    letter-spacing: .08em;
   }
 
-  .m-shutter::after {
+  .k-brand-badge::before,
+  .k-brand-badge::after {
     content: "";
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    background: var(--m-gold);
-    display: block;
-    transition: transform 0.15s;
+    position: absolute;
+    top: 50%;
+    width: 64px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(199,168,107,.55));
+  }
+  .k-brand-badge::before { right: calc(100% + 14px); }
+  .k-brand-badge::after { left: calc(100% + 14px); transform: rotate(180deg); }
+
+  .k-eyebrow {
+    margin: 0 0 15px;
+    color: var(--k-gold);
+    font-size: .7rem;
+    font-weight: 700;
+    letter-spacing: .3em;
+    text-transform: uppercase;
   }
 
-  .m-shutter:active::after { transform: scale(0.88); }
+  .k-title {
+    max-width: 930px;
+    margin: 0 auto;
+    text-wrap: balance;
+    font: 600 clamp(2.9rem, 8.5vw, 7.6rem)/.92 "Cormorant Garamond", serif;
+    letter-spacing: -.045em;
+    color: #fffaf1;
+    text-shadow: 0 13px 44px rgba(0,0,0,.55);
+  }
 
-  .m-toast {
-    position: fixed;
-    left: 50%;
-    bottom: 24px;
-    transform: translate(-50%, 25px);
-    padding: 12px 22px;
+  .k-flourish {
+    margin: 24px auto 23px;
+    display: flex;
+    width: min(330px, 76vw);
+    align-items: center;
+    gap: 15px;
+    color: var(--k-gold);
+  }
+  .k-flourish::before,
+  .k-flourish::after { content: ""; height: 1px; flex: 1; background: linear-gradient(90deg, transparent, currentColor); }
+  .k-flourish::after { transform: rotate(180deg); }
+  .k-flourish svg { width: 20px; height: 20px; }
+
+  .k-meta { display: flex; flex-wrap: wrap; justify-content: center; gap: 9px; }
+  .k-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 38px;
+    padding: 8px 14px;
+    border: 1px solid rgba(255,255,255,.105);
     border-radius: 999px;
-    background: #181512;
-    color: #fff;
-    font-size: 0.8rem;
-    font-weight: 600;
-    box-shadow: 0 12px 30px rgba(0,0,0,0.2);
+    color: #d7d1d1;
+    background: rgba(255,255,255,.035);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    font-size: .75rem;
+  }
+  .k-chip svg { width: 15px; height: 15px; color: var(--k-gold); }
+
+  .k-discovery {
+    max-width: 800px;
+    margin: 34px auto clamp(84px, 10vw, 132px);
+    position: relative;
+    padding: clamp(29px, 5.5vw, 58px);
+    text-align: center;
+    border: 1.5px solid var(--k-line);
+    border-radius: var(--k-radius);
+    background:
+      linear-gradient(145deg, rgba(255,255,255,.095), rgba(255,255,255,.025)),
+      rgba(13,10,16,.62);
+    backdrop-filter: blur(28px) saturate(135%);
+    -webkit-backdrop-filter: blur(28px) saturate(135%);
+    box-shadow: var(--k-shadow), inset 0 1px 0 rgba(255,255,255,.12);
+  }
+
+  .k-discovery::before {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    z-index: -1;
+    border-radius: inherit;
+    background: radial-gradient(circle at 50% 0%, rgba(232,205,148,.18), transparent 42%);
+  }
+
+  .k-ai-mark { width: 98px; height: 98px; margin: -6px auto 27px; position: relative; display: grid; place-items: center; }
+  .k-ai-mark::before,
+  .k-ai-mark::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border: 1px solid rgba(199,168,107,.38);
+    border-radius: 50%;
+    animation: kPulse 2.5s ease-out infinite;
+  }
+  .k-ai-mark::after { animation-delay: 1.25s; }
+  .k-ai-mark__core {
+    width: 68px;
+    height: 68px;
+    display: grid;
+    place-items: center;
+    border: 1px solid rgba(240,217,164,.52);
+    border-radius: 50%;
+    color: var(--k-gold-light);
+    background: radial-gradient(circle at 35% 25%, rgba(255,255,255,.16), rgba(199,168,107,.07));
+    box-shadow: inset 0 0 20px rgba(199,168,107,.08), 0 0 32px rgba(199,168,107,.1);
+  }
+  .k-ai-mark svg { width: 30px; height: 30px; }
+  @keyframes kPulse { 0% { transform: scale(.68); opacity: 0; } 35% { opacity: .75; } 100% { transform: scale(1.35); opacity: 0; } }
+
+  .k-discovery h2 { margin: 0 0 12px; font: 600 clamp(2.15rem, 6vw, 4rem)/1 "Cormorant Garamond", serif; }
+  .k-discovery > p { max-width: 570px; margin: 0 auto 29px; color: var(--k-muted); font-size: clamp(.87rem, 2vw, 1rem); line-height: 1.78; }
+
+  .k-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
+  .k-btn {
+    min-height: 52px;
+    border: 0;
+    border-radius: 999px;
+    padding: 0 21px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    cursor: pointer;
+    text-decoration: none;
+    font: 700 .8rem/1 "Plus Jakarta Sans", sans-serif;
+    transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease, background .25s ease;
+  }
+  .k-btn:hover { transform: translateY(-3px); }
+  .k-btn:focus-visible, .k-icon-btn:focus-visible, input:focus-visible { outline: 2px solid var(--k-gold-light); outline-offset: 3px; }
+  .k-btn svg { width: 18px; height: 18px; flex: 0 0 auto; }
+  .k-btn--gold { color: #17100a; background: linear-gradient(115deg, #f1dba8, #b89150); box-shadow: 0 14px 35px rgba(199,168,107,.2); }
+  .k-btn--gold:hover { box-shadow: 0 18px 42px rgba(199,168,107,.3); }
+  .k-btn--glass { color: var(--k-ivory); border: 1px solid rgba(255,255,255,.15); background: rgba(255,255,255,.055); }
+  .k-btn--glass:hover { border-color: rgba(199,168,107,.55); background: rgba(199,168,107,.09); }
+  .k-btn--wide { width: 100%; }
+
+  .k-gallery-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    margin-top: 24px;
+    color: #d3b97f;
+    text-decoration: none;
+    font-size: .78rem;
+    font-weight: 700;
+  }
+  .k-gallery-link span { transition: transform .2s ease; }
+  .k-gallery-link:hover span { transform: translateX(4px); }
+
+  .k-guest-contribute { margin-top: 17px; }
+  .k-guest-contribute .k-btn { min-height: 42px; font-size: .73rem; }
+
+  .k-section { padding-bottom: clamp(84px, 11vw, 136px); }
+  .k-section-heading { text-align: center; margin-bottom: 36px; }
+  .k-section-heading .k-eyebrow { margin-bottom: 12px; }
+  .k-section-heading h2 { margin: 0; font: 600 clamp(2.3rem, 5vw, 4.2rem)/1 "Cormorant Garamond", serif; }
+  .k-section-heading p { margin: 13px auto 0; max-width: 560px; color: var(--k-muted); line-height: 1.7; font-size: .88rem; }
+
+  .k-steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .k-step {
+    min-height: 285px;
+    padding: 26px;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(199,168,107,.19);
+    border-radius: 23px;
+    background: linear-gradient(145deg, rgba(255,255,255,.067), rgba(255,255,255,.018));
+    box-shadow: 0 18px 48px rgba(0,0,0,.25);
+    transition: transform .35s ease, border-color .35s ease, box-shadow .35s ease;
+  }
+  .k-step:hover { transform: translateY(-7px); border-color: rgba(199,168,107,.48); box-shadow: 0 26px 60px rgba(0,0,0,.38); }
+  .k-step::after { content: ""; position: absolute; width: 130px; height: 130px; right: -60px; bottom: -70px; border-radius: 50%; background: var(--step-glow, #c7a86b); filter: blur(42px); opacity: .12; }
+  .k-step:nth-child(2) { --step-glow: #1d9d96; }
+  .k-step:nth-child(3) { --step-glow: #9b3455; }
+  .k-step__top { display: flex; justify-content: space-between; align-items: flex-start; }
+  .k-step__icon { width: 52px; height: 52px; display: grid; place-items: center; color: var(--k-gold-light); border: 1px solid rgba(199,168,107,.3); border-radius: 16px; background: rgba(199,168,107,.07); }
+  .k-step__icon svg { width: 23px; height: 23px; }
+  .k-step__num { color: rgba(240,217,164,.28); font: 600 2.35rem/1 "Cormorant Garamond", serif; }
+  .k-step h3 { margin: 42px 0 10px; font: 600 1.7rem/1.1 "Cormorant Garamond", serif; }
+  .k-step p { margin: 0; color: var(--k-muted); font-size: .8rem; line-height: 1.65; }
+  .k-step__label { margin-top: 16px; display: inline-block; color: var(--k-gold); font-size: .64rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+
+  .k-masonry { columns: 3 260px; column-gap: 16px; }
+  .k-highlight {
+    break-inside: avoid;
+    margin: 0 0 16px;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(199,168,107,.2);
+    border-radius: 20px;
+    background: #141116;
+    box-shadow: 0 15px 45px rgba(0,0,0,.28);
+  }
+  .k-highlight img { width: 100%; display: block; aspect-ratio: 4/5; object-fit: cover; transition: transform .75s cubic-bezier(.2,.75,.2,1), filter .6s ease; }
+  .k-highlight:nth-child(3n+2) img { aspect-ratio: 1/1; }
+  .k-highlight:nth-child(3n) img { aspect-ratio: 4/3; }
+  .k-highlight::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to top, rgba(8,7,11,.28), transparent 48%); pointer-events: none; }
+  .k-highlight:hover img { transform: scale(1.035); filter: saturate(1.08); }
+
+  .k-signature {
+    margin-bottom: 42px;
+    padding: 22px;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    border: 1px solid rgba(199,168,107,.25);
+    border-radius: 24px;
+    background: linear-gradient(110deg, rgba(255,255,255,.07), rgba(255,255,255,.025));
+    box-shadow: var(--k-shadow);
+  }
+  .k-signature__avatar { width: 64px; height: 64px; flex: 0 0 auto; overflow: hidden; display: grid; place-items: center; border: 1px solid rgba(240,217,164,.45); border-radius: 50%; color: var(--k-gold-light); background: #18131a; font: 600 1.5rem/1 "Cormorant Garamond", serif; }
+  .k-signature__avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .k-signature__copy { min-width: 0; flex: 1; }
+  .k-signature__copy small { display: block; margin-bottom: 4px; color: var(--k-gold); font-size: .61rem; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; }
+  .k-signature__copy h3 { margin: 0; overflow: hidden; text-overflow: ellipsis; font: 600 1.55rem/1.1 "Cormorant Garamond", serif; white-space: nowrap; }
+  .k-instagram { margin-top: 5px; display: inline-flex; align-items: center; gap: 5px; color: #aaa2a8; text-decoration: none; font-size: .72rem; }
+  .k-instagram:hover { color: #e9d29e; }
+  .k-signature__actions { display: flex; gap: 9px; }
+
+  .k-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: grid;
+    place-items: center;
+    padding: 18px;
+    background: rgba(3,2,5,.79);
+    backdrop-filter: blur(17px);
+    -webkit-backdrop-filter: blur(17px);
     opacity: 0;
     visibility: hidden;
-    transition: all 0.25s;
-    z-index: 100000;
+    transition: opacity .25s ease, visibility .25s ease;
+  }
+  .k-modal.is-open { opacity: 1; visibility: visible; }
+  .k-modal__panel {
+    width: min(100%, 520px);
+    max-height: calc(100dvh - 36px);
+    overflow: auto;
+    position: relative;
+    padding: 27px;
+    border: 1px solid rgba(199,168,107,.32);
+    border-radius: 27px;
+    background: linear-gradient(145deg, rgba(28,23,29,.98), rgba(11,9,13,.98));
+    box-shadow: 0 35px 100px rgba(0,0,0,.75), inset 0 1px rgba(255,255,255,.08);
+    transform: translateY(16px) scale(.98);
+    transition: transform .28s ease;
+  }
+  .k-modal.is-open .k-modal__panel { transform: none; }
+  .k-modal__panel--camera { width: min(100%, 620px); }
+  .k-modal__panel--ai { width: min(100%, 430px); text-align: center; overflow: hidden; }
+  .k-modal__head { margin-bottom: 22px; padding-right: 42px; }
+  .k-modal__head .k-eyebrow { margin-bottom: 8px; }
+  .k-modal__head h2 { margin: 0 0 7px; font: 600 2.1rem/1 "Cormorant Garamond", serif; }
+  .k-modal__head p { margin: 0; color: var(--k-muted); font-size: .78rem; line-height: 1.6; }
+  .k-icon-btn { width: 38px; height: 38px; position: absolute; top: 18px; right: 18px; z-index: 3; display: grid; place-items: center; border: 1px solid rgba(255,255,255,.12); border-radius: 50%; color: #fff; background: rgba(0,0,0,.32); cursor: pointer; }
+  .k-icon-btn svg { width: 17px; height: 17px; }
+
+  .k-camera { position: relative; overflow: hidden; aspect-ratio: 4/5; border-radius: 21px; background: #030303; }
+  .k-camera video { width: 100%; height: 100%; display: block; object-fit: cover; transform: scaleX(-1); }
+  .k-face-guide { position: absolute; left: 50%; top: 46%; width: 52%; height: 63%; transform: translate(-50%,-50%); border: 1.5px solid rgba(240,217,164,.92); border-radius: 48% 48% 44% 44%; box-shadow: 0 0 0 999px rgba(0,0,0,.18), 0 0 22px rgba(199,168,107,.22); pointer-events: none; }
+  .k-face-guide::before, .k-face-guide::after { content: ""; position: absolute; left: 50%; width: 20px; height: 1px; background: rgba(240,217,164,.65); transform: translateX(-50%); }
+  .k-face-guide::before { top: -1px; } .k-face-guide::after { bottom: -1px; }
+  .k-camera__hint { position: absolute; left: 50%; bottom: 20px; transform: translateX(-50%); width: max-content; max-width: 88%; padding: 8px 13px; border-radius: 999px; color: white; background: rgba(0,0,0,.45); font-size: .65rem; text-align: center; backdrop-filter: blur(8px); }
+  .k-camera-actions { padding-top: 20px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; }
+  .k-shutter { width: 66px; height: 66px; padding: 5px; border: 2px solid #e9d4a4; border-radius: 50%; background: transparent; cursor: pointer; }
+  .k-shutter::after { content: ""; width: 100%; height: 100%; display: block; border-radius: 50%; background: linear-gradient(135deg, #f5e2b5, #b89150); transition: transform .16s ease; }
+  .k-shutter:active::after { transform: scale(.88); }
+  .k-file-alt { justify-self: end; border: 0; color: #cfc8cb; background: transparent; cursor: pointer; font: 600 .68rem/1.3 "Plus Jakarta Sans", sans-serif; }
+  .k-file-alt:hover { color: var(--k-gold-light); }
+
+  .k-form { display: grid; gap: 15px; }
+  .k-field label { display: block; margin: 0 0 7px 3px; color: #cfc8cb; font-size: .69rem; font-weight: 600; }
+  .k-field input { width: 100%; min-height: 50px; padding: 0 16px; border: 1px solid rgba(255,255,255,.12); border-radius: 14px; color: #fff; background: rgba(255,255,255,.045); font: 500 .82rem/1 "Plus Jakarta Sans", sans-serif; transition: border-color .2s ease, background .2s ease; }
+  .k-field input:focus { outline: 0; border-color: rgba(199,168,107,.72); background: rgba(199,168,107,.06); }
+  .k-field input::placeholder { color: #6f686f; }
+  .k-form__note { margin: 0; color: #716b72; font-size: .65rem; line-height: 1.55; text-align: center; }
+  .k-skip { border: 0; color: #aaa2a8; background: transparent; cursor: pointer; font: 600 .71rem/1.4 "Plus Jakarta Sans", sans-serif; }
+  .k-skip:hover { color: var(--k-gold-light); }
+
+  .k-radar { width: 210px; height: 210px; margin: 16px auto 30px; position: relative; overflow: hidden; border: 1px solid rgba(199,168,107,.48); border-radius: 50%; background: repeating-radial-gradient(circle, transparent 0 31px, rgba(199,168,107,.13) 32px 33px), linear-gradient(rgba(199,168,107,.16) 1px, transparent 1px), linear-gradient(90deg, rgba(199,168,107,.16) 1px, transparent 1px), radial-gradient(circle, rgba(13,97,95,.22), transparent 68%); background-size: auto, 100% 50%, 50% 100%, auto; box-shadow: 0 0 50px rgba(13,97,95,.12), inset 0 0 30px rgba(0,0,0,.6); }
+  .k-radar::before { content: ""; position: absolute; inset: 50% 50% 0 0; transform-origin: 100% 0; background: conic-gradient(from 90deg, rgba(33,192,181,.65), transparent 35deg); animation: kRadar 1.25s linear infinite; }
+  .k-radar::after { content: ""; position: absolute; width: 8px; height: 8px; top: 36%; left: 65%; border-radius: 50%; background: #f3dda9; box-shadow: 0 0 16px #f3dda9; animation: kBlink 1.1s ease-in-out infinite; }
+  .k-radar__face { position: absolute; inset: 58px 68px; z-index: 2; border: 1px dashed rgba(240,217,164,.7); border-radius: 48%; }
+  @keyframes kRadar { to { transform: rotate(360deg); } }
+  @keyframes kBlink { 50% { opacity: .2; transform: scale(.65); } }
+  .k-ai-status { min-height: 24px; margin: 0 0 8px; color: var(--k-ivory); font: 600 1.42rem/1.2 "Cormorant Garamond", serif; }
+  .k-ai-substatus { margin: 0 0 14px; color: var(--k-muted); font-size: .7rem; }
+  .k-progress { width: min(250px, 90%); height: 3px; margin: 0 auto 13px; overflow: hidden; border-radius: 9px; background: rgba(255,255,255,.08); }
+  .k-progress span { display: block; width: 35%; height: 100%; border-radius: inherit; background: linear-gradient(90deg, transparent, #d9bb7d, transparent); animation: kProgress 1.45s ease-in-out infinite; }
+  @keyframes kProgress { from { transform: translateX(-110%); } to { transform: translateX(300%); } }
+
+  .k-toast { position: fixed; left: 50%; bottom: max(24px, env(safe-area-inset-bottom)); z-index: 10050; width: min(420px, calc(100% - 30px)); padding: 13px 17px; border: 1px solid rgba(199,168,107,.3); border-radius: 14px; color: #f7f0e5; background: rgba(20,16,21,.95); box-shadow: 0 18px 50px rgba(0,0,0,.5); font-size: .74rem; line-height: 1.45; text-align: center; transform: translate(-50%, 25px); opacity: 0; visibility: hidden; transition: .25s ease; }
+  .k-toast.is-visible { transform: translate(-50%,0); opacity: 1; visibility: visible; }
+  .k-toast.is-error { border-color: rgba(217,87,109,.5); }
+
+  .k-sr-only { position: absolute !important; width: 1px !important; height: 1px !important; padding: 0 !important; margin: -1px !important; overflow: hidden !important; clip: rect(0,0,0,0) !important; white-space: nowrap !important; border: 0 !important; }
+  body.k-modal-open { overflow: hidden; }
+
+  @media (max-width: 760px) {
+    .k-shell { width: min(100% - 24px, 1180px); }
+    .k-hero { padding-top: 45px; }
+    .k-brand-badge { width: 68px; height: 68px; }
+    .k-brand-badge::before, .k-brand-badge::after { width: 34px; }
+    .k-title { font-size: clamp(2.9rem, 15vw, 5rem); }
+    .k-discovery { margin-top: 27px; border-radius: 24px; }
+    .k-actions { display: grid; }
+    .k-btn { width: 100%; }
+    .k-steps { grid-template-columns: 1fr; }
+    .k-step { min-height: 245px; }
+    .k-step h3 { margin-top: 30px; }
+    .k-signature { align-items: flex-start; flex-wrap: wrap; padding: 18px; }
+    .k-signature__copy { width: calc(100% - 84px); }
+    .k-signature__actions { width: 100%; }
+    .k-signature__actions .k-btn { flex: 1; }
+    .k-modal { padding: 10px; place-items: end center; }
+    .k-modal__panel { width: 100%; max-height: calc(100dvh - 10px); padding: 22px 18px calc(20px + env(safe-area-inset-bottom)); border-radius: 25px 25px 18px 18px; }
+    .k-camera { max-height: 65dvh; }
+    .k-masonry { columns: 2 140px; column-gap: 10px; }
+    .k-highlight { margin-bottom: 10px; border-radius: 14px; }
   }
 
-  .m-toast.is-visible {
-    transform: translate(-50%, 0);
-    opacity: 1;
-    visibility: visible;
-  }
-
-  @media (max-width: 768px) {
-    .m-steps-grid { grid-template-columns: 1fr; }
-    .m-top-bar { padding: 18px 20px; }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
   }
 </style>
 
-<main class="m-page">
+<main class="kshan-event-page">
+  <span class="k-orb k-orb--one" aria-hidden="true"></span>
+  <span class="k-orb k-orb--two" aria-hidden="true"></span>
 
-  <!-- ── 01: Top Minimalist Nav ───────────────────── -->
-  <header class="m-top-bar">
-    <a href="/" class="m-brand">
-      <div class="m-brand-mark">K</div>
-      <span class="m-brand-name">{{ profile.studio_name|default:"KSHAN STUDIO" }}</span>
-    </a>
-    <span class="m-code-badge">{{ event.event_code }}</span>
-  </header>
-
-  <div class="m-shell">
-
-    <!-- ── 02: Hero Title ───────────────────────────── -->
-    <section class="m-hero">
-      <div class="m-eyebrow">
-        <span>A Private Celebration</span>
+  <div class="k-shell">
+    <header class="k-hero">
+      <div class="k-brand-badge" aria-label="KSHAN">K</div>
+      <p class="k-eyebrow">A private celebration by {{ profile.studio_name|default:"KSHAN" }}</p>
+      <h1 class="k-title">{{ event.name }}</h1>
+      <div class="k-flourish" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M12 2c1.3 4.7 5.3 8.7 10 10-4.7 1.3-8.7 5.3-10 10-1.3-4.7-5.3-8.7-10-10C6.7 10.7 10.7 6.7 12 2Z" stroke="currentColor"/></svg>
       </div>
-      <h1 class="m-title">{{ event.name }}</h1>
-
-      <div class="m-meta-strip">
+      <div class="k-meta" aria-label="Event details">
         {% if event.event_date %}
-        <span class="m-meta-pill">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-          {{ event.event_date }}
+        <span class="k-chip">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M7 3v3m10-3v3M4 9h16M5 5h14a1 1 0 0 1 1 1v14H4V6a1 1 0 0 1 1-1Z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+          {{ event.event_date|date:"d F Y" }}
         </span>
         {% endif %}
         {% if event.location %}
-        <span class="m-meta-pill">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+        <span class="k-chip">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z" stroke="currentColor" stroke-width="1.7"/><circle cx="12" cy="10" r="2.5" stroke="currentColor" stroke-width="1.7"/></svg>
           {{ event.location }}
         </span>
         {% endif %}
-        <span class="m-meta-pill">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-          {{ photo_count|default:0 }} moments indexed
+        <span class="k-chip">
+          <svg viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" stroke-width="1.7"/><path d="m3 16 5-5 4 4 2-2 7 6M16.5 10a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z" stroke="currentColor" stroke-width="1.7"/></svg>
+          {% if photo_count != None %}{{ photo_count }}{% else %}{{ photos_count|default:0 }}{% endif %} moments indexed
         </span>
       </div>
-    </section>
+    </header>
 
-    <!-- ── 03: Floating Discovery Card ─────────────── -->
-    <section class="m-card-main">
-      <div class="m-icon-crest">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 8a2 2 0 0 1 2-2h2l1.2-2h5.6L16 6h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8Z"/><circle cx="12" cy="12.5" r="3.5"/><path d="M18 3v3m-1.5-1.5h3" stroke-linecap="round"/></svg>
+    <section class="k-discovery" aria-labelledby="discoveryTitle">
+      <div class="k-ai-mark" aria-hidden="true">
+        <div class="k-ai-mark__core">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M4 8a2 2 0 0 1 2-2h2l1.2-2h5.6L16 6h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8Z" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="12.5" r="3.5" stroke="currentColor" stroke-width="1.5"/><path d="M18 3v3m-1.5-1.5h3" stroke="currentColor" stroke-linecap="round"/></svg>
+        </div>
       </div>
-
-      <div class="m-eyebrow" style="margin-bottom: 8px;">Private AI Photo Discovery</div>
-      <h2 class="m-card-h2">Find Your Memories</h2>
-      <p class="m-card-p">Take one selfie. Our private facial recognition instantly curates every celebration photograph you appear in.</p>
-
-      <div class="m-action-group">
-        <button type="button" class="m-btn m-btn-gold" onclick="openRegOrCamera()">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 8a2 2 0 0 1 2-2h2l1.2-2h5.6L16 6h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8Z"/><circle cx="12" cy="12.5" r="3.5"/></svg>
+      <p class="k-eyebrow">Private AI Photo Discovery</p>
+      <h2 id="discoveryTitle">Find Your Moments</h2>
+      <p>One selfie is all it takes. Our private face-matching experience finds every photograph you appear in—beautifully, instantly, and without an app.</p>
+      <div class="k-actions">
+        <button class="k-btn k-btn--gold" type="button" onclick="openRegistrationOrCamera()">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M4 8a2 2 0 0 1 2-2h2l1.2-2h5.6L16 6h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8Z" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12.5" r="3.5" stroke="currentColor" stroke-width="1.8"/></svg>
           Take Live Selfie
         </button>
-
-        <button type="button" class="m-btn m-btn-outline" onclick="document.getElementById('mGalleryInput').click()">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 16V4m0 0L7 9m5-5 5 5M5 14v5h14v-5"/></svg>
-          Upload from Gallery
+        <button class="k-btn k-btn--glass" type="button" onclick="document.getElementById('directSelfieUpload').click()">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M12 16V4m0 0L7 9m5-5 5 5M5 14v5h14v-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Upload Photo from Gallery
         </button>
-        <input type="file" id="mGalleryInput" accept="image/*" style="display: none;" onchange="handleFile(event)">
+        <input class="k-sr-only" type="file" id="directSelfieUpload" accept="image/*" onchange="handleSelfieFile(event)">
       </div>
-
-      <a href="/event/{{ event.event_code }}/gallery/" class="m-gallery-link">
-        Browse Full Event Gallery
-        <span aria-hidden="true">→</span>
-      </a>
-
+      <a class="k-gallery-link" href="/event/{{ event.event_code }}/gallery/">Browse Full Event Gallery <span aria-hidden="true">→</span></a>
       {% if event.allow_guest_upload %}
-      <div style="margin-top: 20px;">
-        <button type="button" class="m-btn m-btn-outline" onclick="document.getElementById('mGuestUploadInput').click()" style="min-height: 42px; font-size: 0.78rem;">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14" stroke-linecap="round"/></svg>
+      <div class="k-guest-contribute">
+        <button class="k-btn k-btn--glass" type="button" onclick="document.getElementById('guestPhotoInput').click()">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
           Contribute Guest Photos
         </button>
-        <input type="file" id="mGuestUploadInput" accept="image/*" multiple style="display: none;" onchange="handleGuestUpload(this.files)">
+        <input class="k-sr-only" type="file" id="guestPhotoInput" accept="image/*" multiple onchange="handleGuestUpload(this.files)">
       </div>
       {% endif %}
     </section>
 
-    <!-- ── 04: Three Step Process ──────────────────── -->
-    <section class="m-section">
-      <div class="m-section-header">
-        <div class="m-eyebrow">How It Works</div>
-        <h2>Three Steps to Your Story</h2>
-        <p>Private, instant, and completely app-free for event guests.</p>
+    <section class="k-section" aria-labelledby="experienceTitle">
+      <div class="k-section-heading">
+        <p class="k-eyebrow">Effortlessly yours</p>
+        <h2 id="experienceTitle">Three steps to every memory</h2>
+        <p>Designed to disappear into the celebration. No downloads, no endless scrolling, no waiting.</p>
       </div>
-
-      <div class="m-steps-grid">
-        <div class="m-step-card">
-          <div class="m-step-num">STEP 01</div>
+      <div class="k-steps">
+        <article class="k-step">
+          <div class="k-step__top"><span class="k-step__icon"><svg viewBox="0 0 24 24" fill="none"><path d="M4 8a2 2 0 0 1 2-2h2l1.2-2h5.6L16 6h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8Z" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="12.5" r="3.5" stroke="currentColor" stroke-width="1.6"/></svg></span><span class="k-step__num">01</span></div>
           <h3>Snap a Selfie</h3>
-          <p>Take a clear selfie on your phone or choose a portrait from your camera roll.</p>
-        </div>
-
-        <div class="m-step-card">
-          <div class="m-step-num">STEP 02</div>
-          <h3>AI Vector Match</h3>
-          <p>Our sub-second private search matches your facial signature with event photos.</p>
-        </div>
-
-        <div class="m-step-card">
-          <div class="m-step-num">STEP 03</div>
-          <h3>Save Memories</h3>
-          <p>View, preserve, and download high-resolution original photographs.</p>
-        </div>
+          <p>Use your camera or choose a clear portrait from your gallery. Your browser handles everything.</p>
+          <span class="k-step__label">Zero app download</span>
+        </article>
+        <article class="k-step">
+          <div class="k-step__top"><span class="k-step__icon"><svg viewBox="0 0 24 24" fill="none"><path d="M8 3H5a2 2 0 0 0-2 2v3m13-5h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3m13 5h3a2 2 0 0 0 2-2v-3M8.5 10.5c.6-2.5 6.4-2.5 7 0m-6 4c1.5 1.4 3.5 1.4 5 0" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></span><span class="k-step__num">02</span></div>
+          <h3>Instant AI Face Match</h3>
+          <p>Your face signature is compared privately against the indexed photographs from this event.</p>
+          <span class="k-step__label">Sub-second vector search</span>
+        </article>
+        <article class="k-step">
+          <div class="k-step__top"><span class="k-step__icon"><svg viewBox="0 0 24 24" fill="none"><path d="M12 4v12m0 0 5-5m-5 5-5-5M5 20h14" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="k-step__num">03</span></div>
+          <h3>Get Your Photos</h3>
+          <p>View, select, and preserve the photographs that belong to your unique story.</p>
+          <span class="k-step__label">Original high-res quality</span>
+        </article>
       </div>
     </section>
 
-    <!-- ── 05: Highlights Gallery ───────────────────── -->
     {% if highlights %}
-    <section class="m-section">
-      <div class="m-section-header">
-        <div class="m-eyebrow">Curated Moments</div>
-        <h2>Event Highlights</h2>
+    <section class="k-section" aria-labelledby="highlightsTitle">
+      <div class="k-section-heading">
+        <p class="k-eyebrow">The celebration, curated</p>
+        <h2 id="highlightsTitle">Event Highlights</h2>
       </div>
-
-      <div class="m-highlights">
+      <div class="k-masonry">
         {% for h in highlights %}
-        <div class="m-highlight-card">
-          <img src="{{ h.thumbnail_url }}" alt="Highlight" loading="lazy">
-        </div>
+        <figure class="k-highlight">
+          <img src="{{ h.thumbnail_url }}" alt="Highlight from {{ event.name }}" loading="lazy" decoding="async">
+        </figure>
         {% endfor %}
       </div>
     </section>
     {% endif %}
 
-    <!-- ── 06: Studio Signature Footer ─────────────── -->
-    <footer class="m-footer-card">
-      <div class="m-studio-meta">
-        <div class="m-studio-avatar">
-          {% if profile.profile_photo %}
-            <img src="{{ profile.profile_photo.url }}" alt="{{ profile.studio_name }}">
-          {% else %}
-            {{ profile.studio_name|default:"K"|slice:":1"|upper }}
-          {% endif %}
-        </div>
-        <div class="m-studio-copy">
-          <small>Photographed & Curated by</small>
-          <h3>{{ profile.studio_name|default:"KSHAN Studio" }}</h3>
-          {% if profile.instagram %}
-          <div style="font-size: 0.78rem; color: var(--m-gold); margin-top: 2px;">@{{ profile.instagram|cut:'@' }}</div>
-          {% endif %}
-        </div>
+    <footer class="k-signature">
+      <div class="k-signature__avatar">
+        {% if profile.profile_photo %}
+          <img src="{{ profile.profile_photo.url }}" alt="{{ profile.studio_name }} logo">
+        {% else %}
+          {{ profile.studio_name|default:"K"|slice:":1"|upper }}
+        {% endif %}
       </div>
-
-      {% if profile.whatsapp_number %}
-      <a class="m-btn m-btn-gold" href="https://wa.me/{{ profile.whatsapp_number|cut:'+'|cut:' '|cut:'-' }}?text=Hello%2C%20I%20saw%20your%20photography%20at%20{{ event.name|urlencode }}%20and%20would%20like%20to%20inquire." target="_blank" rel="noopener noreferrer">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
-        Book Studio via WhatsApp
-      </a>
-      {% endif %}
+      <div class="k-signature__copy">
+        <small>Photographed with distinction by</small>
+        <h3>{{ profile.studio_name|default:"KSHAN Studio" }}</h3>
+        {% if profile.instagram %}
+        <a class="k-instagram" href="https://instagram.com/{{ profile.instagram|cut:'@' }}" target="_blank" rel="noopener noreferrer">@{{ profile.instagram|cut:'@' }}</a>
+        {% endif %}
+      </div>
+      <div class="k-signature__actions">
+        {% if profile.whatsapp_number %}
+        <a class="k-btn k-btn--gold" href="https://wa.me/{{ profile.whatsapp_number|cut:'+'|cut:' '|cut:'-' }}?text=Hello%2C%20I%20would%20like%20to%20book%20{{ profile.studio_name|default:'your studio'|urlencode }}." target="_blank" rel="noopener noreferrer">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M20 11.6a8 8 0 0 1-11.7 7.1L4 20l1.3-4.1A8 8 0 1 1 20 11.6Z" stroke="currentColor" stroke-width="1.7"/><path d="M9 8.5c.4 2.8 2 4.4 4.8 5.2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+          Book via WhatsApp
+        </a>
+        {% endif %}
+      </div>
     </footer>
-
   </div>
 </main>
 
-<!-- ── LIVE CAMERA MODAL ────────────────────────── -->
-<div id="mCameraModal" class="m-modal">
-  <div class="m-modal-panel">
-    <button type="button" class="m-close-btn" onclick="closeCam()">✕</button>
-    <div style="text-align: center; margin-bottom: 12px;">
-      <div class="m-eyebrow">Camera Search</div>
-      <h3 style="font-family: var(--font-serif); font-size: 1.8rem; margin: 0;">Center Your Face</h3>
-      <p style="color: var(--m-text-muted); font-size: 0.8rem; margin: 4px 0 0;">Keep good lighting and look directly at the camera.</p>
+<div class="k-modal" id="selfieModal" role="dialog" aria-modal="true" aria-labelledby="selfieTitle" aria-hidden="true">
+  <div class="k-modal__panel k-modal__panel--camera">
+    <button class="k-icon-btn" type="button" onclick="closeSelfieCamera()" aria-label="Close camera"><svg viewBox="0 0 24 24" fill="none"><path d="m6 6 12 12M18 6 6 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+    <div class="k-modal__head">
+      <p class="k-eyebrow">Private face search</p>
+      <h2 id="selfieTitle">Centre your face</h2>
+      <p>Face the light, remove sunglasses, and keep only one face in frame.</p>
     </div>
-
-    <div class="m-cam-box">
-      <video id="mVideo" autoplay playsinline muted></video>
-      <div class="m-face-guide"></div>
+    <div class="k-camera">
+      <video id="selfieVideo" autoplay playsinline muted></video>
+      <div class="k-face-guide" aria-hidden="true"></div>
+      <span class="k-camera__hint">Your selfie is used only to find your event photos.</span>
     </div>
-
-    <button type="button" class="m-shutter" onclick="snapSelfie()"></button>
-    <canvas id="mCanvas" style="display: none;"></canvas>
+    <div class="k-camera-actions">
+      <span></span>
+      <button class="k-shutter" type="button" onclick="captureSelfie()" aria-label="Capture selfie"></button>
+      <button class="k-file-alt" type="button" onclick="document.getElementById('selfieFileInput').click()">Choose photo<br>instead</button>
+    </div>
+    <input class="k-sr-only" type="file" id="selfieFileInput" accept="image/*" onchange="handleSelfieFile(event)">
+    <canvas id="selfieCanvas" class="k-sr-only"></canvas>
   </div>
 </div>
 
-<!-- ── GUEST REGISTRATION MODAL ─────────────────── -->
-<div id="mRegModal" class="m-modal">
-  <div class="m-modal-panel">
-    <button type="button" class="m-close-btn" onclick="closeModal('mRegModal')">✕</button>
-    <div style="margin-bottom: 20px;">
-      <div class="m-eyebrow">Welcome Guest</div>
-      <h3 style="font-family: var(--font-serif); font-size: 2rem; margin: 0 0 6px;">Let us know you</h3>
-      <p style="color: var(--m-text-muted); font-size: 0.82rem; margin: 0;">Enter your name to access your private album.</p>
+<div class="k-modal" id="guestRegModal" role="dialog" aria-modal="true" aria-labelledby="guestRegTitle" aria-hidden="true">
+  <div class="k-modal__panel">
+    <button class="k-icon-btn" type="button" onclick="closeModal('guestRegModal')" aria-label="Close registration"><svg viewBox="0 0 24 24" fill="none"><path d="m6 6 12 12M18 6 6 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+    <div class="k-modal__head">
+      <p class="k-eyebrow">Welcome to the celebration</p>
+      <h2 id="guestRegTitle">Let us know you</h2>
+      <p>Optional contact details help the studio share your private album with you.</p>
     </div>
-
-    <form onsubmit="event.preventDefault(); submitReg();" style="display: grid; gap: 14px;">
-      <div>
-        <label style="display: block; font-size: 0.72rem; font-weight: 700; color: var(--m-gold); margin-bottom: 5px; text-transform: uppercase;">Your Name *</label>
-        <input type="text" id="mGuestName" required placeholder="e.g. Priya Sharma" style="width: 100%; min-height: 48px; padding: 0 16px; border-radius: 12px; background: #faf8f5; border: 1px solid var(--m-border); color: var(--m-text-main); font-size: 0.88rem; outline: none;">
-      </div>
-      <div>
-        <label style="display: block; font-size: 0.72rem; font-weight: 700; color: var(--m-gold); margin-bottom: 5px; text-transform: uppercase;">Phone (Optional)</label>
-        <input type="tel" id="mGuestPhone" placeholder="e.g. +91 98765 43210" style="width: 100%; min-height: 48px; padding: 0 16px; border-radius: 12px; background: #faf8f5; border: 1px solid var(--m-border); color: var(--m-text-main); font-size: 0.88rem; outline: none;">
-      </div>
-      <button type="submit" class="m-btn m-btn-gold" style="width: 100%; min-height: 48px;">
-        Continue to Face Search →
-      </button>
-      <button type="button" onclick="skipReg()" style="background: none; border: none; color: var(--m-text-muted); font-size: 0.76rem; cursor: pointer; padding: 4px;">
-        Skip & browse anonymously
-      </button>
+    <form class="k-form" id="guestRegForm" onsubmit="event.preventDefault(); submitRegistration()">
+      {% csrf_token %}
+      <div class="k-field"><label for="guestName">Your name *</label><input id="guestName" name="name" type="text" autocomplete="name" placeholder="e.g. Priya Sharma" required maxlength="120"></div>
+      <div class="k-field"><label for="guestPhone">Phone number</label><input id="guestPhone" name="phone" type="tel" autocomplete="tel" inputmode="tel" placeholder="e.g. +91 98765 43210" maxlength="20"></div>
+      <div class="k-field"><label for="guestEmail">Email address</label><input id="guestEmail" name="email" type="email" autocomplete="email" placeholder="you@example.com" maxlength="254"></div>
+      <button class="k-btn k-btn--gold k-btn--wide" id="registrationSubmit" type="submit">Continue to Face Search</button>
+      <button class="k-skip" type="button" onclick="skipRegistration()">Skip &amp; browse anonymously</button>
+      <p class="k-form__note">Your information stays with this event and its photography studio.</p>
     </form>
   </div>
 </div>
 
-<!-- ── AI SEARCH MODAL ──────────────────────────── -->
-<div id="mAiModal" class="m-modal">
-  <div class="m-modal-panel" style="width: min(100%, 400px); text-align: center;">
-    <div style="width: 60px; height: 60px; border-radius: 50%; background: var(--m-gold-soft); border: 2px solid var(--m-gold); margin: 0 auto 16px; display: grid; place-items: center; color: var(--m-gold); font-size: 24px; animation: spinPulse 1.5s infinite ease-in-out;">✦</div>
-    <h3 id="mAiStatus" style="font-family: var(--font-serif); font-size: 1.8rem; margin: 0 0 8px;">Scanning celebration photos...</h3>
-    <p style="color: var(--m-text-muted); font-size: 0.82rem; margin: 0;">Matching face signatures with sub-second AI</p>
+<div class="k-modal" id="aiSearchModal" role="dialog" aria-modal="true" aria-labelledby="aiStatus" aria-hidden="true">
+  <div class="k-modal__panel k-modal__panel--ai">
+    <div class="k-radar" aria-hidden="true"><span class="k-radar__face"></span></div>
+    <p class="k-eyebrow">KSHAN Intelligence</p>
+    <h2 class="k-ai-status" id="aiStatus" aria-live="polite">Scanning event photos...</h2>
+    <p class="k-ai-substatus" id="aiSubstatus">Please keep this window open</p>
+    <div class="k-progress" aria-hidden="true"><span></span></div>
   </div>
 </div>
 
-<style>
-@keyframes spinPulse {
-  0% { transform: rotate(0deg) scale(0.9); }
-  50% { transform: rotate(180deg) scale(1.1); }
-  100% { transform: rotate(360deg) scale(0.9); }
-}
-</style>
-
-<div id="mToast" class="m-toast"></div>
+<div class="k-toast" id="kshanToast" role="status" aria-live="polite"></div>
 
 <script>
   window.EVENT_CODE = "{{ event.event_code }}";
-  let camStream = null;
 
-  function showToast(msg) {
-    const t = document.getElementById('mToast');
-    t.textContent = msg;
-    t.classList.add('is-visible');
-    setTimeout(() => t.classList.remove('is-visible'), 4000);
+  let selfieStream = null;
+  let toastTimer = null;
+  let statusTimers = [];
+
+  function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    return parts.length === 2 ? decodeURIComponent(parts.pop().split(';').shift()) : '';
   }
 
-  function openRegOrCamera() {
-    const registered = sessionStorage.getItem('kshan_reg_' + window.EVENT_CODE);
-    if (registered) openCam();
-    else document.getElementById('mRegModal').classList.add('is-open');
+  function openModal(id) {
+    const modal = document.getElementById(id);
+    if (!modal) return;
+    modal.classList.add('is-open');
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('k-modal-open');
+    const focusable = modal.querySelector('button, input, [href]');
+    if (focusable) setTimeout(() => focusable.focus(), 80);
   }
 
   function closeModal(id) {
-    document.getElementById(id).classList.remove('is-open');
+    const modal = document.getElementById(id);
+    if (!modal) return;
+    modal.classList.remove('is-open');
+    modal.setAttribute('aria-hidden', 'true');
+    if (!document.querySelector('.k-modal.is-open')) document.body.classList.remove('k-modal-open');
   }
 
-  async function openCam() {
-    closeModal('mRegModal');
+  function showToast(message, isError = false) {
+    const toast = document.getElementById('kshanToast');
+    clearTimeout(toastTimer);
+    toast.textContent = message;
+    toast.classList.toggle('is-error', isError);
+    toast.classList.add('is-visible');
+    toastTimer = setTimeout(() => toast.classList.remove('is-visible'), 4200);
+  }
+
+  function openRegistrationOrCamera() {
+    const registered = sessionStorage.getItem('kshan_registered_' + window.EVENT_CODE);
+    if (registered) openSelfieCamera();
+    else openModal('guestRegModal');
+  }
+
+  async function openSelfieCamera() {
+    closeModal('guestRegModal');
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-      showToast('Live camera is unavailable. Uploading from gallery...');
-      document.getElementById('mGalleryInput').click();
+      showToast('Live camera is not supported here. Please upload a portrait instead.', true);
+      document.getElementById('directSelfieUpload').click();
       return;
     }
-
     try {
-      camStream = await navigator.mediaDevices.getUserMedia({
+      selfieStream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 1600 } },
         audio: false
       });
-      document.getElementById('mVideo').srcObject = camStream;
-      document.getElementById('mCameraModal').classList.add('is-open');
-    } catch (e) {
-      showToast('Camera permission needed. Choose from gallery instead.');
-      document.getElementById('mGalleryInput').click();
+      document.getElementById('selfieVideo').srcObject = selfieStream;
+      openModal('selfieModal');
+    } catch (error) {
+      console.error('Camera access failed:', error);
+      showToast('Camera permission was unavailable. Choose a clear portrait from your gallery.', true);
+      document.getElementById('directSelfieUpload').click();
     }
   }
 
-  function closeCam() {
-    if (camStream) {
-      camStream.getTracks().forEach(t => t.stop());
-      camStream = null;
+  function closeSelfieCamera() {
+    if (selfieStream) {
+      selfieStream.getTracks().forEach(track => track.stop());
+      selfieStream = null;
     }
-    const vid = document.getElementById('mVideo');
-    if (vid) vid.srcObject = null;
-    closeModal('mCameraModal');
+    const video = document.getElementById('selfieVideo');
+    if (video) video.srcObject = null;
+    closeModal('selfieModal');
   }
 
-  function snapSelfie() {
-    const vid = document.getElementById('mVideo');
-    const canvas = document.getElementById('mCanvas');
-    if (!vid.videoWidth) return;
-
-    canvas.width = vid.videoWidth;
-    canvas.height = vid.videoHeight;
+  function captureSelfie() {
+    const video = document.getElementById('selfieVideo');
+    const canvas = document.getElementById('selfieCanvas');
+    if (!video.videoWidth || !video.videoHeight) {
+      showToast('Camera is still preparing. Please try again in a moment.', true);
+      return;
+    }
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
     const ctx = canvas.getContext('2d');
     ctx.translate(canvas.width, 0);
     ctx.scale(-1, 1);
-    ctx.drawImage(vid, 0, 0, canvas.width, canvas.height);
-
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
     canvas.toBlob(blob => {
-      if (!blob) return;
-      closeCam();
-      runSearch(blob);
-    }, 'image/jpeg', 0.9);
+      if (!blob) {
+        showToast('We could not capture that selfie. Please try again.', true);
+        return;
+      }
+      closeSelfieCamera();
+      startAiSearch(blob);
+    }, 'image/jpeg', .9);
   }
 
-  function handleFile(e) {
-    const file = e.target.files && e.target.files[0];
-    e.target.value = '';
+  function handleSelfieFile(e) {
+    const input = e.target;
+    const file = input.files && input.files[0];
+    input.value = '';
     if (!file) return;
-    runSearch(file);
+    if (!file.type.startsWith('image/')) {
+      showToast('Please choose a valid image file.', true);
+      return;
+    }
+    if (file.size > 20 * 1024 * 1024) {
+      showToast('That photo is too large. Please choose one under 20 MB.', true);
+      return;
+    }
+
+    const image = new Image();
+    const objectUrl = URL.createObjectURL(file);
+    image.onload = () => {
+      const maxDimension = 1280;
+      const scale = Math.min(1, maxDimension / Math.max(image.naturalWidth, image.naturalHeight));
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.max(1, Math.round(image.naturalWidth * scale));
+      canvas.height = Math.max(1, Math.round(image.naturalHeight * scale));
+      canvas.getContext('2d').drawImage(image, 0, 0, canvas.width, canvas.height);
+      URL.revokeObjectURL(objectUrl);
+      canvas.toBlob(blob => {
+        if (!blob) {
+          showToast('We could not prepare that image. Please try another one.', true);
+          return;
+        }
+        closeSelfieCamera();
+        startAiSearch(blob);
+      }, 'image/jpeg', .88);
+    };
+    image.onerror = () => {
+      URL.revokeObjectURL(objectUrl);
+      showToast('We could not read that photo. Please choose another one.', true);
+    };
+    image.src = objectUrl;
   }
 
-  async function runSearch(blobOrFile) {
-    document.getElementById('mAiModal').classList.add('is-open');
-    document.getElementById('mAiStatus').textContent = 'Scanning celebration photos...';
+  function setAiStatus(message, substatus) {
+    document.getElementById('aiStatus').textContent = message;
+    if (substatus) document.getElementById('aiSubstatus').textContent = substatus;
+  }
 
+  function beginStatusSequence() {
+    statusTimers.forEach(clearTimeout);
+    statusTimers = [
+      setTimeout(() => setAiStatus('Matching face vectors...', 'Comparing your face across the celebration'), 1150),
+      setTimeout(() => setAiStatus('Curating your moments...', 'Almost there'), 2850)
+    ];
+  }
+
+  async function startAiSearch(blob) {
+    openModal('aiSearchModal');
+    setAiStatus('Scanning event photos...', 'Please keep this window open');
+    beginStatusSequence();
     const formData = new FormData();
-    formData.append('selfie', blobOrFile, 'selfie.jpg');
+    formData.append('selfie', blob, 'kshan-selfie.jpg');
 
     try {
-      const res = await authFetch(`/api/events/${encodeURIComponent(window.EVENT_CODE)}/search/`, {
+      const response = await fetch(`/api/events/${encodeURIComponent(window.EVENT_CODE)}/search/`, {
         method: 'POST',
-        body: formData
+        headers: { 'X-CSRFToken': getCookie('csrftoken'), 'X-Requested-With': 'XMLHttpRequest' },
+        body: formData,
+        credentials: 'same-origin'
       });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data.message || data.error || 'Search could not be completed.');
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data.message || data.error || 'Face search could not be completed.');
 
-      document.getElementById('mAiStatus').textContent = 'Found your photos! ✨';
+      statusTimers.forEach(clearTimeout);
+      setAiStatus('Found you! ✨', 'Opening your private photo collection');
       sessionStorage.setItem('kshan_search_' + window.EVENT_CODE, JSON.stringify(data));
-
       setTimeout(() => {
         window.location.href = `/event/${encodeURIComponent(window.EVENT_CODE)}/gallery/`;
-      }, 700);
-    } catch (err) {
-      closeModal('mAiModal');
-      showToast(err.message || 'Face search failed. Please try another photo.');
+      }, 650);
+    } catch (error) {
+      statusTimers.forEach(clearTimeout);
+      closeModal('aiSearchModal');
+      showToast(error.message || 'Something went wrong while searching. Please try again.', true);
     }
   }
 
-  function submitReg() {
-    const name = document.getElementById('mGuestName').value.trim();
-    const phone = document.getElementById('mGuestPhone').value.trim();
-    if (!name) return;
-    sessionStorage.setItem('kshan_reg_' + window.EVENT_CODE, JSON.stringify({ name, phone }));
-    openCam();
+  async function submitRegistration() {
+    const form = document.getElementById('guestRegForm');
+    if (!form.reportValidity()) return;
+    const submitButton = document.getElementById('registrationSubmit');
+    submitButton.disabled = true;
+    submitButton.textContent = 'Saving…';
+
+    const payload = {
+      name: document.getElementById('guestName').value.trim(),
+      phone: document.getElementById('guestPhone').value.trim(),
+      email: document.getElementById('guestEmail').value.trim()
+    };
+
+    try {
+      const response = await fetch(`/api/events/${encodeURIComponent(window.EVENT_CODE)}/register/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCookie('csrftoken'),
+          'X-Requested-With': 'XMLHttpRequest'
+        },
+        credentials: 'same-origin',
+        body: JSON.stringify(payload)
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data.message || data.error || 'Registration could not be saved.');
+      sessionStorage.setItem('kshan_registered_' + window.EVENT_CODE, JSON.stringify(data || { name: payload.name }));
+      await openSelfieCamera();
+    } catch (error) {
+      showToast(error.message || 'Registration failed. You may skip and continue anonymously.', true);
+    } finally {
+      submitButton.disabled = false;
+      submitButton.textContent = 'Continue to Face Search';
+    }
   }
 
-  function skipReg() {
-    sessionStorage.setItem('kshan_reg_' + window.EVENT_CODE, JSON.stringify({ anonymous: true }));
-    openCam();
+  function skipRegistration() {
+    sessionStorage.setItem('kshan_registered_' + window.EVENT_CODE, JSON.stringify({ anonymous: true }));
+    openSelfieCamera();
   }
 
   async function handleGuestUpload(files) {
     if (!files || !files.length) return;
-    const formData = new FormData();
-    for (let f of files) {
-      if (f.type.startsWith('image/')) formData.append('photos', f, f.name);
+    const validFiles = Array.from(files).filter(file => file.type.startsWith('image/'));
+    document.getElementById('guestPhotoInput').value = '';
+    if (!validFiles.length) {
+      showToast('Please select one or more image files.', true);
+      return;
     }
-    showToast(`Uploading ${files.length} guest photos...`);
+    const formData = new FormData();
+    validFiles.forEach(file => formData.append('photos', file, file.name));
+    showToast(`Uploading ${validFiles.length} guest photo${validFiles.length > 1 ? 's' : ''}…`);
 
     try {
-      const res = await authFetch(`/api/events/${encodeURIComponent(window.EVENT_CODE)}/guest-upload/`, {
+      const response = await fetch(`/api/events/${encodeURIComponent(window.EVENT_CODE)}/guest-upload/`, {
         method: 'POST',
-        body: formData
+        headers: { 'X-CSRFToken': getCookie('csrftoken'), 'X-Requested-With': 'XMLHttpRequest' },
+        body: formData,
+        credentials: 'same-origin'
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Upload failed');
-      showToast('Thank you! Photos contributed successfully.');
-    } catch (err) {
-      showToast(err.message || 'Upload error.');
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data.message || data.error || 'Guest upload could not be completed.');
+      showToast(data.message || 'Thank you—your photographs were contributed successfully.');
+    } catch (error) {
+      showToast(error.message || 'Upload failed. Please try again.', true);
     }
   }
 
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-      closeCam();
-      closeModal('mRegModal');
-    }
+  document.addEventListener('keydown', event => {
+    if (event.key !== 'Escape') return;
+    if (document.getElementById('selfieModal').classList.contains('is-open')) closeSelfieCamera();
+    else if (document.getElementById('guestRegModal').classList.contains('is-open')) closeModal('guestRegModal');
+  });
+
+  document.querySelectorAll('.k-modal').forEach(modal => {
+    modal.addEventListener('click', event => {
+      if (event.target !== modal || modal.id === 'aiSearchModal') return;
+      if (modal.id === 'selfieModal') closeSelfieCamera();
+      else closeModal(modal.id);
+    });
+  });
+
+  window.addEventListener('pagehide', () => {
+    if (selfieStream) selfieStream.getTracks().forEach(track => track.stop());
   });
 </script>
 {% endblock %}
