@@ -257,21 +257,36 @@ def create_thumbnail(input_path: str, output_path: str, max_size: int = settings
 
     return output_path
 
-def load_cv2_image_safe(image_path_or_bytes) -> np.ndarray:
-    """Loads an image safely into OpenCV BGR format handling Unicode Windows paths."""
+def load_cv2_image_safe(image_path_or_bytes, max_dimension: int = 1280) -> np.ndarray:
+    """
+    Loads an image safely into OpenCV BGR format.
+    Automatically downscales to max_dimension (default 1280px) to prevent OOM
+    when processing full-resolution wedding/event photos (20MP+ = 70MB in RAM).
+    InsightFace detects faces reliably down to 30px wide, so 1280px is more than enough.
+    """
     if isinstance(image_path_or_bytes, (str, Path)):
         file_bytes = np.fromfile(str(image_path_or_bytes), dtype=np.uint8)
         img = cv2.imdecode(file_bytes, cv2.IMREAD_COLOR)
         if img is None:
             raise ValueError(f"Unable to read image at path: {image_path_or_bytes}")
-        return img
     elif isinstance(image_path_or_bytes, bytes):
         file_bytes = np.frombuffer(image_path_or_bytes, dtype=np.uint8)
         img = cv2.imdecode(file_bytes, cv2.IMREAD_COLOR)
         if img is None:
             raise ValueError("Unable to decode image bytes")
-        return img
     elif isinstance(image_path_or_bytes, np.ndarray):
-        return image_path_or_bytes
+        img = image_path_or_bytes
     else:
         raise TypeError("Invalid image input type for OpenCV loader")
+
+    # Downscale large images to prevent OOM on memory-constrained servers (e.g. Render 512MB)
+    # A 6000x4000 photo = 72MB numpy array; at 1280px = 5MB — faces still detected perfectly
+    if max_dimension and max_dimension > 0:
+        h, w = img.shape[:2]
+        if max(h, w) > max_dimension:
+            scale = max_dimension / float(max(h, w))
+            new_w = int(w * scale)
+            new_h = int(h * scale)
+            img = cv2.resize(img, (new_w, new_h), interpolation=cv2.INTER_AREA)
+
+    return img
