@@ -1,26 +1,14 @@
-FROM python:3.11-slim
+FROM python:3.11
 
-ENV DEBIAN_FRONTEND=noninteractive \
-    PYTHONUNBUFFERED=1 \
+ENV PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
     PORT=8000 \
     FACE_RECOGNITION_ENABLED=True \
     INSIGHTFACE_MODEL=buffalo_s
 
-# Install system dependencies with retries and force IPv4 to prevent EC2 networking hangs
-RUN apt-get update -o Acquire::ForceIPv4=true -o Acquire::Retries=3 && \
-    apt-get install -y --no-install-recommends \
-        build-essential \
-        libglib2.0-0 \
-        libgomp1 \
-        git \
-        curl \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
-
 WORKDIR /app
 
-# Install Python requirements
+# Install Python requirements (python:3.11 already contains git, curl, build-essential, libgomp)
 COPY requirements.txt /app/
 RUN pip install --no-cache-dir -r requirements.txt
 
