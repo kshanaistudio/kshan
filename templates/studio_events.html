@@ -3,9 +3,732 @@
 {% block title %}Events — KSHAN Studio{% endblock %}
 
 {% block content %}
-<div class="studio-shell">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cormorant+Garamond:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
 
-  <!-- ── 01: V5 GLASS SIDEBAR ────────────────────────────────── -->
+  :root {
+    --ks-ink: #070609;
+    --ks-card: rgba(18, 14, 21, 0.72);
+    --ks-card-hover: rgba(28, 22, 32, 0.88);
+    --ks-border: rgba(199, 168, 107, 0.18);
+    --ks-border-gold: rgba(240, 217, 164, 0.45);
+    --ks-gold: #c7a86b;
+    --ks-gold-light: #f0d9a4;
+    --ks-gold-glow: rgba(199, 168, 107, 0.15);
+    --ks-text: #f5efe6;
+    --ks-muted: #9e959d;
+    --ks-teal: #14b8a6;
+    --ks-burgundy: #8f2848;
+    --ks-radius: 20px;
+  }
+
+  .k-events-dashboard {
+    min-height: 100vh;
+    padding-bottom: 80px;
+    color: var(--ks-text);
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  /* Ambient Orbs */
+  .k-ambient-orb {
+    position: absolute;
+    width: 32rem;
+    height: 32rem;
+    border-radius: 50%;
+    filter: blur(140px);
+    opacity: 0.12;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .k-orb-1 { top: -6rem; left: -10rem; background: #8f2848; }
+  .k-orb-2 { top: 18rem; right: -12rem; background: #14b8a6; }
+  .k-orb-3 { bottom: 10rem; left: 30%; background: #c7a86b; }
+
+  /* Hero Banner */
+  .k-hero-banner {
+    position: relative;
+    border-radius: 28px;
+    padding: clamp(28px, 4vw, 44px) clamp(24px, 4vw, 48px);
+    margin-bottom: 28px;
+    background:
+      radial-gradient(circle at 90% 15%, rgba(199, 168, 107, 0.18), transparent 45%),
+      radial-gradient(circle at 10% 85%, rgba(143, 40, 72, 0.25), transparent 50%),
+      linear-gradient(135deg, rgba(24, 18, 28, 0.95) 0%, rgba(11, 9, 14, 0.98) 100%);
+    border: 1px solid var(--ks-border-gold);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(20px);
+    overflow: hidden;
+  }
+
+  .k-hero-banner::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    opacity: 0.04;
+    background-image: radial-gradient(#fff 1px, transparent 1px);
+    background-size: 16px 16px;
+    pointer-events: none;
+  }
+
+  .k-hero-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ks-gold-light);
+    margin-bottom: 10px;
+  }
+
+  .k-hero-title {
+    font-family: "Cormorant Garamond", Georgia, serif;
+    font-size: clamp(2rem, 3.8vw, 3.2rem);
+    font-weight: 600;
+    line-height: 1.1;
+    margin: 0 0 10px;
+    color: #fffaf2;
+    text-shadow: 0 4px 20px rgba(0,0,0,0.4);
+  }
+
+  .k-hero-sub {
+    color: var(--ks-muted);
+    font-size: 0.92rem;
+    max-width: 600px;
+    margin: 0;
+    line-height: 1.6;
+  }
+
+  /* KPI Bento Strip */
+  .k-kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+
+  .k-kpi-card {
+    background: var(--ks-card);
+    border: 1px solid var(--ks-border);
+    border-radius: var(--ks-radius);
+    padding: 20px 22px;
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(16px);
+    transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+  }
+
+  .k-kpi-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--ks-border-gold);
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.4);
+  }
+
+  .k-kpi-card::after {
+    content: "";
+    position: absolute;
+    width: 90px;
+    height: 90px;
+    right: -25px;
+    bottom: -25px;
+    border-radius: 50%;
+    background: radial-gradient(circle, var(--ks-gold-glow), transparent 70%);
+    pointer-events: none;
+  }
+
+  .k-kpi-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+
+  .k-kpi-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ks-muted);
+  }
+
+  .k-kpi-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    display: grid;
+    place-items: center;
+    color: var(--ks-gold-light);
+    background: rgba(199, 168, 107, 0.1);
+    border: 1px solid rgba(199, 168, 107, 0.22);
+  }
+
+  .k-kpi-icon svg { width: 16px; height: 16px; }
+
+  .k-kpi-val {
+    font-family: "Cormorant Garamond", Georgia, serif;
+    font-size: 2.1rem;
+    font-weight: 700;
+    line-height: 1;
+    color: #fff;
+  }
+
+  .k-kpi-foot {
+    font-size: 0.75rem;
+    color: var(--ks-gold);
+    margin-top: 6px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  /* Search & Filter Toolbar */
+  .k-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    margin-bottom: 24px;
+    padding: 14px 20px;
+    background: var(--ks-card);
+    border: 1px solid var(--ks-border);
+    border-radius: 18px;
+    backdrop-filter: blur(16px);
+  }
+
+  .k-search-box {
+    position: relative;
+    flex: 1;
+    min-width: 240px;
+    max-width: 440px;
+  }
+
+  .k-search-box svg {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 17px;
+    height: 17px;
+    color: var(--ks-muted);
+    pointer-events: none;
+    transition: color 0.2s;
+  }
+
+  .k-search-input {
+    width: 100%;
+    height: 44px;
+    padding: 0 16px 0 42px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.04);
+    color: #fff;
+    font-size: 0.85rem;
+    outline: none;
+    transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+  }
+
+  .k-search-input:focus {
+    border-color: var(--ks-gold);
+    background: rgba(199, 168, 107, 0.06);
+    box-shadow: 0 0 0 3px rgba(199, 168, 107, 0.15);
+  }
+
+  .k-search-input:focus + svg { color: var(--ks-gold); }
+
+  .k-filter-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .k-pill {
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--ks-muted);
+    padding: 7px 14px;
+    border-radius: 999px;
+    font-size: 0.76rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .k-pill:hover {
+    color: #fff;
+    border-color: rgba(199, 168, 107, 0.4);
+    background: rgba(199, 168, 107, 0.08);
+  }
+
+  .k-pill.is-active {
+    color: #120e0b;
+    background: linear-gradient(115deg, #f0d9a4, #c7a86b);
+    border-color: #f0d9a4;
+    font-weight: 700;
+    box-shadow: 0 4px 14px rgba(199, 168, 107, 0.25);
+  }
+
+  /* Events Grid */
+  .k-events-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 24px;
+  }
+
+  .k-event-card {
+    background: var(--ks-card);
+    border: 1px solid var(--ks-border);
+    border-radius: 24px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    backdrop-filter: blur(16px);
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .k-event-card:hover {
+    transform: translateY(-6px);
+    border-color: var(--ks-border-gold);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6), 0 0 24px rgba(199, 168, 107, 0.12);
+  }
+
+  /* Cover Area */
+  .k-card-cover {
+    height: 190px;
+    position: relative;
+    background: #100d14;
+    overflow: hidden;
+  }
+
+  .k-card-cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .k-event-card:hover .k-card-cover img {
+    transform: scale(1.05);
+  }
+
+  .k-cover-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(14, 11, 17, 0.95) 0%, rgba(14, 11, 17, 0.2) 60%, transparent 100%);
+  }
+
+  .k-cover-badges {
+    position: absolute;
+    top: 14px;
+    left: 14px;
+    display: flex;
+    gap: 7px;
+    z-index: 2;
+  }
+
+  .k-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    backdrop-filter: blur(10px);
+  }
+
+  .k-badge-gold {
+    background: rgba(199, 168, 107, 0.22);
+    color: var(--ks-gold-light);
+    border: 1px solid rgba(240, 217, 164, 0.4);
+  }
+
+  .k-badge-dark {
+    background: rgba(0, 0, 0, 0.6);
+    color: #e5e0dc;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+  }
+
+  .k-event-code-chip {
+    position: absolute;
+    bottom: 14px;
+    right: 14px;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 11px;
+    border-radius: 8px;
+    background: rgba(8, 6, 11, 0.85);
+    border: 1px solid var(--ks-border-gold);
+    color: var(--ks-gold-light);
+    font-family: monospace;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .k-event-code-chip:hover {
+    background: var(--ks-gold);
+    color: #0d0a0f;
+    box-shadow: 0 0 16px rgba(199, 168, 107, 0.4);
+  }
+
+  .k-event-code-chip svg { width: 13px; height: 13px; }
+
+  /* Body */
+  .k-card-body {
+    padding: 22px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .k-event-title {
+    font-family: "Cormorant Garamond", Georgia, serif;
+    font-size: 1.55rem;
+    font-weight: 600;
+    line-height: 1.2;
+    margin: 0 0 8px;
+    color: #fff;
+    transition: color 0.2s;
+  }
+
+  .k-event-title a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .k-event-title a:hover {
+    color: var(--ks-gold-light);
+  }
+
+  .k-event-subinfo {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    font-size: 0.78rem;
+    color: var(--ks-muted);
+    margin-bottom: 18px;
+  }
+
+  .k-event-subinfo span {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .k-event-subinfo svg { width: 14px; height: 14px; color: var(--ks-gold); }
+
+  /* Micro Stats Grid */
+  .k-card-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    padding: 14px;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.025);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    margin-bottom: 20px;
+  }
+
+  .k-stat-item {
+    text-align: center;
+  }
+
+  .k-stat-lbl {
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ks-muted);
+    margin-bottom: 3px;
+  }
+
+  .k-stat-num {
+    font-family: "Cormorant Garamond", Georgia, serif;
+    font-size: 1.45rem;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1;
+  }
+
+  .k-stat-num--gold { color: var(--ks-gold-light); }
+
+  /* Action Buttons */
+  .k-card-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .k-action-btn {
+    min-height: 38px;
+    padding: 0 14px;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-size: 0.76rem;
+    font-weight: 700;
+    text-decoration: none;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: all 0.2s ease;
+  }
+
+  .k-action-btn--primary {
+    flex: 1;
+    background: linear-gradient(115deg, #f0d9a4, #c7a86b);
+    color: #120e0a;
+    box-shadow: 0 4px 14px rgba(199, 168, 107, 0.2);
+  }
+
+  .k-action-btn--primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 22px rgba(199, 168, 107, 0.35);
+  }
+
+  .k-action-btn--glass {
+    background: rgba(255, 255, 255, 0.06);
+    color: #e5e0dc;
+    border-color: rgba(255, 255, 255, 0.12);
+  }
+
+  .k-action-btn--glass:hover {
+    background: rgba(199, 168, 107, 0.12);
+    border-color: var(--ks-border-gold);
+    color: var(--ks-gold-light);
+  }
+
+  .k-action-btn--danger {
+    background: rgba(239, 68, 68, 0.08);
+    color: #fca5a5;
+    border-color: rgba(239, 68, 68, 0.2);
+    padding: 0 11px;
+  }
+
+  .k-action-btn--danger:hover {
+    background: rgba(239, 68, 68, 0.2);
+    border-color: #ef4444;
+    color: #fff;
+  }
+
+  .k-action-btn svg { width: 14px; height: 14px; flex-shrink: 0; }
+
+  /* Empty State */
+  .k-empty-state {
+    text-align: center;
+    padding: 80px 24px;
+    background: var(--ks-card);
+    border: 1px solid var(--ks-border);
+    border-radius: 28px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .k-empty-icon {
+    width: 84px;
+    height: 84px;
+    border-radius: 50%;
+    margin: 0 auto 22px;
+    display: grid;
+    place-items: center;
+    background: linear-gradient(135deg, rgba(240, 217, 164, 0.2), rgba(199, 168, 107, 0.05));
+    border: 1px solid var(--ks-border-gold);
+    color: var(--ks-gold-light);
+    font-size: 2rem;
+    box-shadow: 0 0 30px rgba(199, 168, 107, 0.15);
+  }
+
+  .k-empty-title {
+    font-family: "Cormorant Garamond", Georgia, serif;
+    font-size: 2.2rem;
+    margin: 0 0 10px;
+    color: #fff;
+  }
+
+  .k-empty-desc {
+    color: var(--ks-muted);
+    font-size: 0.92rem;
+    max-width: 480px;
+    margin: 0 auto 28px;
+    line-height: 1.6;
+  }
+
+  /* Modals */
+  .k-modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    background: rgba(4, 3, 6, 0.85);
+    backdrop-filter: blur(18px);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.25s ease, visibility 0.25s ease;
+  }
+
+  .k-modal-overlay.is-active {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .k-modal-window {
+    width: min(100%, 540px);
+    max-height: calc(100dvh - 36px);
+    overflow-y: auto;
+    position: relative;
+    border-radius: 26px;
+    background: linear-gradient(145deg, rgba(26, 21, 28, 0.98), rgba(12, 10, 14, 0.98));
+    border: 1px solid var(--ks-border-gold);
+    box-shadow: 0 32px 90px rgba(0, 0, 0, 0.8), 0 0 36px rgba(199, 168, 107, 0.12);
+    transform: translateY(16px) scale(0.98);
+    transition: transform 0.28s ease;
+  }
+
+  .k-modal-overlay.is-active .k-modal-window {
+    transform: translateY(0) scale(1);
+  }
+
+  .k-modal-head {
+    padding: 24px 28px 18px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    position: relative;
+  }
+
+  .k-modal-head .k-hero-eyebrow { margin-bottom: 4px; }
+  .k-modal-head h3 {
+    font-family: "Cormorant Garamond", Georgia, serif;
+    font-size: 1.85rem;
+    font-weight: 600;
+    margin: 0;
+    color: #fff;
+  }
+
+  .k-modal-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.04);
+    color: #fff;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    transition: all 0.2s ease;
+  }
+
+  .k-modal-close:hover {
+    background: rgba(239, 68, 68, 0.2);
+    border-color: #ef4444;
+    color: #fca5a5;
+    transform: rotate(90deg);
+  }
+
+  .k-modal-body {
+    padding: 24px 28px 28px;
+  }
+
+  /* Form Fields */
+  .k-form-grid {
+    display: grid;
+    gap: 16px;
+  }
+
+  .k-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .k-input-group label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ks-gold-light);
+  }
+
+  .k-input-field {
+    width: 100%;
+    min-height: 48px;
+    padding: 0 16px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    background: rgba(255, 255, 255, 0.045);
+    color: #fff;
+    font-family: inherit;
+    font-size: 0.85rem;
+    outline: none;
+    transition: all 0.2s ease;
+  }
+
+  .k-input-field:focus {
+    border-color: var(--ks-gold);
+    background: rgba(199, 168, 107, 0.08);
+    box-shadow: 0 0 0 3px rgba(199, 168, 107, 0.18);
+  }
+
+  textarea.k-input-field {
+    padding: 12px 16px;
+    resize: vertical;
+    min-height: 80px;
+  }
+
+  /* QR Modal Specifics */
+  .k-qr-preview-box {
+    text-align: center;
+    padding: 20px;
+    background: #ffffff;
+    border-radius: 18px;
+    margin-bottom: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  }
+
+  .k-qr-canvas {
+    width: 200px;
+    height: 200px;
+    margin: 0 auto 10px;
+    display: block;
+  }
+
+  .k-qr-meta {
+    color: #120e0b;
+    font-size: 0.85rem;
+    font-weight: 700;
+  }
+
+  @media (max-width: 900px) {
+    .k-kpi-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  @media (max-width: 640px) {
+    .k-kpi-grid { grid-template-columns: 1fr; }
+    .k-events-grid { grid-template-columns: 1fr; }
+    .k-toolbar { flex-direction: column; align-items: stretch; }
+    .k-search-box { max-width: 100%; }
+    .k-hero-banner { padding: 24px 20px; }
+  }
+</style>
+
+<div class="studio-shell">
+  <!-- ── SIDEBAR ────────────────────────────────── -->
   <aside class="studio-sidebar">
     <div style="position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 180px; height: 180px; background: radial-gradient(circle, rgba(199,168,107,0.12) 0%, transparent 70%); pointer-events: none;"></div>
 
@@ -35,8 +758,8 @@
       <div class="sidebar-divider" style="margin: 6px 16px; border-top: 1px solid rgba(199,168,107,0.1);"></div>
 
       <div class="sidebar-section-label" style="padding: 4px 16px 2px; font-size: 9px; font-weight: 700; color: var(--gold); letter-spacing: 0.12em; text-transform: uppercase;">OPERATE</div>
-      <button onclick="openCreateEventModal()" class="sidebar-nav-item" style="color: var(--gold); font-weight: 700;">
-        <span>Quick Camera Upload</span>
+      <button onclick="openCreateEventModal()" class="sidebar-nav-item" style="color: var(--gold); font-weight: 700; background: none; border: none; width: 100%; text-align: left; cursor: pointer;">
+        <span>+ Quick Create Event</span>
       </button>
       <a href="/studio/analytics/" class="sidebar-nav-item">
         <span>Analytics & Activity</span>
@@ -82,159 +805,223 @@
     </div>
   </aside>
 
-  <!-- ── 02: V5 EVENTS DIRECTORY ─────────────────────────────── -->
-  <main class="studio-main" style="background: var(--bg-warm);">
+  <!-- ── MAIN CONTENT ─────────────────────────────── -->
+  <main class="studio-main k-events-dashboard">
+    <div class="k-ambient-orb k-orb-1"></div>
+    <div class="k-ambient-orb k-orb-2"></div>
+    <div class="k-ambient-orb k-orb-3"></div>
 
-    <!-- Premium Header -->
-    <div style="background: linear-gradient(135deg, var(--bg-dark) 0%, #1a1018 40%, #2a1520 100%); border-radius: var(--radius-xl); padding: 36px 40px; margin-bottom: 32px; position: relative; overflow: hidden;">
-      <div style="position: absolute; top: -60px; right: -60px; width: 200px; height: 200px; border-radius: 50%; background: radial-gradient(circle, rgba(199,168,107,0.15) 0%, transparent 70%);"></div>
-      <div style="position: absolute; bottom: -40px; left: 30%; width: 150px; height: 150px; border-radius: 50%; background: radial-gradient(circle, rgba(124,58,237,0.1) 0%, transparent 70%);"></div>
-
+    <!-- 01: Hero Banner -->
+    <section class="k-hero-banner">
       <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 20px; position: relative; z-index: 1;">
         <div>
-          <div style="font-size: 10px; font-weight: 700; color: var(--gold); letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 8px;">EVENT REPOSITORIES</div>
-          <h1 style="font-family: var(--font-display); font-size: 36px; color: var(--text-inverse); margin-bottom: 8px; font-weight: 300;">All Photography Events</h1>
-          <p style="color: rgba(255,255,255,0.5); font-size: 14px;">Browse, manage, and share AI galleries for your weddings and events.</p>
+          <span class="k-hero-eyebrow">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="6" fill="currentColor"/></svg>
+            Studio Event Hub
+          </span>
+          <h1 class="k-hero-title">Photography Workspaces</h1>
+          <p class="k-hero-sub">Organize your client galleries, vectorize guest face embeddings, and share instant QR standees for live celebrations.</p>
         </div>
 
-        <button class="btn btn-primary" onclick="openCreateEventModal()">
-          <span>+ Create Event</span>
+        <button class="k-action-btn k-action-btn--primary" onclick="openCreateEventModal()" style="min-height: 48px; padding: 0 24px; font-size: 0.85rem;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14" stroke-linecap="round"/></svg>
+          Create New Event
         </button>
+      </div>
+    </section>
+
+    <!-- 02: Top Metrics Bento -->
+    <div class="k-kpi-grid">
+      <div class="k-kpi-card">
+        <div class="k-kpi-top">
+          <span class="k-kpi-label">Active Events</span>
+          <span class="k-kpi-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          </span>
+        </div>
+        <div class="k-kpi-val">{{ total_events|default:0 }}</div>
+        <div class="k-kpi-foot">Repositories managed</div>
+      </div>
+
+      <div class="k-kpi-card">
+        <div class="k-kpi-top">
+          <span class="k-kpi-label">Indexed Photos</span>
+          <span class="k-kpi-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          </span>
+        </div>
+        <div class="k-kpi-val">{{ total_photos|default:0 }}</div>
+        <div class="k-kpi-foot">{{ storage_display|default:"0 GB" }} storage used</div>
+      </div>
+
+      <div class="k-kpi-card">
+        <div class="k-kpi-top">
+          <span class="k-kpi-label">Faces Vectorized</span>
+          <span class="k-kpi-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m13-5h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3m13 5h3a2 2 0 0 0 2-2v-3M8.5 10.5c.6-2.5 6.4-2.5 7 0m-6 4c1.5 1.4 3.5 1.4 5 0"/></svg>
+          </span>
+        </div>
+        <div class="k-kpi-val">{{ total_faces|default:0 }}</div>
+        <div class="k-kpi-foot">Instant AI discovery ready</div>
+      </div>
+
+      <div class="k-kpi-card">
+        <div class="k-kpi-top">
+          <span class="k-kpi-label">Guest Searches</span>
+          <span class="k-kpi-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </span>
+        </div>
+        <div class="k-kpi-val">{{ total_searches|default:0 }}</div>
+        <div class="k-kpi-foot">{{ total_guests|default:0 }} guests registered</div>
       </div>
     </div>
 
+    <!-- 03: Search & Filter Toolbar -->
+    <div class="k-toolbar">
+      <div class="k-search-box">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="eventSearchInput" class="k-search-input" placeholder="Search events by name, code, or location..." oninput="filterEvents()">
+      </div>
+
+      <div class="k-filter-pills">
+        <button type="button" class="k-pill is-active" data-type="all" onclick="setFilterType(this, 'all')">All ({{ total_events }})</button>
+        <button type="button" class="k-pill" data-type="wedding" onclick="setFilterType(this, 'wedding')">Weddings</button>
+        <button type="button" class="k-pill" data-type="engagement" onclick="setFilterType(this, 'engagement')">Engagements</button>
+        <button type="button" class="k-pill" data-type="pre_wedding" onclick="setFilterType(this, 'pre_wedding')">Pre-Wedding</button>
+        <button type="button" class="k-pill" data-type="birthday" onclick="setFilterType(this, 'birthday')">Birthdays</button>
+        <button type="button" class="k-pill" data-type="corporate" onclick="setFilterType(this, 'corporate')">Corporate</button>
+      </div>
+    </div>
+
+    <!-- 04: Events Directory Grid -->
     {% if events %}
-    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 24px; width: 100%;">
+    <div class="k-events-grid" id="eventsGridContainer">
       {% for ev in events %}
-      <div class="bento-card" style="padding: 0; overflow: hidden; display: flex; flex-direction: column; transition: transform 0.3s var(--ease-out), box-shadow 0.3s var(--ease-out);" onmouseenter="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 16px 48px -12px rgba(0,0,0,0.12)'" onmouseleave="this.style.transform=''; this.style.boxShadow=''">
-        
+      <article class="k-event-card" data-name="{{ ev.name|lower }}" data-code="{{ ev.event_code|lower }}" data-loc="{{ ev.location|default:''|lower }}" data-type="{{ ev.event_type }}">
         <!-- Cover Banner -->
-        <div style="height: 180px; position: relative; background: var(--bg-warm); overflow: hidden;">
+        <div class="k-card-cover">
           {% if ev.cover_photo %}
-          <img src="{{ ev.cover_photo.thumbnail_url }}" alt="{{ ev.name }}" style="width: 100%; height: 100%; object-fit: cover;">
+            <img src="{{ ev.cover_photo.thumbnail_url }}" alt="{{ ev.name }}" loading="lazy">
           {% elif ev.photos.first %}
-          <img src="{{ ev.photos.first.thumbnail_url }}" alt="{{ ev.name }}" style="width: 100%; height: 100%; object-fit: cover;">
+            <img src="{{ ev.photos.first.thumbnail_url }}" alt="{{ ev.name }}" loading="lazy">
           {% else %}
-          <div class="ev-placeholder-{{ ev.event_type }}" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
-          </div>
+            <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: radial-gradient(circle at center, rgba(199,168,107,0.15), transparent 70%);">
+              <span style="font-family: 'Cinzel Decorative', serif; font-size: 2.5rem; color: rgba(240,217,164,0.35);">K</span>
+            </div>
           {% endif %}
 
-          <div style="position: absolute; top: 12px; left: 12px; display: flex; gap: 6px;">
-            <span class="badge badge-gold">{{ ev.get_event_type_display }}</span>
-            <span class="badge badge-dark">{{ ev.get_status_display }}</span>
+          <div class="k-cover-overlay"></div>
+
+          <div class="k-cover-badges">
+            <span class="k-badge k-badge-gold">{{ ev.get_event_type_display }}</span>
+            <span class="k-badge k-badge-dark">{{ ev.get_status_display }}</span>
           </div>
 
-          <div style="position: absolute; bottom: 12px; right: 12px; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); border: 1px solid rgba(199,168,107,0.3); color: var(--gold); font-family: monospace; font-size: 11px; font-weight: 700; padding: 5px 10px; border-radius: var(--radius-sm); letter-spacing: 0.1em;">
+          <button class="k-event-code-chip" type="button" onclick="copyEventLink('{{ ev.event_code }}')" title="Click to copy guest link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
             {{ ev.event_code }}
-          </div>
-
-          <div style="position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.4) 0%, transparent 40%);"></div>
+          </button>
         </div>
 
-        <!-- Details -->
-        <div style="padding: 24px; flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
+        <!-- Body Details -->
+        <div class="k-card-body">
           <div>
-            <h3 style="font-size: 20px; color: var(--text-primary); margin-bottom: 6px; line-height: 1.3;">
-              <a href="/admin/events/{{ ev.event_code }}/" style="color: var(--text-primary); text-decoration: none; transition: color 0.2s;" onmouseenter="this.style.color='var(--gold)'" onmouseleave="this.style.color=''">
-                {{ ev.name }}
-              </a>
-            </h3>
-            
-            <div style="display: flex; gap: 16px; font-size: 12px; color: var(--text-secondary); margin-bottom: 18px; font-weight: 500;">
-              {% if ev.event_date %}<span>{{ ev.event_date }}</span>{% endif %}
-              {% if ev.location %}<span>{{ ev.location }}</span>{% endif %}
+            <h2 class="k-event-title">
+              <a href="/admin/events/{{ ev.event_code }}/">{{ ev.name }}</a>
+            </h2>
+
+            <div class="k-event-subinfo">
+              {% if ev.event_date %}
+              <span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                {{ ev.event_date }}
+              </span>
+              {% endif %}
+              {% if ev.location %}
+              <span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                {{ ev.location }}
+              </span>
+              {% endif %}
             </div>
           </div>
 
-          <!-- Stats -->
-          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; border-top: 1px solid var(--border); padding-top: 14px; margin-bottom: 18px; font-size: 12px;">
-            <div>
-              <div style="color: var(--text-muted); font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;">Photos</div>
-              <div style="font-family: var(--font-display); font-size: 22px; font-weight: 600; color: var(--text-primary);">{{ ev.photos.count }}</div>
+          <!-- Micro Stats -->
+          <div class="k-card-stats">
+            <div class="k-stat-item">
+              <div class="k-stat-lbl">Photos</div>
+              <div class="k-stat-num">{{ ev.photos.count }}</div>
             </div>
-            <div>
-              <div style="color: var(--text-muted); font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;">Faces</div>
-              <div style="font-family: var(--font-display); font-size: 22px; font-weight: 600; color: var(--gold);">{{ ev.faces.count }}</div>
+            <div class="k-stat-item">
+              <div class="k-stat-lbl">Faces</div>
+              <div class="k-stat-num k-stat-num--gold">{{ ev.faces.count }}</div>
             </div>
-            <div>
-              <div style="color: var(--text-muted); font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;">Access</div>
-              <div style="font-size: 12px; color: var(--text-primary); font-weight: 600; margin-top: 4px;">{{ ev.get_access_mode_display }}</div>
+            <div class="k-stat-item">
+              <div class="k-stat-lbl">Access</div>
+              <div class="k-stat-num" style="font-size: 0.92rem; font-family: inherit; font-weight: 700; margin-top: 4px;">{{ ev.get_access_mode_display }}</div>
             </div>
           </div>
 
           <!-- Actions -->
-          <div style="display: flex; gap: 6px; align-items: center;">
-            <a href="/admin/events/{{ ev.event_code }}/" class="btn btn-primary btn-sm" style="display: inline-flex; align-items: center; gap: 5px; padding: 7px 14px; font-size: 11.5px; font-weight: 600;">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-              Manage
+          <div class="k-card-actions">
+            <a href="/admin/events/{{ ev.event_code }}/" class="k-action-btn k-action-btn--primary">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              Manage Workspace
             </a>
-            <a href="/admin/events/{{ ev.event_code }}/share/" class="btn btn-secondary btn-sm" title="QR Poster" style="display: inline-flex; align-items: center; gap: 5px; padding: 7px 12px; font-size: 11.5px; font-weight: 600;">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="8" height="8" rx="1"/><rect x="14" y="2" width="8" height="8" rx="1"/><rect x="2" y="14" width="8" height="8" rx="1"/><rect x="14" y="14" width="4" height="4" rx="0.5"/><line x1="22" y1="14" x2="22" y2="14.01"/><line x1="22" y1="22" x2="22" y2="22.01"/><line x1="18" y1="22" x2="18" y2="22.01"/><line x1="14" y1="18" x2="14" y2="18.01"/></svg>
+            <button type="button" class="k-action-btn k-action-btn--glass" onclick="openQrModal('{{ ev.name|escapejs }}', '{{ ev.event_code }}')" title="Instant QR Standee">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
               QR
+            </button>
+            <a href="/event/{{ ev.event_code }}/" target="_blank" rel="noopener noreferrer" class="k-action-btn k-action-btn--glass" title="View Guest Landing Page">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
             </a>
-            <a href="/event/{{ ev.event_code }}/" target="_blank" class="btn btn-outline btn-sm" title="View Guest Page" style="display: inline-flex; align-items: center; gap: 5px; padding: 7px 12px; font-size: 11.5px; font-weight: 600;">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-              View
-            </a>
-            <button class="btn btn-danger btn-sm" onclick="deleteEvent({{ ev.id }}, '{{ ev.name }}')" title="Delete" style="display: inline-flex; align-items: center; gap: 5px; padding: 7px 12px; font-size: 11.5px; font-weight: 600;">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            <button type="button" class="k-action-btn k-action-btn--danger" onclick="deleteEvent({{ ev.id }}, '{{ ev.name|escapejs }}')" title="Delete Event">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
             </button>
           </div>
         </div>
-      </div>
+      </article>
       {% endfor %}
     </div>
     {% else %}
-    <!-- Empty State -->
-    <div class="bento-card" style="text-align: center; padding: 80px 32px; position: relative; overflow: hidden;">
-      <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 300px; height: 300px; border-radius: 50%; background: radial-gradient(circle, var(--gold-subtle) 0%, transparent 70%);"></div>
-      <div style="position: relative; z-index: 1;">
-        <div style="width: 80px; height: 80px; border-radius: 50%; background: var(--gradient-gold); display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; box-shadow: var(--shadow-gold-lg);">
-          <div style="font-family: var(--font-display); font-size: 32px; color: var(--bg-dark);">&#9670;</div>
-        </div>
-        <h3 style="font-size: 24px; margin-bottom: 10px; color: var(--text-primary);">No events created yet</h3>
-        <p style="color: var(--text-secondary); font-size: 14px; max-width: 440px; margin: 0 auto 28px; line-height: 1.6;">Create your first event repository to upload high-res photos, index faces, and print instant QR standees.</p>
-        <button class="btn btn-primary btn-lg" onclick="openCreateEventModal()">
-          <span>Create Your First Event</span>
-          <span>&rarr;</span>
-        </button>
-      </div>
+    <!-- 05: Empty State -->
+    <div class="k-empty-state">
+      <div class="k-empty-icon">◆</div>
+      <h2 class="k-empty-title">No Photography Events Yet</h2>
+      <p class="k-empty-desc">Create your first private celebration workspace to upload high-res photos, index guest faces in real-time, and generate instant QR posters.</p>
+      <button class="k-action-btn k-action-btn--primary" onclick="openCreateEventModal()" style="min-height: 48px; padding: 0 28px; font-size: 0.88rem;">
+        <span>Create First Event</span>
+        <span aria-hidden="true">→</span>
+      </button>
     </div>
     {% endif %}
 
   </main>
 </div>
 
-<!-- Create Event Modal (V5) -->
-<div id="createEventModal" class="modal-backdrop" onclick="if(event.target===this) closeCreateEventModal()" style="display: none; position: fixed; inset: 0; width: 100vw; height: 100vh; background: rgba(5,5,8,0.85); backdrop-filter: blur(14px) saturate(160%); -webkit-backdrop-filter: blur(14px) saturate(160%); z-index: 99999; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box;">
-  <div class="modal-window" style="border-radius: 24px; border: 1.5px solid rgba(199,168,107,0.35); border-top: 3.5px solid var(--gold); max-width: 560px; width: 100%; max-height: calc(100vh - 50px); display: flex; flex-direction: column; padding: 0; background: var(--bg-surface); box-shadow: 0 40px 100px -15px rgba(0,0,0,0.85), 0 0 50px rgba(199,168,107,0.18); overflow: hidden; margin: auto; position: relative;">
-    
-    <!-- Modal Header -->
-    <div style="padding: 22px 28px 18px; background: linear-gradient(135deg, var(--bg-dark) 0%, #1a1018 100%); position: relative; overflow: hidden; flex-shrink: 0; border-bottom: 1px solid rgba(255,255,255,0.06);">
-      <button type="button" onclick="closeCreateEventModal()" aria-label="Close" style="position: absolute; top: 18px; right: 18px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); width: 34px; height: 34px; border-radius: 50%; cursor: pointer; color: rgba(255,255,255,0.75); display: flex; align-items: center; justify-content: center; transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1); padding: 0; outline: none; z-index: 5;" onmouseenter="this.style.background='rgba(239,68,68,0.2)'; this.style.borderColor='rgba(239,68,68,0.4)'; this.style.color='#FF8080'; this.style.transform='rotate(90deg)'" onmouseleave="this.style.background='rgba(255,255,255,0.08)'; this.style.borderColor='rgba(255,255,255,0.12)'; this.style.color='rgba(255,255,255,0.75)'; this.style.transform='rotate(0deg)'">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+<!-- ── CREATE EVENT MODAL ───────────────────────── -->
+<div id="createEventModal" class="k-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="createEventTitle">
+  <div class="k-modal-window">
+    <div class="k-modal-head">
+      <button type="button" class="k-modal-close" onclick="closeCreateEventModal()" aria-label="Close modal">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
-      
-      <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px; position: relative; z-index: 1;">
-        <span style="font-size: 13px; color: var(--gold);">&#9670;</span>
-        <span style="font-size: 10px; font-weight: 800; color: var(--gold); letter-spacing: 0.14em; text-transform: uppercase;">NEW CELEBRATION WORKSPACE</span>
-      </div>
-      <h2 style="font-size: 24px; color: #FFFFFF; font-weight: 400; font-family: var(--font-display); position: relative; z-index: 1; margin: 0;">Create New Event</h2>
+      <span class="k-hero-eyebrow">◆ Celebration Workspace</span>
+      <h3 id="createEventTitle">Create New Event</h3>
     </div>
 
-
-    <div style="padding: 22px 28px 26px; overflow-y: auto; flex: 1; box-sizing: border-box;">
-      <form onsubmit="handleCreateEvent(event)" style="display: flex; flex-direction: column; gap: 15px;">
-        <div>
-          <label style="display: block; margin-bottom: 5px; font-size: 10px; font-weight: 700; color: var(--gold); letter-spacing: 0.12em; text-transform: uppercase;">EVENT NAME *</label>
-          <input type="text" id="eventName" placeholder="e.g. Rahul & Priya's Wedding" required
-            style="width: 100%; box-sizing: border-box; padding: 12px 16px; border-radius: var(--radius-md); border: 1.5px solid var(--border-strong); background: var(--bg-warm); font-size: 14px; color: var(--text-primary); outline: none; transition: border-color 0.2s, box-shadow 0.2s;" onfocus="this.style.borderColor='var(--gold)'; this.style.boxShadow='0 0 0 3px var(--gold-subtle)'" onblur="this.style.borderColor=''; this.style.boxShadow=''">
+    <div class="k-modal-body">
+      <form onsubmit="handleCreateEvent(event)" class="k-form-grid">
+        <div class="k-input-group">
+          <label for="eventName">Event Name *</label>
+          <input type="text" id="eventName" class="k-input-field" placeholder="e.g. Ananya & Siddharth's Wedding" required maxlength="150">
         </div>
 
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
-          <div>
-            <label style="display: block; margin-bottom: 5px; font-size: 10px; font-weight: 700; color: var(--gold); letter-spacing: 0.12em; text-transform: uppercase;">EVENT TYPE</label>
-            <select id="eventType" style="width: 100%; box-sizing: border-box; padding: 12px 14px; border-radius: var(--radius-md); border: 1.5px solid var(--border-strong); background: var(--bg-warm); font-size: 13.5px; color: var(--text-primary); outline: none;">
+          <div class="k-input-group">
+            <label for="eventType">Event Type</label>
+            <select id="eventType" class="k-input-field">
               <option value="wedding">Wedding</option>
               <option value="engagement">Engagement</option>
               <option value="pre_wedding">Pre-Wedding</option>
@@ -248,100 +1035,232 @@
               <option value="other">Other</option>
             </select>
           </div>
-          <div>
-            <label style="display: block; margin-bottom: 5px; font-size: 10px; font-weight: 700; color: var(--gold); letter-spacing: 0.12em; text-transform: uppercase;">EVENT DATE</label>
-            <input type="text" id="eventDate" placeholder="e.g. Oct 24, 2026"
-              style="width: 100%; box-sizing: border-box; padding: 12px 16px; border-radius: var(--radius-md); border: 1.5px solid var(--border-strong); background: var(--bg-warm); font-size: 13.5px; color: var(--text-primary); outline: none; transition: border-color 0.2s, box-shadow 0.2s;" onfocus="this.style.borderColor='var(--gold)'; this.style.boxShadow='0 0 0 3px var(--gold-subtle)'" onblur="this.style.borderColor=''; this.style.boxShadow=''">
+
+          <div class="k-input-group">
+            <label for="eventDate">Event Date</label>
+            <input type="text" id="eventDate" class="k-input-field" placeholder="e.g. 24 Oct 2026">
           </div>
         </div>
 
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
-          <div>
-            <label style="display: block; margin-bottom: 5px; font-size: 10px; font-weight: 700; color: var(--gold); letter-spacing: 0.12em; text-transform: uppercase;">LOCATION / VENUE</label>
-            <input type="text" id="eventLocation" placeholder="e.g. Grand Hyatt, Mumbai"
-              style="width: 100%; box-sizing: border-box; padding: 12px 16px; border-radius: var(--radius-md); border: 1.5px solid var(--border-strong); background: var(--bg-warm); font-size: 13.5px; color: var(--text-primary); outline: none; transition: border-color 0.2s, box-shadow 0.2s;" onfocus="this.style.borderColor='var(--gold)'; this.style.boxShadow='0 0 0 3px var(--gold-subtle)'" onblur="this.style.borderColor=''; this.style.boxShadow=''">
+          <div class="k-input-group">
+            <label for="eventLocation">Location / Venue</label>
+            <input type="text" id="eventLocation" class="k-input-field" placeholder="e.g. Taj Lands End, Mumbai">
           </div>
-          <div>
-            <label style="display: block; margin-bottom: 5px; font-size: 10px; font-weight: 700; color: var(--gold); letter-spacing: 0.12em; text-transform: uppercase;">CUSTOM CODE (OPTIONAL)</label>
-            <input type="text" id="eventCode" placeholder="Auto-generated if blank" style="text-transform: uppercase; width: 100%; box-sizing: border-box; padding: 12px 16px; border-radius: var(--radius-md); border: 1.5px solid var(--border-strong); background: var(--bg-warm); font-size: 13.5px; color: var(--text-primary); outline: none; transition: border-color 0.2s, box-shadow 0.2s;" onfocus="this.style.borderColor='var(--gold)'; this.style.boxShadow='0 0 0 3px var(--gold-subtle)'" onblur="this.style.borderColor=''; this.style.boxShadow=''">
+
+          <div class="k-input-group">
+            <label for="eventCode">Custom Event Code (Optional)</label>
+            <input type="text" id="eventCode" class="k-input-field" placeholder="e.g. ANASID26" style="text-transform: uppercase;">
           </div>
         </div>
 
-        <div>
-          <label style="display: block; margin-bottom: 5px; font-size: 10px; font-weight: 700; color: var(--gold); letter-spacing: 0.12em; text-transform: uppercase;">DESCRIPTION</label>
-          <textarea id="eventDesc" rows="3" placeholder="Add optional details for guests..."
-            style="width: 100%; box-sizing: border-box; padding: 12px 16px; border-radius: var(--radius-md); border: 1.5px solid var(--border-strong); background: var(--bg-warm); font-size: 13.5px; color: var(--text-primary); outline: none; resize: vertical; transition: border-color 0.2s, box-shadow 0.2s;" onfocus="this.style.borderColor='var(--gold)'; this.style.boxShadow='0 0 0 3px var(--gold-subtle)'" onblur="this.style.borderColor=''; this.style.boxShadow=''"></textarea>
+        <div class="k-input-group">
+          <label for="eventDesc">Description / Note for Guests</label>
+          <textarea id="eventDesc" class="k-input-field" rows="2" placeholder="Optional details or welcome message..."></textarea>
         </div>
 
-        <button type="submit" class="btn btn-primary" style="margin-top: 4px; padding: 14px; font-size: 14.5px; font-weight: 700; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;">
-          <span>Create Event</span>
-          <span>&rarr;</span>
+        <button type="submit" id="createEventSubmitBtn" class="k-action-btn k-action-btn--primary" style="min-height: 48px; font-size: 0.88rem; margin-top: 6px;">
+          <span>Create Celebration Workspace</span>
+          <span>→</span>
         </button>
       </form>
     </div>
   </div>
 </div>
-{% endblock %}
 
-{% block scripts %}
+<!-- ── INSTANT QR STANDEE MODAL ─────────────────── -->
+<div id="qrModal" class="k-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="qrModalTitle">
+  <div class="k-modal-window" style="width: min(100%, 460px); text-align: center;">
+    <div class="k-modal-head">
+      <button type="button" class="k-modal-close" onclick="closeQrModal()" aria-label="Close modal">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+      <span class="k-hero-eyebrow">◆ Instant Standee & QR</span>
+      <h3 id="qrModalTitle">Event QR Poster</h3>
+    </div>
+
+    <div class="k-modal-body">
+      <div class="k-qr-preview-box">
+        <img id="qrModalImg" class="k-qr-canvas" alt="Event QR Code" src="">
+        <div id="qrModalEventName" class="k-qr-meta">Event Name</div>
+        <div id="qrModalCode" style="font-family: monospace; color: #6b6360; font-size: 0.8rem; margin-top: 4px;">CODE</div>
+      </div>
+
+      <div style="display: grid; gap: 10px;">
+        <button type="button" class="k-action-btn k-action-btn--primary" onclick="copyModalEventLink()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          Copy Guest Discovery URL
+        </button>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <a id="qrDownloadBtn" class="k-action-btn k-action-btn--glass" href="#" download="event-qr.png">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Download QR
+          </a>
+          <a id="qrStandeeBtn" class="k-action-btn k-action-btn--glass" href="#" target="_blank">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+            Print Standee
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
-function openCreateEventModal() {
-  document.getElementById("createEventModal").style.display = "flex";
-}
+  let currentActiveFilter = 'all';
+  let activeModalCode = '';
 
-function closeCreateEventModal() {
-  document.getElementById("createEventModal").style.display = "none";
-}
+  function setFilterType(btn, type) {
+    document.querySelectorAll('.k-filter-pills .k-pill').forEach(p => p.classList.remove('is-active'));
+    btn.classList.add('is-active');
+    currentActiveFilter = type;
+    filterEvents();
+  }
 
-async function handleCreateEvent(e) {
-  e.preventDefault();
-  const name = document.getElementById("eventName").value.trim();
-  const event_type = document.getElementById("eventType").value;
-  const event_date = document.getElementById("eventDate").value.trim();
-  const location = document.getElementById("eventLocation").value.trim();
-  const event_code = document.getElementById("eventCode").value.trim().toUpperCase();
-  const description = document.getElementById("eventDesc").value.trim();
+  function filterEvents() {
+    const query = (document.getElementById('eventSearchInput').value || '').trim().toLowerCase();
+    const cards = document.querySelectorAll('.k-event-card');
 
-  try {
-    const res = await authFetch("/api/admin/events/", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, event_type, event_date, location, event_code, description })
+    cards.forEach(card => {
+      const name = card.getAttribute('data-name') || '';
+      const code = card.getAttribute('data-code') || '';
+      const loc = card.getAttribute('data-loc') || '';
+      const type = card.getAttribute('data-type') || '';
+
+      const matchesQuery = !query || name.includes(query) || code.includes(query) || loc.includes(query);
+      const matchesType = currentActiveFilter === 'all' || type === currentActiveFilter;
+
+      if (matchesQuery && matchesType) {
+        card.style.display = 'flex';
+      } else {
+        card.style.display = 'none';
+      }
     });
+  }
 
-    const data = await res.json();
-    if (!res.ok) {
-      showToast(data.error || "Failed to create event", "danger");
+  function copyEventLink(code) {
+    const url = `${window.location.origin}/event/${encodeURIComponent(code)}/`;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(url).then(() => {
+        showToast(`Copied guest link: ${url}`);
+      }).catch(() => {
+        prompt('Copy guest link:', url);
+      });
+    } else {
+      prompt('Copy guest link:', url);
+    }
+  }
+
+  function copyModalEventLink() {
+    if (activeModalCode) {
+      copyEventLink(activeModalCode);
+    }
+  }
+
+  function openQrModal(eventName, eventCode) {
+    activeModalCode = eventCode;
+    const url = `${window.location.origin}/event/${encodeURIComponent(eventCode)}/`;
+    const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(url)}&margin=10`;
+
+    document.getElementById('qrModalTitle').textContent = eventName;
+    document.getElementById('qrModalEventName').textContent = eventName;
+    document.getElementById('qrModalCode').textContent = `CODE: ${eventCode}`;
+    document.getElementById('qrModalImg').src = qrApiUrl;
+    document.getElementById('qrDownloadBtn').href = qrApiUrl;
+    document.getElementById('qrStandeeBtn').href = `/admin/events/${encodeURIComponent(eventCode)}/share/`;
+
+    const modal = document.getElementById('qrModal');
+    modal.classList.add('is-active');
+  }
+
+  function closeQrModal() {
+    document.getElementById('qrModal').classList.remove('is-active');
+  }
+
+  function openCreateEventModal() {
+    document.getElementById('createEventModal').classList.add('is-active');
+    setTimeout(() => {
+      document.getElementById('eventName').focus();
+    }, 100);
+  }
+
+  function closeCreateEventModal() {
+    document.getElementById('createEventModal').classList.remove('is-active');
+  }
+
+  // Close modals on backdrop click
+  document.querySelectorAll('.k-modal-overlay').forEach(overlay => {
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) {
+        overlay.classList.remove('is-active');
+      }
+    });
+  });
+
+  // Close on Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      document.querySelectorAll('.k-modal-overlay.is-active').forEach(m => m.classList.remove('is-active'));
+    }
+  });
+
+  async function handleCreateEvent(e) {
+    e.preventDefault();
+    const btn = document.getElementById('createEventSubmitBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span>Creating workspace...</span>';
+
+    const name = document.getElementById('eventName').value.trim();
+    const event_type = document.getElementById('eventType').value;
+    const event_date = document.getElementById('eventDate').value.trim();
+    const location = document.getElementById('eventLocation').value.trim();
+    const event_code = document.getElementById('eventCode').value.trim().toUpperCase();
+    const description = document.getElementById('eventDesc').value.trim();
+
+    try {
+      const res = await authFetch('/api/admin/events/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, event_type, event_date, location, event_code, description })
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        showToast(data.error || 'Failed to create event', true);
+        btn.disabled = false;
+        btn.innerHTML = '<span>Create Celebration Workspace</span><span>→</span>';
+        return;
+      }
+
+      showToast('Event workspace created successfully!');
+      window.location.href = `/admin/events/${encodeURIComponent(data.event.event_code)}/`;
+    } catch (err) {
+      showToast('Network error: ' + err.message, true);
+      btn.disabled = false;
+      btn.innerHTML = '<span>Create Celebration Workspace</span><span>→</span>';
+    }
+  }
+
+  async function deleteEvent(eventId, eventName) {
+    if (!confirm(`Are you sure you want to permanently delete '${eventName}' and all its photos & face embeddings?`)) {
       return;
     }
 
-    showToast("Event created successfully!", "success");
-    window.location.href = `/admin/events/${data.event.event_code}/`;
-  } catch (err) {
-    showToast("Network error: " + err.message, "danger");
-  }
-}
+    try {
+      const res = await authFetch(`/api/admin/events/${eventId}/`, {
+        method: 'DELETE'
+      });
 
-async function deleteEvent(eventId, eventName) {
-  if (!confirm(`Are you sure you want to permanently delete '${eventName}' and all its photos & face embeddings?`)) {
-    return;
-  }
-
-  try {
-    const res = await authFetch(`/api/admin/events/${eventId}/`, {
-      method: "DELETE"
-    });
-
-    if (res.ok) {
-      showToast("Event deleted", "info");
-      window.location.reload();
-    } else {
-      const data = await res.json();
-      showToast(data.error || "Failed to delete event", "danger");
+      if (res.ok) {
+        showToast('Event deleted successfully');
+        window.location.reload();
+      } else {
+        const data = await res.json().catch(() => ({}));
+        showToast(data.error || 'Failed to delete event', true);
+      }
+    } catch (err) {
+      showToast('Network error: ' + err.message, true);
     }
-  } catch (err) {
-    showToast("Network error: " + err.message, "danger");
   }
-}
 </script>
 {% endblock %}
