@@ -63,13 +63,19 @@ def event_view(request, event_code):
             return render(request, "event_pin.html", {"event": event})
 
     photo_count = Photo.objects.filter(event=event, processing_status="completed").count()
-    highlights_count = Photo.objects.filter(event=event, processing_status="completed", is_highlight=True).count()
+    highlights = Photo.objects.filter(event=event, processing_status="completed", is_highlight=True)[:12]
+    photos_preview = Photo.objects.filter(event=event, processing_status="completed")[:6]
+    sub_events = SubEvent.objects.filter(event=event)
     profile = getattr(event.photographer, 'profile', None)
 
     return render(request, "event.html", {
         "event": event,
         "photo_count": photo_count,
-        "highlights_count": highlights_count,
+        "photos_count": photo_count,
+        "highlights": highlights,
+        "highlights_count": len(highlights),
+        "photos_preview": photos_preview,
+        "sub_events": sub_events,
         "profile": profile
     })
 
