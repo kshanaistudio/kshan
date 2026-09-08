@@ -1,38 +1,57 @@
 #!/bin/bash
 # ═══════════════════════════════════════════════════════════════════
-# KSHAN AI Photo Suite — AWS EC2 Ubuntu 22.04 Deploy Script
-# Run this ON your EC2 instance after SSH-ing in
-# Usage: bash deploy_ec2.sh
+# KSHAN AI Photo Suite — AWS EC2 Free Tier (t2.micro Ubuntu 22.04)
+# Run this ON your EC2 instance after SSH-ing in:
+#   ssh -i your-key.pem ubuntu@YOUR_EC2_IP
+#   bash deploy_ec2.sh
 # ═══════════════════════════════════════════════════════════════════
 set -e
 
 echo ""
-echo "══════════════════════════════════════════"
-echo "  🚀 KSHAN AWS EC2 Production Deploy"
-echo "══════════════════════════════════════════"
+echo "══════════════════════════════════════════════"
+echo "  🚀 KSHAN — AWS Free Tier Deploy (t2.micro)"
+echo "══════════════════════════════════════════════"
 echo ""
 
 # ── 1. System Update ────────────────────────────────────────────────
-echo "▶ Step 1: Updating system packages..."
+echo "▶ [1/8] Updating system packages..."
 sudo apt update && sudo apt upgrade -y
 
-# ── 2. Install Docker ───────────────────────────────────────────────
-echo "▶ Step 2: Installing Docker..."
-sudo apt install -y docker.io docker-compose git curl ufw
+# ── 2. Add 2GB Swap (CRITICAL for t2.micro 1GB RAM) ────────────────
+# InsightFace buffalo_s needs ~300MB. Without swap, a memory spike
+# during face detection will OOM-kill the container.
+echo "▶ [2/8] Setting up 2GB swap file..."
+if [ ! -f /swapfile ]; then
+    sudo fallocate -l 2G /swapfile
+    sudo chmod 600 /swapfile
+    sudo mkswap /swapfile
+    sudo swapon /swapfile
+    # Make swap permanent across reboots
+    echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
+    # Tune swappiness: prefer RAM, use swap only as safety net
+    echo 'vm.swappiness=10' | sudo tee -a /etc/sysctl.conf
+    sudo sysctl -p
+    echo "   ✅ 2GB swap created"
+else
+    echo "   ✅ Swap already exists — skipping"
+fi
 
+# ── 3. Install Docker ───────────────────────────────────────────────
+echo "▶ [3/8] Installing Docker & tools..."
+sudo apt install -y docker.io docker-compose git curl ufw
 sudo systemctl enable docker
 sudo systemctl start docker
 sudo usermod -aG docker $USER
 
-# ── 3. Firewall ─────────────────────────────────────────────────────
-echo "▶ Step 3: Configuring firewall..."
+# ── 4. Firewall ─────────────────────────────────────────────────────
+echo "▶ [4/8] Configuring firewall..."
 sudo ufw allow OpenSSH
 sudo ufw allow 80/tcp
 sudo ufw allow 443/tcp
 sudo ufw --force enable
 
-# ── 4. Clone / Update Repo ──────────────────────────────────────────
-echo "▶ Step 4: Getting latest code from GitHub..."
+# ── 5. Clone / Pull repo ────────────────────────────────────────────
+echo "▶ [5/8] Getting latest code..."
 REPO_DIR="/home/ubuntu/kshan"
 
 if [ -d "$REPO_DIR/.git" ]; then
@@ -40,27 +59,30 @@ if [ -d "$REPO_DIR/.git" ]; then
     cd "$REPO_DIR"
     git pull origin main
 else
-    echo "   Cloning repo..."
+    echo "   Cloning fresh..."
     git clone https://github.com/kshanaistudio/kshan.git "$REPO_DIR"
     cd "$REPO_DIR"
 fi
 
-# ── 5. Create .env if not present ───────────────────────────────────
+# ── 6. Create .env if missing ───────────────────────────────────────
+echo "▶ [6/8] Checking .env..."
 if [ ! -f "$REPO_DIR/.env" ]; then
-    echo ""
-    echo "⚠️  No .env file found! Creating template..."
+    echo "   ⚠️  Creating .env with your credentials..."
     cat > "$REPO_DIR/.env" << 'ENVEOF'
 # Django
-DJANGO_SECRET_KEY=change-this-to-a-long-random-string-in-production
+DJANGO_SECRET_KEY=kshan-aws-prod-key-change-this-abc123xyz
 DEBUG=False
 
 # Supabase PostgreSQL
-DATABASE_URL=postgresql://postgres:YOUR_PASSWORD@db.rndharbouyewlfooykxl.supabase.co:5432/postgres
+DATABASE_URL=postgresql://postgres:%255*LN%25NYf6$mD<"@db.rndharbouyewlfooykxl.supabase.co:5432/postgres
 
 # Firebase
 FIREBASE_API_KEY=AIzaSyC0oJJ-j9nRAu6Hw55j21MGh2FgYH3nl6E
 FIREBASE_AUTH_DOMAIN=kshanai.firebaseapp.com
 FIREBASE_PROJECT_ID=kshanai
+FIREBASE_STORAGE_BUCKET=kshanai.firebasestorage.app
+FIREBASE_MESSAGING_SENDER_ID=670415123364
+FIREBASE_APP_ID=1:670415123364:web:2483260fa09f10c01b0731
 
 # Cloudflare R2 Storage
 R2_ENABLED=True
@@ -75,51 +97,53 @@ RAZORPAY_KEY_ID=rzp_test_TWIs8CzYn94gAH
 RAZORPAY_KEY_SECRET=nW0haPAjGN9toRSDwBqYWvlP
 RAZORPAY_CURRENCY=INR
 
-# Face Detection
+# Face Detection (buffalo_s works on 1GB RAM free tier)
 FACE_RECOGNITION_ENABLED=True
 INSIGHTFACE_MODEL=buffalo_s
 ENVEOF
-    echo "   ✅ .env template created. Edit it if needed: nano $REPO_DIR/.env"
+    echo "   ✅ .env created"
+else
+    echo "   ✅ .env already exists"
 fi
 
-# ── 6. Build & Start Docker ─────────────────────────────────────────
-echo ""
-echo "▶ Step 6: Building Docker image and starting containers..."
-echo "   (This takes 3-5 minutes the first time — downloading InsightFace model)"
+# ── 7. Build & launch ───────────────────────────────────────────────
+echo "▶ [7/8] Building Docker image and launching..."
+echo "   (First build takes 5-10 min — downloading Python packages + InsightFace model)"
 cd "$REPO_DIR"
 sudo docker-compose down --remove-orphans 2>/dev/null || true
 sudo docker-compose up -d --build
 
-# ── 7. Wait for startup ─────────────────────────────────────────────
+# ── 8. Verify & show info ───────────────────────────────────────────
 echo ""
-echo "▶ Step 7: Waiting for server to start..."
-sleep 15
+echo "▶ [8/8] Waiting 20s for server to start..."
+sleep 20
 
-# ── 8. Check status ─────────────────────────────────────────────────
 echo ""
-echo "▶ Step 8: Checking container status..."
+echo "Container status:"
 sudo docker-compose ps
 
 echo ""
-echo "▶ Step 9: Checking logs..."
-sudo docker-compose logs --tail=30 web
+echo "Recent logs:"
+sudo docker-compose logs --tail=25 web
 
-# ── 9. Get public IP ────────────────────────────────────────────────
-PUBLIC_IP=$(curl -s http://169.254.169.254/latest/meta-data/public-ipv4 2>/dev/null || echo "unknown")
+PUBLIC_IP=$(curl -s http://169.254.169.254/latest/meta-data/public-ipv4 2>/dev/null || curl -s ifconfig.me 2>/dev/null || echo "YOUR_IP")
 
 echo ""
-echo "══════════════════════════════════════════"
-echo "  ✅ KSHAN is now running on AWS EC2!"
-echo "══════════════════════════════════════════"
+echo "════════════════════════════════════════════════"
+echo "  ✅  KSHAN is LIVE on AWS!"
+echo "════════════════════════════════════════════════"
 echo ""
-echo "  🌐 Access your app at: http://$PUBLIC_IP"
-echo "  📁 Storage: Docker named volume (persistent)"
-echo "  🗄️  Database: Supabase PostgreSQL"
-echo "  ☁️  Photos: Cloudflare R2"
+echo "  🌐  URL:       http://$PUBLIC_IP"
+echo "  👤  Login:     username=p  password=p (trial)"
+echo "  💾  Storage:   Docker named volume (persistent)"
+echo "  🗄️   Database:  Supabase PostgreSQL"
+echo "  ☁️   Photos:    Cloudflare R2"
+echo "  🧠  AI Model:  InsightFace buffalo_s (1GB safe)"
+echo "  💿  Swap:      2GB (prevents OOM kills)"
 echo ""
 echo "  Useful commands:"
-echo "  - View logs:    sudo docker-compose logs -f web"
-echo "  - Restart:      sudo docker-compose restart web"
-echo "  - Update code:  git pull && sudo docker-compose up -d --build"
-echo "  - Stop:         sudo docker-compose down"
+echo "  ┌─ View live logs:  cd ~/kshan && sudo docker-compose logs -f web"
+echo "  ├─ Restart app:    cd ~/kshan && sudo docker-compose restart web"
+echo "  ├─ Update & redeploy: cd ~/kshan && git pull && sudo docker-compose up -d --build"
+echo "  └─ Check memory:   free -h"
 echo ""

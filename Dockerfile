@@ -31,4 +31,6 @@ ENV INSIGHTFACE_MODEL=buffalo_s
 EXPOSE 8000
 
 # Migrate, collect static, then start gunicorn
-CMD sh -c "python manage.py migrate --noinput && python manage.py collectstatic --noinput && gunicorn --bind 0.0.0.0:${PORT:-8000} --workers 2 --threads 4 --timeout 300 --keep-alive 75 --graceful-timeout 30 --max-requests 500 --max-requests-jitter 50 kshan_project.wsgi:application"
+# t2.micro = 1GB RAM: 1 worker to stay within limits
+# buffalo_s(150MB) + Django(150MB) + OS(200MB) + worker overhead = ~550MB safe
+CMD sh -c "python manage.py migrate --noinput && python manage.py collectstatic --noinput && gunicorn --bind 0.0.0.0:${PORT:-8000} --workers 1 --threads 4 --timeout 300 --keep-alive 75 --graceful-timeout 30 --max-requests 500 --max-requests-jitter 50 kshan_project.wsgi:application"
