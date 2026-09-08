@@ -155,14 +155,15 @@ FILE_UPLOAD_MAX_MEMORY_SIZE = 100 * 1024 * 1024        # 100 MB per file in-memo
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000                  # Support up to 10,000 files in one payload
 
 # Face Recognition Settings
-INSIGHTFACE_MODEL_NAME = "buffalo_l"  # ResNet-50 ArcFace (99.83% accuracy)
+# buffalo_s = lightweight model (~150MB RAM) — works on Render free 512MB
+# buffalo_l = large model (~500MB RAM) — needs 2GB+ RAM, use on dedicated servers
+INSIGHTFACE_MODEL_NAME = os.getenv('INSIGHTFACE_MODEL', 'buffalo_s')
 FACE_MATCH_THRESHOLD = 0.44           # Calibrated ArcFace cosine threshold for event photography
 MIN_DET_SCORE = 0.50                  # Detection confidence score threshold
 MIN_FACE_SIZE = 30                    # Minimum face width/height in pixels
-DETECTION_SIZE = (640, 640)
+DETECTION_SIZE = (480, 480)           # Reduced from 640x640 to save ~100MB RAM on inference
 THUMBNAIL_MAX_SIZE = 500
 SUPPORTED_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.webp'}
 
-# Set to False on memory-constrained hosts (e.g. Render free tier 512MB)
-# Face detection requires ~500MB RAM; if disabled, photos upload but face search won't work
+# Set to False on memory-constrained hosts to disable face detection entirely
 FACE_RECOGNITION_ENABLED = os.getenv('FACE_RECOGNITION_ENABLED', 'True').lower() in ('true', '1', 't')

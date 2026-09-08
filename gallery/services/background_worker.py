@@ -11,10 +11,12 @@ from .face_service import get_face_service
 from .storage_service import get_event_thumbnail_path
 
 logger = logging.getLogger("kshan.background_worker")
-executor = ThreadPoolExecutor(max_workers=2, thread_name_prefix="kshan_django_worker")
+# Single worker: InsightFace model loads once into RAM and stays there.
+# 2 workers would double memory use (2x buffalo_s = ~300MB vs 512MB limit on Render free)
+executor = ThreadPoolExecutor(max_workers=1, thread_name_prefix="kshan_django_worker")
 
-def _is_enough_memory_for_face_detection(min_free_mb: int = 350) -> bool:
-    """Check if there's enough free RAM to safely run InsightFace (~500MB model)."""
+def _is_enough_memory_for_face_detection(min_free_mb: int = 200) -> bool:
+    """Check if there's enough free RAM to safely run InsightFace buffalo_s (~150MB)."""
     try:
         import psutil
         free_mb = psutil.virtual_memory().available / (1024 * 1024)
@@ -23,7 +25,6 @@ def _is_enough_memory_for_face_detection(min_free_mb: int = 350) -> bool:
             return False
         return True
     except ImportError:
-        # psutil not installed — assume ok
         return True
 
 
