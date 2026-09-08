@@ -15,73 +15,25 @@ from .storage_service import get_event_thumbnail_path
 logger = logging.getLogger("kshan.background_worker")
 
 # ─────────────────────────────────────────────────────────────────────────────
-# SMART DELAYED QUEUE
-# ─────────────────────────────────────────────────────────────────────────────
-# Problem: photographer uploads 100 photos. If we start face detection
-# immediately on photo 1, the model loads (~150MB) and runs while photos
-# 2-100 are still uploading → total RAM spikes → OOM → server crash.
-#
-# Solution: collect photo IDs while uploads are happening, then wait
-# UPLOAD_IDLE_SECONDS after the LAST upload before starting face detection.
-# This means uploads always finish safely, then processing runs quietly.
+# REAL-TIME PHOTO PROCESSING QUEUE
+# Photos are processed immediately upon upload: thumbnail, watermark, and face detection
 # ─────────────────────────────────────────────────────────────────────────────
 
-UPLOAD_IDLE_SECONDS = 20   # Wait this long after last upload before processing
-
-_pending_ids: list[int] = []
-_pending_lock = threading.Lock()
-_idle_timer: threading.Timer | None = None
-_last_upload_time: float = 0
-
-# Single worker thread — InsightFace loads once and stays in RAM
-executor = ThreadPoolExecutor(max_workers=1, thread_name_prefix="kshan_worker")
-
-
-def _flush_pending():
-    """Called after upload inactivity — drains the pending queue and processes."""
-    global _idle_timer
-    with _pending_lock:
-        ids = list(_pending_ids)
-        _pending_ids.clear()
-        _idle_timer = None
-
-    if not ids:
-        return
-
-    logger.info(f"Upload session idle — starting face detection on {len(ids)} photo(s).")
-    for pid in ids:
-        executor.submit(process_single_photo, pid)
+# Thread pool worker — processes photos immediately as they arrive
+executor = ThreadPoolExecutor(max_workers=2, thread_name_prefix="kshan_worker")
 
 
 def queue_photo_processing(photo_id: int):
-    """
-    Adds photo to the delayed processing queue.
-    Resets the idle timer every time a new photo is added — face detection
-    won't start until UPLOAD_IDLE_SECONDS after the last upload.
-    """
-    global _idle_timer, _last_upload_time
-    with _pending_lock:
-        _pending_ids.append(photo_id)
-        _last_upload_time = time.time()
-
-        # Cancel existing timer and reset it
-        if _idle_timer is not None:
-            _idle_timer.cancel()
-        _idle_timer = threading.Timer(UPLOAD_IDLE_SECONDS, _flush_pending)
-        _idle_timer.daemon = True
-        _idle_timer.start()
-
-    logger.info(
-        f"Photo {photo_id} queued. "
-        f"Face detection starts in {UPLOAD_IDLE_SECONDS}s after last upload. "
-        f"Queue size: {len(_pending_ids)}"
-    )
+    """Submits photo immediately for real-time face detection & indexing."""
+    executor.submit(process_single_photo, photo_id)
+    logger.info(f"Photo {photo_id} submitted immediately for face detection.")
 
 
 def queue_batch_processing(photo_ids: list[int]):
-    """Queue multiple photos — each one resets the idle timer."""
+    """Submits a batch of photos immediately for processing."""
     for pid in photo_ids:
-        queue_photo_processing(pid)
+        executor.submit(process_single_photo, pid)
+    logger.info(f"Batch of {len(photo_ids)} photo(s) submitted immediately for face detection.")
 
 
 # ─────────────────────────────────────────────────────────────────────────────
