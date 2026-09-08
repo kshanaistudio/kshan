@@ -4,996 +4,820 @@
 
 {% block content %}
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cormorant+Garamond:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&family=Cinzel:wght@600;700&display=swap');
 
   :root {
-    --ks-ink: #070609;
-    --ks-card: rgba(18, 14, 21, 0.72);
-    --ks-card-hover: rgba(28, 22, 32, 0.88);
-    --ks-border: rgba(199, 168, 107, 0.18);
-    --ks-border-gold: rgba(240, 217, 164, 0.45);
-    --ks-gold: #c7a86b;
-    --ks-gold-light: #f0d9a4;
-    --ks-gold-glow: rgba(199, 168, 107, 0.15);
-    --ks-text: #f5efe6;
-    --ks-muted: #9e959d;
-    --ks-teal: #14b8a6;
-    --ks-burgundy: #8f2848;
-    --ks-radius: 20px;
+    --bg-base: #09090c;
+    --bg-surface: #111116;
+    --bg-surface-elevated: #17171f;
+    --bg-surface-hover: #1c1c26;
+    --border-subtle: rgba(255, 255, 255, 0.07);
+    --border-gold-subtle: rgba(212, 175, 55, 0.22);
+    --border-gold-bright: rgba(235, 200, 100, 0.55);
+    --gold-primary: #d4af37;
+    --gold-light: #f5df97;
+    --text-main: #f4f4f6;
+    --text-muted: #8b8b98;
+    --text-faint: #565664;
+    --font-sans: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-mono: "JetBrains Mono", monospace;
   }
 
-  .k-events-dashboard {
+  * { box-sizing: border-box; }
+
+  .studio-shell {
+    background: var(--bg-base);
+    color: var(--text-main);
+    font-family: var(--font-sans);
     min-height: 100vh;
-    padding-bottom: 80px;
-    color: var(--ks-text);
-    position: relative;
-    overflow-x: hidden;
   }
 
-  /* Ambient Orbs */
-  .k-ambient-orb {
-    position: absolute;
-    width: 32rem;
-    height: 32rem;
-    border-radius: 50%;
-    filter: blur(140px);
-    opacity: 0.12;
-    pointer-events: none;
-    z-index: 0;
-  }
-  .k-orb-1 { top: -6rem; left: -10rem; background: #8f2848; }
-  .k-orb-2 { top: 18rem; right: -12rem; background: #14b8a6; }
-  .k-orb-3 { bottom: 10rem; left: 30%; background: #c7a86b; }
-
-  /* Hero Banner */
-  .k-hero-banner {
-    position: relative;
-    border-radius: 28px;
-    padding: clamp(28px, 4vw, 44px) clamp(24px, 4vw, 48px);
-    margin-bottom: 28px;
-    background:
-      radial-gradient(circle at 90% 15%, rgba(199, 168, 107, 0.18), transparent 45%),
-      radial-gradient(circle at 10% 85%, rgba(143, 40, 72, 0.25), transparent 50%),
-      linear-gradient(135deg, rgba(24, 18, 28, 0.95) 0%, rgba(11, 9, 14, 0.98) 100%);
-    border: 1px solid var(--ks-border-gold);
-    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(20px);
-    overflow: hidden;
+  .studio-main {
+    background: var(--bg-base) !important;
+    padding: 32px 40px 80px;
+    max-width: 1440px;
+    margin: 0 auto;
   }
 
-  .k-hero-banner::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    opacity: 0.04;
-    background-image: radial-gradient(#fff 1px, transparent 1px);
-    background-size: 16px 16px;
-    pointer-events: none;
-  }
-
-  .k-hero-eyebrow {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 0.72rem;
-    font-weight: 700;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: var(--ks-gold-light);
-    margin-bottom: 10px;
-  }
-
-  .k-hero-title {
-    font-family: "Cormorant Garamond", Georgia, serif;
-    font-size: clamp(2rem, 3.8vw, 3.2rem);
-    font-weight: 600;
-    line-height: 1.1;
-    margin: 0 0 10px;
-    color: #fffaf2;
-    text-shadow: 0 4px 20px rgba(0,0,0,0.4);
-  }
-
-  .k-hero-sub {
-    color: var(--ks-muted);
-    font-size: 0.92rem;
-    max-width: 600px;
-    margin: 0;
-    line-height: 1.6;
-  }
-
-  /* KPI Bento Strip */
-  .k-kpi-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 16px;
-    margin-bottom: 28px;
-  }
-
-  .k-kpi-card {
-    background: var(--ks-card);
-    border: 1px solid var(--ks-border);
-    border-radius: var(--ks-radius);
-    padding: 20px 22px;
-    position: relative;
-    overflow: hidden;
-    backdrop-filter: blur(16px);
-    transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
-  }
-
-  .k-kpi-card:hover {
-    transform: translateY(-3px);
-    border-color: var(--ks-border-gold);
-    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.4);
-  }
-
-  .k-kpi-card::after {
-    content: "";
-    position: absolute;
-    width: 90px;
-    height: 90px;
-    right: -25px;
-    bottom: -25px;
-    border-radius: 50%;
-    background: radial-gradient(circle, var(--ks-gold-glow), transparent 70%);
-    pointer-events: none;
-  }
-
-  .k-kpi-top {
+  /* Top Bar */
+  .uk-header {
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    margin-bottom: 12px;
-  }
-
-  .k-kpi-label {
-    font-size: 0.72rem;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--ks-muted);
-  }
-
-  .k-kpi-icon {
-    width: 32px;
-    height: 32px;
-    border-radius: 10px;
-    display: grid;
-    place-items: center;
-    color: var(--ks-gold-light);
-    background: rgba(199, 168, 107, 0.1);
-    border: 1px solid rgba(199, 168, 107, 0.22);
-  }
-
-  .k-kpi-icon svg { width: 16px; height: 16px; }
-
-  .k-kpi-val {
-    font-family: "Cormorant Garamond", Georgia, serif;
-    font-size: 2.1rem;
-    font-weight: 700;
-    line-height: 1;
-    color: #fff;
-  }
-
-  .k-kpi-foot {
-    font-size: 0.75rem;
-    color: var(--ks-gold);
-    margin-top: 6px;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-  }
-
-  /* Search & Filter Toolbar */
-  .k-toolbar {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: 14px;
+    align-items: flex-end;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--border-subtle);
     margin-bottom: 24px;
-    padding: 14px 20px;
-    background: var(--ks-card);
-    border: 1px solid var(--ks-border);
-    border-radius: 18px;
-    backdrop-filter: blur(16px);
-  }
-
-  .k-search-box {
-    position: relative;
-    flex: 1;
-    min-width: 240px;
-    max-width: 440px;
-  }
-
-  .k-search-box svg {
-    position: absolute;
-    left: 14px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 17px;
-    height: 17px;
-    color: var(--ks-muted);
-    pointer-events: none;
-    transition: color 0.2s;
-  }
-
-  .k-search-input {
-    width: 100%;
-    height: 44px;
-    padding: 0 16px 0 42px;
-    border-radius: 999px;
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    background: rgba(255, 255, 255, 0.04);
-    color: #fff;
-    font-size: 0.85rem;
-    outline: none;
-    transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
-  }
-
-  .k-search-input:focus {
-    border-color: var(--ks-gold);
-    background: rgba(199, 168, 107, 0.06);
-    box-shadow: 0 0 0 3px rgba(199, 168, 107, 0.15);
-  }
-
-  .k-search-input:focus + svg { color: var(--ks-gold); }
-
-  .k-filter-pills {
-    display: flex;
+    gap: 20px;
     flex-wrap: wrap;
-    gap: 8px;
-    align-items: center;
   }
 
-  .k-pill {
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    background: rgba(255, 255, 255, 0.03);
-    color: var(--ks-muted);
-    padding: 7px 14px;
-    border-radius: 999px;
-    font-size: 0.76rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s ease;
-  }
-
-  .k-pill:hover {
-    color: #fff;
-    border-color: rgba(199, 168, 107, 0.4);
-    background: rgba(199, 168, 107, 0.08);
-  }
-
-  .k-pill.is-active {
-    color: #120e0b;
-    background: linear-gradient(115deg, #f0d9a4, #c7a86b);
-    border-color: #f0d9a4;
+  .uk-title-wrap h1 {
+    font-size: 1.75rem;
     font-weight: 700;
-    box-shadow: 0 4px 14px rgba(199, 168, 107, 0.25);
-  }
-
-  /* Events Grid */
-  .k-events-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-    gap: 24px;
-  }
-
-  .k-event-card {
-    background: var(--ks-card);
-    border: 1px solid var(--ks-border);
-    border-radius: 24px;
-    overflow: hidden;
+    color: #fff;
+    letter-spacing: -0.025em;
+    margin: 0 0 6px;
     display: flex;
-    flex-direction: column;
-    position: relative;
-    backdrop-filter: blur(16px);
-    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease, box-shadow 0.3s ease;
-  }
-
-  .k-event-card:hover {
-    transform: translateY(-6px);
-    border-color: var(--ks-border-gold);
-    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6), 0 0 24px rgba(199, 168, 107, 0.12);
-  }
-
-  /* Cover Area */
-  .k-card-cover {
-    height: 190px;
-    position: relative;
-    background: #100d14;
-    overflow: hidden;
-  }
-
-  .k-card-cover img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-
-  .k-event-card:hover .k-card-cover img {
-    transform: scale(1.05);
-  }
-
-  .k-cover-overlay {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(to top, rgba(14, 11, 17, 0.95) 0%, rgba(14, 11, 17, 0.2) 60%, transparent 100%);
-  }
-
-  .k-cover-badges {
-    position: absolute;
-    top: 14px;
-    left: 14px;
-    display: flex;
-    gap: 7px;
-    z-index: 2;
-  }
-
-  .k-badge {
-    display: inline-flex;
     align-items: center;
-    gap: 5px;
-    padding: 4px 10px;
-    border-radius: 999px;
+    gap: 10px;
+  }
+
+  .uk-title-badge {
     font-size: 0.7rem;
     font-weight: 700;
-    letter-spacing: 0.05em;
-    backdrop-filter: blur(10px);
+    padding: 3px 8px;
+    border-radius: 6px;
+    background: rgba(212, 175, 55, 0.12);
+    border: 1px solid var(--border-gold-subtle);
+    color: var(--gold-light);
+    font-family: var(--font-mono);
   }
 
-  .k-badge-gold {
-    background: rgba(199, 168, 107, 0.22);
-    color: var(--ks-gold-light);
-    border: 1px solid rgba(240, 217, 164, 0.4);
+  .uk-title-wrap p {
+    color: var(--text-muted);
+    font-size: 0.86rem;
+    margin: 0;
   }
 
-  .k-badge-dark {
-    background: rgba(0, 0, 0, 0.6);
-    color: #e5e0dc;
-    border: 1px solid rgba(255, 255, 255, 0.15);
-  }
-
-  .k-event-code-chip {
-    position: absolute;
-    bottom: 14px;
-    right: 14px;
-    z-index: 2;
+  .uk-btn-primary {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    padding: 5px 11px;
-    border-radius: 8px;
-    background: rgba(8, 6, 11, 0.85);
-    border: 1px solid var(--ks-border-gold);
-    color: var(--ks-gold-light);
-    font-family: monospace;
-    font-size: 0.78rem;
+    gap: 8px;
+    height: 40px;
+    padding: 0 18px;
+    border-radius: 9px;
+    background: linear-gradient(135deg, #f5df97 0%, #d4af37 100%);
+    color: #0c0a08;
+    font-size: 0.82rem;
     font-weight: 700;
-    letter-spacing: 0.12em;
+    border: none;
     cursor: pointer;
-    transition: all 0.2s ease;
-  }
-
-  .k-event-code-chip:hover {
-    background: var(--ks-gold);
-    color: #0d0a0f;
-    box-shadow: 0 0 16px rgba(199, 168, 107, 0.4);
-  }
-
-  .k-event-code-chip svg { width: 13px; height: 13px; }
-
-  /* Body */
-  .k-card-body {
-    padding: 22px;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-  }
-
-  .k-event-title {
-    font-family: "Cormorant Garamond", Georgia, serif;
-    font-size: 1.55rem;
-    font-weight: 600;
-    line-height: 1.2;
-    margin: 0 0 8px;
-    color: #fff;
-    transition: color 0.2s;
-  }
-
-  .k-event-title a {
-    color: inherit;
     text-decoration: none;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 4px 14px rgba(212, 175, 55, 0.25);
   }
 
-  .k-event-title a:hover {
-    color: var(--ks-gold-light);
+  .uk-btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 20px rgba(212, 175, 55, 0.35);
   }
 
-  .k-event-subinfo {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 14px;
-    font-size: 0.78rem;
-    color: var(--ks-muted);
-    margin-bottom: 18px;
-  }
-
-  .k-event-subinfo span {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-  }
-
-  .k-event-subinfo svg { width: 14px; height: 14px; color: var(--ks-gold); }
-
-  /* Micro Stats Grid */
-  .k-card-stats {
+  /* Compact KPI Bar */
+  .uk-kpi-bar {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-    padding: 14px;
-    border-radius: 14px;
-    background: rgba(255, 255, 255, 0.025);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    margin-bottom: 20px;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 24px;
   }
 
-  .k-stat-item {
-    text-align: center;
+  .uk-kpi-box {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: 12px;
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: border-color 0.2s;
   }
 
-  .k-stat-lbl {
-    font-size: 0.65rem;
-    font-weight: 700;
+  .uk-kpi-box:hover {
+    border-color: var(--border-gold-subtle);
+  }
+
+  .uk-kpi-meta {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--ks-muted);
-    margin-bottom: 3px;
+    letter-spacing: 0.06em;
+    margin-bottom: 4px;
   }
 
-  .k-stat-num {
-    font-family: "Cormorant Garamond", Georgia, serif;
+  .uk-kpi-num {
     font-size: 1.45rem;
     font-weight: 700;
     color: #fff;
     line-height: 1;
+    font-family: var(--font-mono);
   }
 
-  .k-stat-num--gold { color: var(--ks-gold-light); }
+  .uk-kpi-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border-subtle);
+    display: grid;
+    place-items: center;
+    color: var(--gold-light);
+  }
 
-  /* Action Buttons */
-  .k-card-actions {
+  /* Search & Controls Strip */
+  .uk-controls {
     display: flex;
-    gap: 8px;
+    justify-content: space-between;
     align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
   }
 
-  .k-action-btn {
-    min-height: 38px;
-    padding: 0 14px;
-    border-radius: 10px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    font-size: 0.76rem;
-    font-weight: 700;
-    text-decoration: none;
-    cursor: pointer;
-    border: 1px solid transparent;
-    transition: all 0.2s ease;
-  }
-
-  .k-action-btn--primary {
+  .uk-search-wrapper {
+    position: relative;
     flex: 1;
-    background: linear-gradient(115deg, #f0d9a4, #c7a86b);
-    color: #120e0a;
-    box-shadow: 0 4px 14px rgba(199, 168, 107, 0.2);
-  }
-
-  .k-action-btn--primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 22px rgba(199, 168, 107, 0.35);
-  }
-
-  .k-action-btn--glass {
-    background: rgba(255, 255, 255, 0.06);
-    color: #e5e0dc;
-    border-color: rgba(255, 255, 255, 0.12);
-  }
-
-  .k-action-btn--glass:hover {
-    background: rgba(199, 168, 107, 0.12);
-    border-color: var(--ks-border-gold);
-    color: var(--ks-gold-light);
-  }
-
-  .k-action-btn--danger {
-    background: rgba(239, 68, 68, 0.08);
-    color: #fca5a5;
-    border-color: rgba(239, 68, 68, 0.2);
-    padding: 0 11px;
-  }
-
-  .k-action-btn--danger:hover {
-    background: rgba(239, 68, 68, 0.2);
-    border-color: #ef4444;
-    color: #fff;
-  }
-
-  .k-action-btn svg { width: 14px; height: 14px; flex-shrink: 0; }
-
-  /* Empty State */
-  .k-empty-state {
-    text-align: center;
-    padding: 80px 24px;
-    background: var(--ks-card);
-    border: 1px solid var(--ks-border);
-    border-radius: 28px;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .k-empty-icon {
-    width: 84px;
-    height: 84px;
-    border-radius: 50%;
-    margin: 0 auto 22px;
-    display: grid;
-    place-items: center;
-    background: linear-gradient(135deg, rgba(240, 217, 164, 0.2), rgba(199, 168, 107, 0.05));
-    border: 1px solid var(--ks-border-gold);
-    color: var(--ks-gold-light);
-    font-size: 2rem;
-    box-shadow: 0 0 30px rgba(199, 168, 107, 0.15);
-  }
-
-  .k-empty-title {
-    font-family: "Cormorant Garamond", Georgia, serif;
-    font-size: 2.2rem;
-    margin: 0 0 10px;
-    color: #fff;
-  }
-
-  .k-empty-desc {
-    color: var(--ks-muted);
-    font-size: 0.92rem;
+    min-width: 260px;
     max-width: 480px;
-    margin: 0 auto 28px;
-    line-height: 1.6;
   }
 
-  /* Modals */
-  .k-modal-overlay {
-    position: fixed;
-    inset: 0;
-    z-index: 9999;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 18px;
-    background: rgba(4, 3, 6, 0.85);
-    backdrop-filter: blur(18px);
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.25s ease, visibility 0.25s ease;
-  }
-
-  .k-modal-overlay.is-active {
-    opacity: 1;
-    visibility: visible;
-  }
-
-  .k-modal-window {
-    width: min(100%, 540px);
-    max-height: calc(100dvh - 36px);
-    overflow-y: auto;
-    position: relative;
-    border-radius: 26px;
-    background: linear-gradient(145deg, rgba(26, 21, 28, 0.98), rgba(12, 10, 14, 0.98));
-    border: 1px solid var(--ks-border-gold);
-    box-shadow: 0 32px 90px rgba(0, 0, 0, 0.8), 0 0 36px rgba(199, 168, 107, 0.12);
-    transform: translateY(16px) scale(0.98);
-    transition: transform 0.28s ease;
-  }
-
-  .k-modal-overlay.is-active .k-modal-window {
-    transform: translateY(0) scale(1);
-  }
-
-  .k-modal-head {
-    padding: 24px 28px 18px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    position: relative;
-  }
-
-  .k-modal-head .k-hero-eyebrow { margin-bottom: 4px; }
-  .k-modal-head h3 {
-    font-family: "Cormorant Garamond", Georgia, serif;
-    font-size: 1.85rem;
-    font-weight: 600;
-    margin: 0;
-    color: #fff;
-  }
-
-  .k-modal-close {
+  .uk-search-wrapper svg {
     position: absolute;
-    top: 20px;
-    right: 20px;
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    background: rgba(255, 255, 255, 0.04);
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 15px;
+    height: 15px;
+    color: var(--text-muted);
+    pointer-events: none;
+  }
+
+  .uk-search-input {
+    width: 100%;
+    height: 38px;
+    padding: 0 14px 0 38px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: 8px;
     color: #fff;
+    font-size: 0.82rem;
+    outline: none;
+    transition: all 0.2s;
+  }
+
+  .uk-search-input:focus {
+    border-color: var(--gold-primary);
+    background: var(--bg-surface-elevated);
+    box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.15);
+  }
+
+  .uk-filter-tags {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .uk-tag {
+    height: 34px;
+    padding: 0 12px;
+    border-radius: 7px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .uk-tag:hover {
+    color: #fff;
+    border-color: var(--border-gold-subtle);
+  }
+
+  .uk-tag.is-active {
+    background: rgba(212, 175, 55, 0.12);
+    border-color: var(--gold-primary);
+    color: var(--gold-light);
+  }
+
+  /* View Switcher */
+  .uk-view-switch {
+    display: flex;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: 8px;
+    padding: 2px;
+  }
+
+  .uk-view-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
     cursor: pointer;
     display: grid;
     place-items: center;
-    transition: all 0.2s ease;
+    transition: all 0.15s;
   }
 
-  .k-modal-close:hover {
-    background: rgba(239, 68, 68, 0.2);
-    border-color: #ef4444;
-    color: #fca5a5;
-    transform: rotate(90deg);
+  .uk-view-btn.is-active {
+    background: var(--bg-surface-elevated);
+    color: var(--gold-light);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.4);
   }
 
-  .k-modal-body {
-    padding: 24px 28px 28px;
-  }
-
-  /* Form Fields */
-  .k-form-grid {
+  /* Grid Layout (Compact High-Density Cards) */
+  .uk-grid {
     display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
     gap: 16px;
   }
 
-  .k-input-group {
+  .uk-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: 12px;
+    overflow: hidden;
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s, box-shadow 0.2s;
   }
 
-  .k-input-group label {
+  .uk-card:hover {
+    border-color: var(--border-gold-subtle);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+  }
+
+  .uk-card-top {
+    height: 140px;
+    position: relative;
+    background: #0d0d12;
+    overflow: hidden;
+  }
+
+  .uk-card-top img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+  }
+
+  .uk-card:hover .uk-card-top img {
+    transform: scale(1.04);
+  }
+
+  .uk-card-top-empty {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #13131a 0%, #0a0a0f 100%);
+    font-family: "Cinzel", serif;
+    font-size: 1.8rem;
+    color: rgba(212, 175, 55, 0.25);
+  }
+
+  .uk-card-top-grad {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(17, 17, 22, 0.95) 0%, transparent 60%);
+  }
+
+  .uk-code-badge {
+    position: absolute;
+    bottom: 10px;
+    left: 12px;
+    font-family: var(--font-mono);
     font-size: 0.72rem;
     font-weight: 700;
-    letter-spacing: 0.12em;
+    padding: 3px 8px;
+    border-radius: 5px;
+    background: rgba(9, 9, 12, 0.88);
+    border: 1px solid var(--border-gold-subtle);
+    color: var(--gold-light);
+    letter-spacing: 0.05em;
+  }
+
+  .uk-type-badge {
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    font-size: 0.68rem;
+    font-weight: 700;
     text-transform: uppercase;
-    color: var(--ks-gold-light);
+    letter-spacing: 0.05em;
+    padding: 2px 7px;
+    border-radius: 5px;
+    background: rgba(0, 0, 0, 0.65);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #e0e0e8;
+    backdrop-filter: blur(8px);
   }
 
-  .k-input-field {
-    width: 100%;
-    min-height: 48px;
-    padding: 0 16px;
-    border-radius: 12px;
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    background: rgba(255, 255, 255, 0.045);
+  .uk-card-body {
+    padding: 16px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .uk-card-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    margin: 0 0 6px;
+    line-height: 1.25;
+  }
+
+  .uk-card-title a {
     color: #fff;
-    font-family: inherit;
-    font-size: 0.85rem;
-    outline: none;
-    transition: all 0.2s ease;
+    text-decoration: none;
+    transition: color 0.15s;
   }
 
-  .k-input-field:focus {
-    border-color: var(--ks-gold);
-    background: rgba(199, 168, 107, 0.08);
-    box-shadow: 0 0 0 3px rgba(199, 168, 107, 0.18);
+  .uk-card-title a:hover {
+    color: var(--gold-light);
   }
 
-  textarea.k-input-field {
-    padding: 12px 16px;
-    resize: vertical;
-    min-height: 80px;
+  .uk-card-meta {
+    display: flex;
+    gap: 12px;
+    font-size: 0.74rem;
+    color: var(--text-muted);
+    margin-bottom: 14px;
   }
 
-  /* QR Modal Specifics */
-  .k-qr-preview-box {
+  .uk-card-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid var(--border-subtle);
+    border-radius: 8px;
+    padding: 8px 10px;
+    margin-bottom: 14px;
     text-align: center;
-    padding: 20px;
-    background: #ffffff;
-    border-radius: 18px;
-    margin-bottom: 20px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
   }
 
-  .k-qr-canvas {
-    width: 200px;
-    height: 200px;
-    margin: 0 auto 10px;
-    display: block;
-  }
-
-  .k-qr-meta {
-    color: #120e0b;
-    font-size: 0.85rem;
+  .uk-stat-lbl {
+    font-size: 0.62rem;
+    color: var(--text-faint);
+    text-transform: uppercase;
     font-weight: 700;
   }
 
-  @media (max-width: 900px) {
-    .k-kpi-grid { grid-template-columns: repeat(2, 1fr); }
+  .uk-stat-val {
+    font-family: var(--font-mono);
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #fff;
+    margin-top: 1px;
   }
 
-  @media (max-width: 640px) {
-    .k-kpi-grid { grid-template-columns: 1fr; }
-    .k-events-grid { grid-template-columns: 1fr; }
-    .k-toolbar { flex-direction: column; align-items: stretch; }
-    .k-search-box { max-width: 100%; }
-    .k-hero-banner { padding: 24px 20px; }
+  .uk-card-actions {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+
+  .uk-btn-sm {
+    height: 32px;
+    padding: 0 11px;
+    border-radius: 6px;
+    font-size: 0.74rem;
+    font-weight: 600;
+    border: 1px solid var(--border-subtle);
+    background: var(--bg-surface-elevated);
+    color: var(--text-main);
+    text-decoration: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    transition: all 0.15s;
+  }
+
+  .uk-btn-sm:hover {
+    background: var(--bg-surface-hover);
+    border-color: var(--border-gold-subtle);
+    color: #fff;
+  }
+
+  .uk-btn-manage {
+    flex: 1;
+    background: rgba(212, 175, 55, 0.12);
+    border-color: var(--border-gold-subtle);
+    color: var(--gold-light);
+    font-weight: 700;
+  }
+
+  .uk-btn-manage:hover {
+    background: var(--gold-primary);
+    color: #0c0a08;
+    border-color: var(--gold-primary);
+  }
+
+  .uk-btn-danger {
+    color: #f87171;
+    padding: 0 8px;
+  }
+
+  .uk-btn-danger:hover {
+    background: rgba(239, 68, 68, 0.15);
+    border-color: #ef4444;
+    color: #fff;
+  }
+
+  /* Table View (High-Density List) */
+  .uk-table-wrap {
+    display: none;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .uk-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.8rem;
+    text-align: left;
+  }
+
+  .uk-table th {
+    padding: 12px 16px;
+    color: var(--text-muted);
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.68rem;
+    letter-spacing: 0.06em;
+    background: rgba(0, 0, 0, 0.2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  .uk-table td {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border-subtle);
+    color: #e2e2ea;
+  }
+
+  .uk-table tr:hover td {
+    background: var(--bg-surface-hover);
+  }
+
+  /* Modals */
+  .uk-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.82);
+    backdrop-filter: blur(12px);
+    z-index: 99999;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+  }
+
+  .uk-modal-card {
+    width: min(100%, 500px);
+    background: #111116;
+    border: 1px solid var(--border-gold-subtle);
+    border-radius: 16px;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.8);
+    overflow: hidden;
+  }
+
+  .uk-modal-head {
+    padding: 18px 24px;
+    border-bottom: 1px solid var(--border-subtle);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .uk-modal-head h3 {
+    margin: 0;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #fff;
+  }
+
+  .uk-modal-body {
+    padding: 22px 24px;
+  }
+
+  .uk-field {
+    margin-bottom: 14px;
+  }
+
+  .uk-field label {
+    display: block;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 6px;
+  }
+
+  .uk-input {
+    width: 100%;
+    height: 40px;
+    padding: 0 12px;
+    background: #17171f;
+    border: 1px solid var(--border-subtle);
+    border-radius: 7px;
+    color: #fff;
+    font-size: 0.84rem;
+    outline: none;
+    font-family: inherit;
+  }
+
+  .uk-input:focus {
+    border-color: var(--gold-primary);
+  }
+
+  @media (max-width: 800px) {
+    .studio-main { padding: 20px 16px 60px; }
+    .uk-kpi-bar { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  @media (max-width: 500px) {
+    .uk-kpi-bar { grid-template-columns: 1fr; }
+    .uk-grid { grid-template-columns: 1fr; }
   }
 </style>
 
 <div class="studio-shell">
-  <!-- ── SIDEBAR ────────────────────────────────── -->
+  <!-- ── 01: SIDEBAR ────────────────────────────────── -->
   <aside class="studio-sidebar">
-    <div style="position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 180px; height: 180px; background: radial-gradient(circle, rgba(199,168,107,0.12) 0%, transparent 70%); pointer-events: none;"></div>
-
-    <div style="padding: 16px 16px 14px; border-bottom: 1px solid rgba(199,168,107,0.12); position: relative; z-index: 1;">
+    <div style="padding: 16px 16px 14px; border-bottom: 1px solid var(--border-subtle);">
       <div style="display: flex; align-items: center; gap: 10px;">
-        <div style="width: 34px; height: 34px; border-radius: 9px; background: var(--gradient-gold); display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 800; color: var(--bg-dark); box-shadow: var(--shadow-gold);">K</div>
+        <div style="width: 32px; height: 32px; border-radius: 7px; background: linear-gradient(135deg, #f5df97, #d4af37); display: grid; place-items: center; font-size: 14px; font-weight: 800; color: #0c0a08;">K</div>
         <div>
-          <div class="sidebar-header-title" style="font-family: var(--font-display); font-size: 14px; font-weight: 600; letter-spacing: 0.1em;">KSHAN STUDIO</div>
-          <div class="sidebar-header-sub" style="font-size: 10.5px; margin-top: 1px; font-weight: 500;">{{ profile.studio_name|default:user.username }}</div>
+          <div style="font-size: 13px; font-weight: 700; letter-spacing: 0.06em; color: #fff;">KSHAN STUDIO</div>
+          <div style="font-size: 10px; color: var(--text-muted); margin-top: 1px;">{{ profile.studio_name|default:user.username }}</div>
         </div>
       </div>
     </div>
 
-    <nav style="flex: 1; display: flex; flex-direction: column; gap: 1px; overflow-y: auto; padding: 10px 0; position: relative; z-index: 1;">
-      <div class="sidebar-section-label" style="padding: 4px 16px 2px; font-size: 9px; font-weight: 700; color: var(--gold); letter-spacing: 0.12em; text-transform: uppercase;">WORKSPACE</div>
-      <a href="/admin/" class="sidebar-nav-item">
-        <span>Overview</span>
-      </a>
-      <a href="/studio/events/" class="sidebar-nav-item active">
-        <span>Events ({{ total_events }})</span>
-      </a>
-      <a href="/studio/proofing/" class="sidebar-nav-item">
-        <span>Album Studio</span>
-        <span class="badge badge-gold" style="margin-left: auto; font-size: 8.5px; padding: 1px 5px;">NEW</span>
-      </a>
+    <nav style="flex: 1; display: flex; flex-direction: column; gap: 2px; padding: 12px 8px; overflow-y: auto;">
+      <div style="padding: 4px 10px; font-size: 8.5px; font-weight: 700; color: var(--gold-primary); letter-spacing: 0.1em; text-transform: uppercase;">WORKSPACE</div>
+      <a href="/admin/" class="sidebar-nav-item"><span>Overview</span></a>
+      <a href="/studio/events/" class="sidebar-nav-item active"><span>Events ({{ total_events }})</span></a>
+      <a href="/studio/proofing/" class="sidebar-nav-item"><span>Album Studio</span></a>
 
-      <div class="sidebar-divider" style="margin: 6px 16px; border-top: 1px solid rgba(199,168,107,0.1);"></div>
+      <div style="margin: 8px 10px; border-top: 1px solid var(--border-subtle);"></div>
 
-      <div class="sidebar-section-label" style="padding: 4px 16px 2px; font-size: 9px; font-weight: 700; color: var(--gold); letter-spacing: 0.12em; text-transform: uppercase;">OPERATE</div>
-      <button onclick="openCreateEventModal()" class="sidebar-nav-item" style="color: var(--gold); font-weight: 700; background: none; border: none; width: 100%; text-align: left; cursor: pointer;">
-        <span>+ Quick Create Event</span>
+      <div style="padding: 4px 10px; font-size: 8.5px; font-weight: 700; color: var(--gold-primary); letter-spacing: 0.1em; text-transform: uppercase;">ACTIONS</div>
+      <button onclick="openCreateModal()" class="sidebar-nav-item" style="color: var(--gold-light); background: none; border: none; width: 100%; text-align: left; cursor: pointer; font-weight: 600;">
+        <span>+ New Event</span>
       </button>
-      <a href="/studio/analytics/" class="sidebar-nav-item">
-        <span>Analytics & Activity</span>
-      </a>
+      <a href="/studio/analytics/" class="sidebar-nav-item"><span>Analytics</span></a>
 
-      <div class="sidebar-divider" style="margin: 6px 16px; border-top: 1px solid rgba(199,168,107,0.1);"></div>
+      <div style="margin: 8px 10px; border-top: 1px solid var(--border-subtle);"></div>
 
-      <div class="sidebar-section-label" style="padding: 4px 16px 2px; font-size: 9px; font-weight: 700; color: var(--gold); letter-spacing: 0.12em; text-transform: uppercase;">MANAGE</div>
-      <a href="/studio/guests/" class="sidebar-nav-item">
-        <span>Team & Guests</span>
-      </a>
-      <a href="/admin/settings/" class="sidebar-nav-item">
-        <span>Cloud Storage</span>
-        <span class="badge badge-gold" style="margin-left: auto; font-size: 8.5px; padding: 1px 5px;">{{ storage_percent|default:0 }}%</span>
-      </a>
-
-      <div class="sidebar-divider" style="margin: 6px 16px; border-top: 1px solid rgba(199,168,107,0.1);"></div>
-
-      <div class="sidebar-section-label" style="padding: 4px 16px 2px; font-size: 9px; font-weight: 700; color: var(--gold); letter-spacing: 0.12em; text-transform: uppercase;">ACCOUNT & BILLING</div>
-      <a href="/studio/billing/" class="sidebar-nav-item">
-        <span>Plans & Billing</span>
-        <span class="badge badge-gold" style="margin-left: auto; font-size: 8.5px; padding: 1px 5px;">PRO</span>
-      </a>
-      <a href="/admin/profile/" class="sidebar-nav-item">
-        <span>Studio Profile</span>
-      </a>
-      <a href="/admin/settings/" class="sidebar-nav-item">
-        <span>Account Settings</span>
-      </a>
-      <a href="/logout/" class="sidebar-nav-item" style="color: var(--danger); margin-top: 4px;">
-        <span>Sign Out</span>
-      </a>
+      <div style="padding: 4px 10px; font-size: 8.5px; font-weight: 700; color: var(--gold-primary); letter-spacing: 0.1em; text-transform: uppercase;">MANAGE</div>
+      <a href="/studio/guests/" class="sidebar-nav-item"><span>Guests & Logs</span></a>
+      <a href="/studio/billing/" class="sidebar-nav-item"><span>Plan & Billing</span></a>
+      <a href="/admin/profile/" class="sidebar-nav-item"><span>Studio Profile</span></a>
+      <a href="/logout/" class="sidebar-nav-item" style="color: #f87171; margin-top: 8px;"><span>Sign Out</span></a>
     </nav>
-
-    <div class="sidebar-user-card" style="padding: 10px 14px; border-top: 1px solid rgba(199,168,107,0.12); display: flex; align-items: center; gap: 10px; margin: 0 10px 10px; border-radius: var(--radius-md); position: relative; z-index: 1;">
-      <div style="width: 32px; height: 32px; border-radius: 50%; background: var(--gradient-gold); color: var(--bg-dark); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 12px; box-shadow: 0 2px 8px rgba(199,168,107,0.3);">
-        {{ user.username|slice:":2"|upper }}
-      </div>
-      <div style="overflow: hidden; flex: 1;">
-        <div class="sidebar-user-name" style="font-size: 11.5px; font-weight: 700; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">{{ profile.display_name|default:user.username }}</div>
-        <div class="sidebar-user-plan" style="font-size: 9.5px; color: var(--gold);">{{ profile.get_subscription_tier_display|default:"Pro Photographer Plan" }}</div>
-      </div>
-    </div>
   </aside>
 
-  <!-- ── MAIN CONTENT ─────────────────────────────── -->
-  <main class="studio-main k-events-dashboard">
-    <div class="k-ambient-orb k-orb-1"></div>
-    <div class="k-ambient-orb k-orb-2"></div>
-    <div class="k-ambient-orb k-orb-3"></div>
+  <!-- ── 02: MAIN CONTENT ───────────────────────────── -->
+  <main class="studio-main">
+    
+    <!-- Top Bar -->
+    <header class="uk-header">
+      <div class="uk-title-wrap">
+        <h1>
+          Events Directory
+          <span class="uk-title-badge">{{ total_events }} Total</span>
+        </h1>
+        <p>Manage photography repositories, client galleries, and instant AI face discoveries.</p>
+      </div>
 
-    <!-- 01: Hero Banner -->
-    <section class="k-hero-banner">
-      <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 20px; position: relative; z-index: 1;">
+      <button class="uk-btn-primary" onclick="openCreateModal()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        <span>Create Event</span>
+      </button>
+    </header>
+
+    <!-- KPI Metric Summary Strip -->
+    <section class="uk-kpi-bar">
+      <div class="uk-kpi-box">
         <div>
-          <span class="k-hero-eyebrow">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="6" fill="currentColor"/></svg>
-            Studio Event Hub
-          </span>
-          <h1 class="k-hero-title">Photography Workspaces</h1>
-          <p class="k-hero-sub">Organize your client galleries, vectorize guest face embeddings, and share instant QR standees for live celebrations.</p>
+          <div class="uk-kpi-meta">Active Events</div>
+          <div class="uk-kpi-num">{{ total_events|default:0 }}</div>
         </div>
+        <div class="uk-kpi-icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        </div>
+      </div>
 
-        <button class="k-action-btn k-action-btn--primary" onclick="openCreateEventModal()" style="min-height: 48px; padding: 0 24px; font-size: 0.85rem;">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14" stroke-linecap="round"/></svg>
-          Create New Event
+      <div class="uk-kpi-box">
+        <div>
+          <div class="uk-kpi-meta">Indexed Photos</div>
+          <div class="uk-kpi-num">{{ total_photos|default:0 }}</div>
+        </div>
+        <div class="uk-kpi-icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+        </div>
+      </div>
+
+      <div class="uk-kpi-box">
+        <div>
+          <div class="uk-kpi-meta">Faces Detected</div>
+          <div class="uk-kpi-num" style="color: var(--gold-light);">{{ total_faces|default:0 }}</div>
+        </div>
+        <div class="uk-kpi-icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m13-5h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3m13 5h3a2 2 0 0 0 2-2v-3"/></svg>
+        </div>
+      </div>
+
+      <div class="uk-kpi-box">
+        <div>
+          <div class="uk-kpi-meta">Storage Used</div>
+          <div class="uk-kpi-num">{{ storage_display|default:"0 GB" }}</div>
+        </div>
+        <div class="uk-kpi-icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        </div>
+      </div>
+    </section>
+
+    <!-- Search & Filter Controls -->
+    <section class="uk-controls">
+      <div class="uk-search-wrapper">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="searchInput" class="uk-search-input" placeholder="Search event by title, code, or city..." oninput="doSearch()">
+      </div>
+
+      <div class="uk-filter-tags">
+        <button type="button" class="uk-tag is-active" data-filter="all" onclick="applyFilter(this, 'all')">All</button>
+        <button type="button" class="uk-tag" data-filter="wedding" onclick="applyFilter(this, 'wedding')">Wedding</button>
+        <button type="button" class="uk-tag" data-filter="engagement" onclick="applyFilter(this, 'engagement')">Engagement</button>
+        <button type="button" class="uk-tag" data-filter="birthday" onclick="applyFilter(this, 'birthday')">Birthday</button>
+        <button type="button" class="uk-tag" data-filter="corporate" onclick="applyFilter(this, 'corporate')">Corporate</button>
+      </div>
+
+      <div class="uk-view-switch">
+        <button type="button" id="gridSwitchBtn" class="uk-view-btn is-active" onclick="setViewMode('grid')" title="Grid View">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        </button>
+        <button type="button" id="listSwitchBtn" class="uk-view-btn" onclick="setViewMode('list')" title="Table View">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
         </button>
       </div>
     </section>
 
-    <!-- 02: Top Metrics Bento -->
-    <div class="k-kpi-grid">
-      <div class="k-kpi-card">
-        <div class="k-kpi-top">
-          <span class="k-kpi-label">Active Events</span>
-          <span class="k-kpi-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-          </span>
-        </div>
-        <div class="k-kpi-val">{{ total_events|default:0 }}</div>
-        <div class="k-kpi-foot">Repositories managed</div>
-      </div>
-
-      <div class="k-kpi-card">
-        <div class="k-kpi-top">
-          <span class="k-kpi-label">Indexed Photos</span>
-          <span class="k-kpi-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-          </span>
-        </div>
-        <div class="k-kpi-val">{{ total_photos|default:0 }}</div>
-        <div class="k-kpi-foot">{{ storage_display|default:"0 GB" }} storage used</div>
-      </div>
-
-      <div class="k-kpi-card">
-        <div class="k-kpi-top">
-          <span class="k-kpi-label">Faces Vectorized</span>
-          <span class="k-kpi-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m13-5h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3m13 5h3a2 2 0 0 0 2-2v-3M8.5 10.5c.6-2.5 6.4-2.5 7 0m-6 4c1.5 1.4 3.5 1.4 5 0"/></svg>
-          </span>
-        </div>
-        <div class="k-kpi-val">{{ total_faces|default:0 }}</div>
-        <div class="k-kpi-foot">Instant AI discovery ready</div>
-      </div>
-
-      <div class="k-kpi-card">
-        <div class="k-kpi-top">
-          <span class="k-kpi-label">Guest Searches</span>
-          <span class="k-kpi-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          </span>
-        </div>
-        <div class="k-kpi-val">{{ total_searches|default:0 }}</div>
-        <div class="k-kpi-foot">{{ total_guests|default:0 }} guests registered</div>
-      </div>
-    </div>
-
-    <!-- 03: Search & Filter Toolbar -->
-    <div class="k-toolbar">
-      <div class="k-search-box">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <input type="text" id="eventSearchInput" class="k-search-input" placeholder="Search events by name, code, or location..." oninput="filterEvents()">
-      </div>
-
-      <div class="k-filter-pills">
-        <button type="button" class="k-pill is-active" data-type="all" onclick="setFilterType(this, 'all')">All ({{ total_events }})</button>
-        <button type="button" class="k-pill" data-type="wedding" onclick="setFilterType(this, 'wedding')">Weddings</button>
-        <button type="button" class="k-pill" data-type="engagement" onclick="setFilterType(this, 'engagement')">Engagements</button>
-        <button type="button" class="k-pill" data-type="pre_wedding" onclick="setFilterType(this, 'pre_wedding')">Pre-Wedding</button>
-        <button type="button" class="k-pill" data-type="birthday" onclick="setFilterType(this, 'birthday')">Birthdays</button>
-        <button type="button" class="k-pill" data-type="corporate" onclick="setFilterType(this, 'corporate')">Corporate</button>
-      </div>
-    </div>
-
-    <!-- 04: Events Directory Grid -->
+    <!-- 03: GRID VIEW -->
     {% if events %}
-    <div class="k-events-grid" id="eventsGridContainer">
+    <div class="uk-grid" id="eventsGrid">
       {% for ev in events %}
-      <article class="k-event-card" data-name="{{ ev.name|lower }}" data-code="{{ ev.event_code|lower }}" data-loc="{{ ev.location|default:''|lower }}" data-type="{{ ev.event_type }}">
-        <!-- Cover Banner -->
-        <div class="k-card-cover">
+      <div class="uk-card uk-event-item" data-name="{{ ev.name|lower }}" data-code="{{ ev.event_code|lower }}" data-loc="{{ ev.location|default:''|lower }}" data-type="{{ ev.event_type }}">
+        <div class="uk-card-top">
           {% if ev.cover_photo %}
             <img src="{{ ev.cover_photo.thumbnail_url }}" alt="{{ ev.name }}" loading="lazy">
           {% elif ev.photos.first %}
             <img src="{{ ev.photos.first.thumbnail_url }}" alt="{{ ev.name }}" loading="lazy">
           {% else %}
-            <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: radial-gradient(circle at center, rgba(199,168,107,0.15), transparent 70%);">
-              <span style="font-family: 'Cinzel Decorative', serif; font-size: 2.5rem; color: rgba(240,217,164,0.35);">K</span>
-            </div>
+            <div class="uk-card-top-empty">KSHAN</div>
           {% endif %}
-
-          <div class="k-cover-overlay"></div>
-
-          <div class="k-cover-badges">
-            <span class="k-badge k-badge-gold">{{ ev.get_event_type_display }}</span>
-            <span class="k-badge k-badge-dark">{{ ev.get_status_display }}</span>
-          </div>
-
-          <button class="k-event-code-chip" type="button" onclick="copyEventLink('{{ ev.event_code }}')" title="Click to copy guest link">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-            {{ ev.event_code }}
-          </button>
+          <div class="uk-card-top-grad"></div>
+          <span class="uk-code-badge">{{ ev.event_code }}</span>
+          <span class="uk-type-badge">{{ ev.get_event_type_display }}</span>
         </div>
 
-        <!-- Body Details -->
-        <div class="k-card-body">
+        <div class="uk-card-body">
           <div>
-            <h2 class="k-event-title">
+            <h2 class="uk-card-title">
               <a href="/admin/events/{{ ev.event_code }}/">{{ ev.name }}</a>
             </h2>
-
-            <div class="k-event-subinfo">
-              {% if ev.event_date %}
-              <span>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                {{ ev.event_date }}
-              </span>
-              {% endif %}
-              {% if ev.location %}
-              <span>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
-                {{ ev.location }}
-              </span>
-              {% endif %}
+            <div class="uk-card-meta">
+              {% if ev.event_date %}<span>{{ ev.event_date }}</span>{% endif %}
+              {% if ev.location %}<span>• {{ ev.location }}</span>{% endif %}
             </div>
           </div>
 
-          <!-- Micro Stats -->
-          <div class="k-card-stats">
-            <div class="k-stat-item">
-              <div class="k-stat-lbl">Photos</div>
-              <div class="k-stat-num">{{ ev.photos.count }}</div>
+          <div class="uk-card-stats">
+            <div>
+              <div class="uk-stat-lbl">Photos</div>
+              <div class="uk-stat-val">{{ ev.photos.count }}</div>
             </div>
-            <div class="k-stat-item">
-              <div class="k-stat-lbl">Faces</div>
-              <div class="k-stat-num k-stat-num--gold">{{ ev.faces.count }}</div>
+            <div>
+              <div class="uk-stat-lbl">Faces</div>
+              <div class="uk-stat-val" style="color: var(--gold-light);">{{ ev.faces.count }}</div>
             </div>
-            <div class="k-stat-item">
-              <div class="k-stat-lbl">Access</div>
-              <div class="k-stat-num" style="font-size: 0.92rem; font-family: inherit; font-weight: 700; margin-top: 4px;">{{ ev.get_access_mode_display }}</div>
+            <div>
+              <div class="uk-stat-lbl">Access</div>
+              <div class="uk-stat-val" style="font-size: 0.75rem;">{{ ev.get_access_mode_display }}</div>
             </div>
           </div>
 
-          <!-- Actions -->
-          <div class="k-card-actions">
-            <a href="/admin/events/{{ ev.event_code }}/" class="k-action-btn k-action-btn--primary">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-              Manage Workspace
+          <div class="uk-card-actions">
+            <a href="/admin/events/{{ ev.event_code }}/" class="uk-btn-sm uk-btn-manage">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              Manage
             </a>
-            <button type="button" class="k-action-btn k-action-btn--glass" onclick="openQrModal('{{ ev.name|escapejs }}', '{{ ev.event_code }}')" title="Instant QR Standee">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            <button type="button" class="uk-btn-sm" onclick="showQrModal('{{ ev.name|escapejs }}', '{{ ev.event_code }}')" title="Instant QR Code">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
               QR
             </button>
-            <a href="/event/{{ ev.event_code }}/" target="_blank" rel="noopener noreferrer" class="k-action-btn k-action-btn--glass" title="View Guest Landing Page">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            <a href="/event/{{ ev.event_code }}/" target="_blank" rel="noopener noreferrer" class="uk-btn-sm" title="Open Guest Page">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
             </a>
-            <button type="button" class="k-action-btn k-action-btn--danger" onclick="deleteEvent({{ ev.id }}, '{{ ev.name|escapejs }}')" title="Delete Event">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            <button type="button" class="uk-btn-sm uk-btn-danger" onclick="deleteEvent({{ ev.id }}, '{{ ev.name|escapejs }}')" title="Delete Event">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
             </button>
           </div>
         </div>
-      </article>
+      </div>
       {% endfor %}
     </div>
+
+    <!-- 04: TABLE LIST VIEW -->
+    <div class="uk-table-wrap" id="eventsTable">
+      <table class="uk-table">
+        <thead>
+          <tr>
+            <th>Event Details</th>
+            <th>Type</th>
+            <th>Photos</th>
+            <th>Faces</th>
+            <th>Date</th>
+            <th>Location</th>
+            <th style="text-align: right;">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for ev in events %}
+          <tr class="uk-event-item" data-name="{{ ev.name|lower }}" data-code="{{ ev.event_code|lower }}" data-loc="{{ ev.location|default:''|lower }}" data-type="{{ ev.event_type }}">
+            <td>
+              <div style="font-weight: 700; color: #fff; margin-bottom: 2px;">
+                <a href="/admin/events/{{ ev.event_code }}/" style="color: inherit; text-decoration: none;">{{ ev.name }}</a>
+              </div>
+              <span class="uk-code-badge" style="position: static; font-size: 0.68rem; padding: 1px 6px;">{{ ev.event_code }}</span>
+            </td>
+            <td><span class="uk-type-badge" style="position: static;">{{ ev.get_event_type_display }}</span></td>
+            <td><span style="font-family: var(--font-mono); font-weight: 700;">{{ ev.photos.count }}</span></td>
+            <td><span style="font-family: var(--font-mono); font-weight: 700; color: var(--gold-light);">{{ ev.faces.count }}</span></td>
+            <td><span style="color: var(--text-muted);">{{ ev.event_date|default:"-" }}</span></td>
+            <td><span style="color: var(--text-muted);">{{ ev.location|default:"-" }}</span></td>
+            <td style="text-align: right;">
+              <div style="display: inline-flex; gap: 6px;">
+                <a href="/admin/events/{{ ev.event_code }}/" class="uk-btn-sm uk-btn-manage" style="padding: 0 10px;">Manage</a>
+                <button type="button" class="uk-btn-sm" onclick="showQrModal('{{ ev.name|escapejs }}', '{{ ev.event_code }}')">QR</button>
+                <a href="/event/{{ ev.event_code }}/" target="_blank" class="uk-btn-sm">View</a>
+                <button type="button" class="uk-btn-sm uk-btn-danger" onclick="deleteEvent({{ ev.id }}, '{{ ev.name|escapejs }}')">Del</button>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
     {% else %}
-    <!-- 05: Empty State -->
-    <div class="k-empty-state">
-      <div class="k-empty-icon">◆</div>
-      <h2 class="k-empty-title">No Photography Events Yet</h2>
-      <p class="k-empty-desc">Create your first private celebration workspace to upload high-res photos, index guest faces in real-time, and generate instant QR posters.</p>
-      <button class="k-action-btn k-action-btn--primary" onclick="openCreateEventModal()" style="min-height: 48px; padding: 0 28px; font-size: 0.88rem;">
-        <span>Create First Event</span>
-        <span aria-hidden="true">→</span>
-      </button>
+    <div style="text-align: center; padding: 70px 20px; background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 14px;">
+      <div style="font-size: 1.5rem; color: var(--gold-light); margin-bottom: 8px;">No events created yet</div>
+      <p style="color: var(--text-muted); font-size: 0.88rem; margin-bottom: 20px;">Create your first celebration workspace to start uploading photos and generating instant QR posters.</p>
+      <button class="uk-btn-primary" onclick="openCreateModal()">+ Create First Event</button>
     </div>
     {% endif %}
 
@@ -1001,27 +825,23 @@
 </div>
 
 <!-- ── CREATE EVENT MODAL ───────────────────────── -->
-<div id="createEventModal" class="k-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="createEventTitle">
-  <div class="k-modal-window">
-    <div class="k-modal-head">
-      <button type="button" class="k-modal-close" onclick="closeCreateEventModal()" aria-label="Close modal">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      </button>
-      <span class="k-hero-eyebrow">◆ Celebration Workspace</span>
-      <h3 id="createEventTitle">Create New Event</h3>
+<div id="createModal" class="uk-modal-backdrop" onclick="if(event.target===this) closeCreateModal()">
+  <div class="uk-modal-card">
+    <div class="uk-modal-head">
+      <h3>Create New Event</h3>
+      <button type="button" onclick="closeCreateModal()" style="background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 18px;">✕</button>
     </div>
-
-    <div class="k-modal-body">
-      <form onsubmit="handleCreateEvent(event)" class="k-form-grid">
-        <div class="k-input-group">
-          <label for="eventName">Event Name *</label>
-          <input type="text" id="eventName" class="k-input-field" placeholder="e.g. Ananya & Siddharth's Wedding" required maxlength="150">
+    <div class="uk-modal-body">
+      <form onsubmit="handleCreate(event)">
+        <div class="uk-field">
+          <label>Event Name *</label>
+          <input type="text" id="inName" class="uk-input" placeholder="e.g. Rahul & Priya's Wedding" required maxlength="150">
         </div>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
-          <div class="k-input-group">
-            <label for="eventType">Event Type</label>
-            <select id="eventType" class="k-input-field">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="uk-field">
+            <label>Event Type</label>
+            <select id="inType" class="uk-input">
               <option value="wedding">Wedding</option>
               <option value="engagement">Engagement</option>
               <option value="pre_wedding">Pre-Wedding</option>
@@ -1035,71 +855,51 @@
               <option value="other">Other</option>
             </select>
           </div>
-
-          <div class="k-input-group">
-            <label for="eventDate">Event Date</label>
-            <input type="text" id="eventDate" class="k-input-field" placeholder="e.g. 24 Oct 2026">
+          <div class="uk-field">
+            <label>Event Date</label>
+            <input type="text" id="inDate" class="uk-input" placeholder="e.g. 24 Oct 2026">
           </div>
         </div>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
-          <div class="k-input-group">
-            <label for="eventLocation">Location / Venue</label>
-            <input type="text" id="eventLocation" class="k-input-field" placeholder="e.g. Taj Lands End, Mumbai">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="uk-field">
+            <label>Location / Venue</label>
+            <input type="text" id="inLocation" class="uk-input" placeholder="e.g. Mumbai">
           </div>
-
-          <div class="k-input-group">
-            <label for="eventCode">Custom Event Code (Optional)</label>
-            <input type="text" id="eventCode" class="k-input-field" placeholder="e.g. ANASID26" style="text-transform: uppercase;">
+          <div class="uk-field">
+            <label>Custom Code</label>
+            <input type="text" id="inCode" class="uk-input" placeholder="AUTO IF BLANK" style="text-transform: uppercase;">
           </div>
         </div>
 
-        <div class="k-input-group">
-          <label for="eventDesc">Description / Note for Guests</label>
-          <textarea id="eventDesc" class="k-input-field" rows="2" placeholder="Optional details or welcome message..."></textarea>
-        </div>
-
-        <button type="submit" id="createEventSubmitBtn" class="k-action-btn k-action-btn--primary" style="min-height: 48px; font-size: 0.88rem; margin-top: 6px;">
-          <span>Create Celebration Workspace</span>
-          <span>→</span>
+        <button type="submit" id="submitCreateBtn" class="uk-btn-primary" style="width: 100%; height: 44px; margin-top: 10px; justify-content: center;">
+          Create Workspace →
         </button>
       </form>
     </div>
   </div>
 </div>
 
-<!-- ── INSTANT QR STANDEE MODAL ─────────────────── -->
-<div id="qrModal" class="k-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="qrModalTitle">
-  <div class="k-modal-window" style="width: min(100%, 460px); text-align: center;">
-    <div class="k-modal-head">
-      <button type="button" class="k-modal-close" onclick="closeQrModal()" aria-label="Close modal">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      </button>
-      <span class="k-hero-eyebrow">◆ Instant Standee & QR</span>
-      <h3 id="qrModalTitle">Event QR Poster</h3>
+<!-- ── INSTANT QR MODAL ─────────────────────────── -->
+<div id="qrModal" class="uk-modal-backdrop" onclick="if(event.target===this) closeQrModal()">
+  <div class="uk-modal-card" style="width: min(100%, 420px); text-align: center;">
+    <div class="uk-modal-head">
+      <h3 id="qrModalTitle">Event QR Code</h3>
+      <button type="button" onclick="closeQrModal()" style="background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 18px;">✕</button>
     </div>
-
-    <div class="k-modal-body">
-      <div class="k-qr-preview-box">
-        <img id="qrModalImg" class="k-qr-canvas" alt="Event QR Code" src="">
-        <div id="qrModalEventName" class="k-qr-meta">Event Name</div>
-        <div id="qrModalCode" style="font-family: monospace; color: #6b6360; font-size: 0.8rem; margin-top: 4px;">CODE</div>
+    <div class="uk-modal-body">
+      <div style="background: #fff; padding: 18px; border-radius: 12px; display: inline-block; margin-bottom: 16px;">
+        <img id="qrImg" src="" alt="Event QR" style="width: 180px; height: 180px; display: block;">
       </div>
+      <div id="qrEventCode" style="font-family: var(--font-mono); font-size: 0.9rem; font-weight: 700; color: var(--gold-light); margin-bottom: 16px;"></div>
 
-      <div style="display: grid; gap: 10px;">
-        <button type="button" class="k-action-btn k-action-btn--primary" onclick="copyModalEventLink()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-          Copy Guest Discovery URL
+      <div style="display: grid; gap: 8px;">
+        <button type="button" class="uk-btn-primary" onclick="copyQrLink()" style="justify-content: center; height: 38px;">
+          Copy Guest Discovery Link
         </button>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-          <a id="qrDownloadBtn" class="k-action-btn k-action-btn--glass" href="#" download="event-qr.png">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-            Download QR
-          </a>
-          <a id="qrStandeeBtn" class="k-action-btn k-action-btn--glass" href="#" target="_blank">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-            Print Standee
-          </a>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+          <a id="qrDownloadLink" class="uk-btn-sm" href="#" download="kshan-qr.png" style="height: 38px;">Download QR</a>
+          <a id="qrStandeeLink" class="uk-btn-sm" href="#" target="_blank" style="height: 38px;">Print Standee</a>
         </div>
       </div>
     </div>
@@ -1107,159 +907,147 @@
 </div>
 
 <script>
-  let currentActiveFilter = 'all';
-  let activeModalCode = '';
+  let activeFilter = 'all';
+  let modalActiveCode = '';
 
-  function setFilterType(btn, type) {
-    document.querySelectorAll('.k-filter-pills .k-pill').forEach(p => p.classList.remove('is-active'));
-    btn.classList.add('is-active');
-    currentActiveFilter = type;
-    filterEvents();
+  function setViewMode(mode) {
+    const grid = document.getElementById('eventsGrid');
+    const table = document.getElementById('eventsTable');
+    const gridBtn = document.getElementById('gridSwitchBtn');
+    const listBtn = document.getElementById('listSwitchBtn');
+
+    if (mode === 'list') {
+      if (grid) grid.style.display = 'none';
+      if (table) table.style.display = 'block';
+      gridBtn.classList.remove('is-active');
+      listBtn.classList.add('is-active');
+      localStorage.setItem('kshan_events_view', 'list');
+    } else {
+      if (grid) grid.style.display = 'grid';
+      if (table) table.style.display = 'none';
+      listBtn.classList.remove('is-active');
+      gridBtn.classList.add('is-active');
+      localStorage.setItem('kshan_events_view', 'grid');
+    }
   }
 
-  function filterEvents() {
-    const query = (document.getElementById('eventSearchInput').value || '').trim().toLowerCase();
-    const cards = document.querySelectorAll('.k-event-card');
+  // Restore previous view preference
+  if (localStorage.getItem('kshan_events_view') === 'list') {
+    setViewMode('list');
+  }
 
-    cards.forEach(card => {
-      const name = card.getAttribute('data-name') || '';
-      const code = card.getAttribute('data-code') || '';
-      const loc = card.getAttribute('data-loc') || '';
-      const type = card.getAttribute('data-type') || '';
+  function applyFilter(btn, type) {
+    document.querySelectorAll('.uk-filter-tags .uk-tag').forEach(t => t.classList.remove('is-active'));
+    btn.classList.add('is-active');
+    activeFilter = type;
+    doSearch();
+  }
 
-      const matchesQuery = !query || name.includes(query) || code.includes(query) || loc.includes(query);
-      const matchesType = currentActiveFilter === 'all' || type === currentActiveFilter;
+  function doSearch() {
+    const query = (document.getElementById('searchInput').value || '').trim().toLowerCase();
+    const items = document.querySelectorAll('.uk-event-item');
 
-      if (matchesQuery && matchesType) {
-        card.style.display = 'flex';
+    items.forEach(item => {
+      const name = item.getAttribute('data-name') || '';
+      const code = item.getAttribute('data-code') || '';
+      const loc = item.getAttribute('data-loc') || '';
+      const type = item.getAttribute('data-type') || '';
+
+      const matchQuery = !query || name.includes(query) || code.includes(query) || loc.includes(query);
+      const matchType = activeFilter === 'all' || type === activeFilter;
+
+      if (matchQuery && matchType) {
+        item.style.display = '';
       } else {
-        card.style.display = 'none';
+        item.style.display = 'none';
       }
     });
   }
 
-  function copyEventLink(code) {
+  function openCreateModal() {
+    document.getElementById('createModal').style.display = 'flex';
+    setTimeout(() => document.getElementById('inName').focus(), 80);
+  }
+
+  function closeCreateModal() {
+    document.getElementById('createModal').style.display = 'none';
+  }
+
+  function showQrModal(name, code) {
+    modalActiveCode = code;
     const url = `${window.location.origin}/event/${encodeURIComponent(code)}/`;
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(url).then(() => {
-        showToast(`Copied guest link: ${url}`);
-      }).catch(() => {
-        prompt('Copy guest link:', url);
-      });
-    } else {
-      prompt('Copy guest link:', url);
-    }
-  }
+    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(url)}&margin=10`;
 
-  function copyModalEventLink() {
-    if (activeModalCode) {
-      copyEventLink(activeModalCode);
-    }
-  }
-
-  function openQrModal(eventName, eventCode) {
-    activeModalCode = eventCode;
-    const url = `${window.location.origin}/event/${encodeURIComponent(eventCode)}/`;
-    const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(url)}&margin=10`;
-
-    document.getElementById('qrModalTitle').textContent = eventName;
-    document.getElementById('qrModalEventName').textContent = eventName;
-    document.getElementById('qrModalCode').textContent = `CODE: ${eventCode}`;
-    document.getElementById('qrModalImg').src = qrApiUrl;
-    document.getElementById('qrDownloadBtn').href = qrApiUrl;
-    document.getElementById('qrStandeeBtn').href = `/admin/events/${encodeURIComponent(eventCode)}/share/`;
-
-    const modal = document.getElementById('qrModal');
-    modal.classList.add('is-active');
+    document.getElementById('qrModalTitle').textContent = name;
+    document.getElementById('qrEventCode').textContent = `CODE: ${code}`;
+    document.getElementById('qrImg').src = qrUrl;
+    document.getElementById('qrDownloadLink').href = qrUrl;
+    document.getElementById('qrStandeeLink').href = `/admin/events/${encodeURIComponent(code)}/share/`;
+    document.getElementById('qrModal').style.display = 'flex';
   }
 
   function closeQrModal() {
-    document.getElementById('qrModal').classList.remove('is-active');
+    document.getElementById('qrModal').style.display = 'none';
   }
 
-  function openCreateEventModal() {
-    document.getElementById('createEventModal').classList.add('is-active');
-    setTimeout(() => {
-      document.getElementById('eventName').focus();
-    }, 100);
-  }
-
-  function closeCreateEventModal() {
-    document.getElementById('createEventModal').classList.remove('is-active');
-  }
-
-  // Close modals on backdrop click
-  document.querySelectorAll('.k-modal-overlay').forEach(overlay => {
-    overlay.addEventListener('click', (e) => {
-      if (e.target === overlay) {
-        overlay.classList.remove('is-active');
-      }
-    });
-  });
-
-  // Close on Escape key
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-      document.querySelectorAll('.k-modal-overlay.is-active').forEach(m => m.classList.remove('is-active'));
+  function copyQrLink() {
+    if (!modalActiveCode) return;
+    const url = `${window.location.origin}/event/${encodeURIComponent(modalActiveCode)}/`;
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(url).then(() => showToast(`Copied guest URL: ${url}`));
+    } else {
+      prompt('Copy guest URL:', url);
     }
-  });
+  }
 
-  async function handleCreateEvent(e) {
+  async function handleCreate(e) {
     e.preventDefault();
-    const btn = document.getElementById('createEventSubmitBtn');
+    const btn = document.getElementById('submitCreateBtn');
     btn.disabled = true;
-    btn.innerHTML = '<span>Creating workspace...</span>';
+    btn.textContent = 'Creating...';
 
-    const name = document.getElementById('eventName').value.trim();
-    const event_type = document.getElementById('eventType').value;
-    const event_date = document.getElementById('eventDate').value.trim();
-    const location = document.getElementById('eventLocation').value.trim();
-    const event_code = document.getElementById('eventCode').value.trim().toUpperCase();
-    const description = document.getElementById('eventDesc').value.trim();
+    const name = document.getElementById('inName').value.trim();
+    const event_type = document.getElementById('inType').value;
+    const event_date = document.getElementById('inDate').value.trim();
+    const location = document.getElementById('inLocation').value.trim();
+    const event_code = document.getElementById('inCode').value.trim().toUpperCase();
 
     try {
       const res = await authFetch('/api/admin/events/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, event_type, event_date, location, event_code, description })
+        body: JSON.stringify({ name, event_type, event_date, location, event_code })
       });
-
       const data = await res.json();
       if (!res.ok) {
         showToast(data.error || 'Failed to create event', true);
         btn.disabled = false;
-        btn.innerHTML = '<span>Create Celebration Workspace</span><span>→</span>';
+        btn.textContent = 'Create Workspace →';
         return;
       }
-
-      showToast('Event workspace created successfully!');
+      showToast('Event created successfully!');
       window.location.href = `/admin/events/${encodeURIComponent(data.event.event_code)}/`;
     } catch (err) {
-      showToast('Network error: ' + err.message, true);
+      showToast('Error: ' + err.message, true);
       btn.disabled = false;
-      btn.innerHTML = '<span>Create Celebration Workspace</span><span>→</span>';
+      btn.textContent = 'Create Workspace →';
     }
   }
 
-  async function deleteEvent(eventId, eventName) {
-    if (!confirm(`Are you sure you want to permanently delete '${eventName}' and all its photos & face embeddings?`)) {
-      return;
-    }
+  async function deleteEvent(id, name) {
+    if (!confirm(`Permanently delete '${name}' and all indexed photos & faces?`)) return;
 
     try {
-      const res = await authFetch(`/api/admin/events/${eventId}/`, {
-        method: 'DELETE'
-      });
-
+      const res = await authFetch(`/api/admin/events/${id}/`, { method: 'DELETE' });
       if (res.ok) {
-        showToast('Event deleted successfully');
+        showToast('Event deleted');
         window.location.reload();
       } else {
         const data = await res.json().catch(() => ({}));
         showToast(data.error || 'Failed to delete event', true);
       }
     } catch (err) {
-      showToast('Network error: ' + err.message, true);
+      showToast('Error: ' + err.message, true);
     }
   }
 </script>
