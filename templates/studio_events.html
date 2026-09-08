@@ -1,823 +1,934 @@
 {% extends "base.html" %}
 
-{% block title %}Events — KSHAN Studio{% endblock %}
+{% block title %}Events Portfolio — KSHAN Studio{% endblock %}
 
 {% block content %}
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&family=Cinzel:wght@600;700&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap');
 
   :root {
-    --bg-base: #09090c;
-    --bg-surface: #111116;
-    --bg-surface-elevated: #17171f;
-    --bg-surface-hover: #1c1c26;
-    --border-subtle: rgba(255, 255, 255, 0.07);
-    --border-gold-subtle: rgba(212, 175, 55, 0.22);
-    --border-gold-bright: rgba(235, 200, 100, 0.55);
-    --gold-primary: #d4af37;
-    --gold-light: #f5df97;
-    --text-main: #f4f4f6;
-    --text-muted: #8b8b98;
-    --text-faint: #565664;
-    --font-sans: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, sans-serif;
+    --c-ink: #060508;
+    --c-surface: #0e0c12;
+    --c-card: rgba(18, 14, 22, 0.78);
+    --c-card-hover: rgba(26, 20, 32, 0.94);
+    --c-gold: #c7a86b;
+    --c-gold-light: #f5dfa8;
+    --c-gold-glow: rgba(199, 168, 107, 0.22);
+    --c-border: rgba(199, 168, 107, 0.22);
+    --c-border-hover: rgba(245, 223, 168, 0.55);
+    --c-text: #f7f3eb;
+    --c-muted: #a39b9f;
+    --font-serif: "Cormorant Garamond", Georgia, serif;
+    --font-display: "Cinzel Decorative", serif;
+    --font-sans: "Plus Jakarta Sans", sans-serif;
     --font-mono: "JetBrains Mono", monospace;
   }
 
   * { box-sizing: border-box; }
 
-  .studio-shell {
-    background: var(--bg-base);
-    color: var(--text-main);
-    font-family: var(--font-sans);
-    min-height: 100vh;
+  body {
+    background: var(--c-ink);
+    color: var(--c-text);
   }
+
+  .studio-shell {
+    background: var(--c-ink);
+    min-height: 100vh;
+    position: relative;
+    font-family: var(--font-sans);
+  }
+
+  /* Cinematic Film Grain & Ambient Lighting */
+  .studio-shell::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0.035;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  }
+
+  .c-orb {
+    position: absolute;
+    width: 38rem;
+    height: 38rem;
+    border-radius: 50%;
+    filter: blur(150px);
+    opacity: 0.14;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .c-orb--1 { top: -8rem; left: -10rem; background: #8f2848; }
+  .c-orb--2 { top: 22rem; right: -12rem; background: #0d615f; }
+  .c-orb--3 { bottom: 12rem; left: 25%; background: #c7a86b; }
 
   .studio-main {
-    background: var(--bg-base) !important;
-    padding: 32px 40px 80px;
-    max-width: 1440px;
+    background: transparent !important;
+    padding: 36px 44px 90px;
+    max-width: 1480px;
     margin: 0 auto;
+    position: relative;
+    z-index: 1;
   }
 
-  /* Top Bar */
-  .uk-header {
+  /* 01: Hero Cinematic Header */
+  .c-hero {
+    position: relative;
+    border-radius: 28px;
+    padding: clamp(32px, 4vw, 54px);
+    margin-bottom: 32px;
+    background:
+      radial-gradient(circle at 92% 18%, rgba(199, 168, 107, 0.22), transparent 48%),
+      radial-gradient(circle at 8% 85%, rgba(143, 40, 72, 0.32), transparent 50%),
+      linear-gradient(145deg, rgba(22, 16, 26, 0.94) 0%, rgba(10, 8, 13, 0.98) 100%);
+    border: 1px solid var(--c-border);
+    box-shadow: 0 32px 80px rgba(0, 0, 0, 0.75), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(24px);
+    overflow: hidden;
+  }
+
+  .c-hero-content {
     display: flex;
     justify-content: space-between;
     align-items: flex-end;
-    padding-bottom: 24px;
-    border-bottom: 1px solid var(--border-subtle);
-    margin-bottom: 24px;
-    gap: 20px;
     flex-wrap: wrap;
+    gap: 24px;
+    position: relative;
+    z-index: 1;
   }
 
-  .uk-title-wrap h1 {
-    font-size: 1.75rem;
+  .c-eyebrow {
+    font-size: 0.72rem;
     font-weight: 700;
-    color: #fff;
-    letter-spacing: -0.025em;
-    margin: 0 0 6px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--c-gold);
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
+    margin-bottom: 12px;
   }
 
-  .uk-title-badge {
-    font-size: 0.7rem;
-    font-weight: 700;
-    padding: 3px 8px;
-    border-radius: 6px;
-    background: rgba(212, 175, 55, 0.12);
-    border: 1px solid var(--border-gold-subtle);
-    color: var(--gold-light);
-    font-family: var(--font-mono);
+  .c-eyebrow::before {
+    content: "◆";
+    color: var(--c-gold-light);
+    font-size: 0.75rem;
   }
 
-  .uk-title-wrap p {
-    color: var(--text-muted);
-    font-size: 0.86rem;
+  .c-title {
+    font-family: var(--font-serif);
+    font-size: clamp(2.4rem, 4.5vw, 3.8rem);
+    font-weight: 600;
+    line-height: 1.05;
+    margin: 0 0 12px;
+    color: #fffaf0;
+    text-shadow: 0 6px 30px rgba(0,0,0,0.6);
+    letter-spacing: -0.02em;
+  }
+
+  .c-sub {
+    color: var(--c-muted);
+    font-size: 0.95rem;
+    max-width: 620px;
     margin: 0;
+    line-height: 1.65;
   }
 
-  .uk-btn-primary {
+  .c-btn-gold {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
-    height: 40px;
-    padding: 0 18px;
-    border-radius: 9px;
-    background: linear-gradient(135deg, #f5df97 0%, #d4af37 100%);
-    color: #0c0a08;
+    gap: 9px;
+    min-height: 48px;
+    padding: 0 24px;
+    border-radius: 999px;
+    background: linear-gradient(115deg, #f5dfa8 0%, #c7a86b 100%);
+    color: #120e0a;
     font-size: 0.82rem;
-    font-weight: 700;
+    font-weight: 800;
+    letter-spacing: 0.04em;
     border: none;
     cursor: pointer;
     text-decoration: none;
-    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-    box-shadow: 0 4px 14px rgba(212, 175, 55, 0.25);
+    box-shadow: 0 8px 24px rgba(199, 168, 107, 0.35);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
   }
 
-  .uk-btn-primary:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 8px 20px rgba(212, 175, 55, 0.35);
+  .c-btn-gold:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 32px rgba(199, 168, 107, 0.5);
   }
 
-  /* Compact KPI Bar */
-  .uk-kpi-bar {
+  /* 02: Cinematic KPI Strip */
+  .c-kpi-row {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 12px;
-    margin-bottom: 24px;
+    gap: 16px;
+    margin-bottom: 28px;
   }
 
-  .uk-kpi-box {
-    background: var(--bg-surface);
-    border: 1px solid var(--border-subtle);
-    border-radius: 12px;
-    padding: 14px 18px;
+  .c-kpi-card {
+    background: var(--c-card);
+    border: 1px solid var(--c-border);
+    border-radius: 20px;
+    padding: 20px 24px;
+    backdrop-filter: blur(18px);
+    transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .c-kpi-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--c-border-hover);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55), 0 0 20px rgba(199, 168, 107, 0.1);
+  }
+
+  .c-kpi-head {
     display: flex;
-    align-items: center;
     justify-content: space-between;
-    transition: border-color 0.2s;
+    align-items: center;
+    margin-bottom: 10px;
   }
 
-  .uk-kpi-box:hover {
-    border-color: var(--border-gold-subtle);
-  }
-
-  .uk-kpi-meta {
-    font-size: 0.72rem;
-    color: var(--text-muted);
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    margin-bottom: 4px;
-  }
-
-  .uk-kpi-num {
-    font-size: 1.45rem;
+  .c-kpi-label {
+    font-size: 0.7rem;
     font-weight: 700;
-    color: #fff;
-    line-height: 1;
-    font-family: var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--c-gold);
   }
 
-  .uk-kpi-icon {
-    width: 32px;
-    height: 32px;
+  .c-kpi-icon {
+    width: 30px;
+    height: 30px;
     border-radius: 8px;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid var(--border-subtle);
+    background: rgba(199, 168, 107, 0.1);
+    border: 1px solid rgba(199, 168, 107, 0.2);
     display: grid;
     place-items: center;
-    color: var(--gold-light);
+    color: var(--c-gold-light);
   }
 
-  /* Search & Controls Strip */
-  .uk-controls {
+  .c-kpi-icon svg { width: 15px; height: 15px; }
+
+  .c-kpi-val {
+    font-family: var(--font-serif);
+    font-size: 2.35rem;
+    font-weight: 700;
+    line-height: 1;
+    color: #fff;
+  }
+
+  .c-kpi-sub {
+    font-size: 0.74rem;
+    color: var(--c-muted);
+    margin-top: 6px;
+  }
+
+  /* 03: Floating Filter & Search Bar */
+  .c-toolbar {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 12px;
     flex-wrap: wrap;
-    margin-bottom: 20px;
+    gap: 16px;
+    padding: 14px 22px;
+    background: var(--c-card);
+    border: 1px solid var(--c-border);
+    border-radius: 999px;
+    margin-bottom: 32px;
+    backdrop-filter: blur(20px);
   }
 
-  .uk-search-wrapper {
+  .c-search-wrap {
     position: relative;
     flex: 1;
     min-width: 260px;
-    max-width: 480px;
+    max-width: 440px;
   }
 
-  .uk-search-wrapper svg {
+  .c-search-wrap svg {
     position: absolute;
-    left: 14px;
+    left: 16px;
     top: 50%;
     transform: translateY(-50%);
-    width: 15px;
-    height: 15px;
-    color: var(--text-muted);
+    width: 16px;
+    height: 16px;
+    color: var(--c-gold);
     pointer-events: none;
   }
 
-  .uk-search-input {
+  .c-search-input {
     width: 100%;
-    height: 38px;
-    padding: 0 14px 0 38px;
-    background: var(--bg-surface);
-    border: 1px solid var(--border-subtle);
-    border-radius: 8px;
+    height: 42px;
+    padding: 0 18px 0 44px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 999px;
     color: #fff;
-    font-size: 0.82rem;
+    font-size: 0.85rem;
     outline: none;
     transition: all 0.2s;
   }
 
-  .uk-search-input:focus {
-    border-color: var(--gold-primary);
-    background: var(--bg-surface-elevated);
-    box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.15);
+  .c-search-input:focus {
+    border-color: var(--c-gold);
+    background: rgba(199, 168, 107, 0.08);
+    box-shadow: 0 0 0 3px rgba(199, 168, 107, 0.15);
   }
 
-  .uk-filter-tags {
+  .c-filter-group {
     display: flex;
-    gap: 6px;
+    gap: 8px;
     flex-wrap: wrap;
     align-items: center;
   }
 
-  .uk-tag {
-    height: 34px;
-    padding: 0 12px;
-    border-radius: 7px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    background: var(--bg-surface);
-    border: 1px solid var(--border-subtle);
-    color: var(--text-muted);
+  .c-filter-btn {
+    height: 36px;
+    padding: 0 16px;
+    border-radius: 999px;
+    font-size: 0.76rem;
+    font-weight: 700;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--c-muted);
     cursor: pointer;
-    transition: all 0.15s;
+    transition: all 0.2s ease;
   }
 
-  .uk-tag:hover {
+  .c-filter-btn:hover {
     color: #fff;
-    border-color: var(--border-gold-subtle);
+    border-color: var(--c-border);
+    background: rgba(199, 168, 107, 0.08);
   }
 
-  .uk-tag.is-active {
-    background: rgba(212, 175, 55, 0.12);
-    border-color: var(--gold-primary);
-    color: var(--gold-light);
+  .c-filter-btn.is-active {
+    background: linear-gradient(115deg, #f5dfa8, #c7a86b);
+    color: #120e0a;
+    border-color: #f5dfa8;
+    box-shadow: 0 4px 14px rgba(199, 168, 107, 0.3);
   }
 
-  /* View Switcher */
-  .uk-view-switch {
-    display: flex;
-    background: var(--bg-surface);
-    border: 1px solid var(--border-subtle);
-    border-radius: 8px;
-    padding: 2px;
-  }
-
-  .uk-view-btn {
-    width: 32px;
-    height: 32px;
-    border-radius: 6px;
-    border: none;
-    background: transparent;
-    color: var(--text-muted);
-    cursor: pointer;
+  /* 04: Cinematic Visual Gallery Grid */
+  .c-gallery-grid {
     display: grid;
-    place-items: center;
-    transition: all 0.15s;
+    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+    gap: 28px;
   }
 
-  .uk-view-btn.is-active {
-    background: var(--bg-surface-elevated);
-    color: var(--gold-light);
-    box-shadow: 0 1px 3px rgba(0,0,0,0.4);
-  }
-
-  /* Grid Layout (Compact High-Density Cards) */
-  .uk-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 16px;
-  }
-
-  .uk-card {
-    background: var(--bg-surface);
-    border: 1px solid var(--border-subtle);
-    border-radius: 12px;
+  .c-card {
+    background: var(--c-card);
+    border: 1px solid var(--c-border);
+    border-radius: 24px;
     overflow: hidden;
+    position: relative;
+    backdrop-filter: blur(20px);
     display: flex;
     flex-direction: column;
-    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s, box-shadow 0.2s;
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.35s ease, box-shadow 0.35s ease;
   }
 
-  .uk-card:hover {
-    border-color: var(--border-gold-subtle);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+  .c-card:hover {
+    transform: translateY(-8px);
+    border-color: var(--c-border-hover);
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8), 0 0 35px rgba(199, 168, 107, 0.18);
   }
 
-  .uk-card-top {
-    height: 140px;
+  /* Large Cinematic Visual Cover */
+  .c-card-cover {
+    height: 220px;
     position: relative;
-    background: #0d0d12;
+    background: #110e16;
     overflow: hidden;
   }
 
-  .uk-card-top img {
+  .c-card-cover img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform 0.4s ease;
+    transition: transform 0.75s cubic-bezier(0.16, 1, 0.3, 1), filter 0.5s ease;
   }
 
-  .uk-card:hover .uk-card-top img {
-    transform: scale(1.04);
+  .c-card:hover .c-card-cover img {
+    transform: scale(1.06);
+    filter: saturate(1.1) brightness(1.05);
   }
 
-  .uk-card-top-empty {
+  .c-card-cover-empty {
     width: 100%;
     height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: linear-gradient(135deg, #13131a 0%, #0a0a0f 100%);
-    font-family: "Cinzel", serif;
-    font-size: 1.8rem;
-    color: rgba(212, 175, 55, 0.25);
+    display: grid;
+    place-items: center;
+    background: radial-gradient(circle at center, rgba(143, 40, 72, 0.25), rgba(10, 8, 13, 0.95));
+    font-family: var(--font-display);
+    font-size: 2.8rem;
+    color: rgba(245, 223, 168, 0.35);
   }
 
-  .uk-card-top-grad {
+  .c-cover-vignette {
     position: absolute;
     inset: 0;
-    background: linear-gradient(to top, rgba(17, 17, 22, 0.95) 0%, transparent 60%);
+    background: linear-gradient(to top, rgba(14, 12, 18, 0.98) 0%, rgba(14, 12, 18, 0.25) 55%, transparent 100%);
   }
 
-  .uk-code-badge {
+  .c-cover-pill {
     position: absolute;
-    bottom: 10px;
-    left: 12px;
-    font-family: var(--font-mono);
-    font-size: 0.72rem;
+    top: 14px;
+    left: 14px;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    border-radius: 999px;
+    font-size: 0.7rem;
     font-weight: 700;
-    padding: 3px 8px;
-    border-radius: 5px;
-    background: rgba(9, 9, 12, 0.88);
-    border: 1px solid var(--border-gold-subtle);
-    color: var(--gold-light);
-    letter-spacing: 0.05em;
-  }
-
-  .uk-type-badge {
-    position: absolute;
-    top: 10px;
-    right: 12px;
-    font-size: 0.68rem;
-    font-weight: 700;
+    letter-spacing: 0.06em;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
-    padding: 2px 7px;
-    border-radius: 5px;
-    background: rgba(0, 0, 0, 0.65);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    color: #e0e0e8;
-    backdrop-filter: blur(8px);
+    background: rgba(8, 6, 11, 0.75);
+    border: 1px solid var(--c-border);
+    color: var(--c-gold-light);
+    backdrop-filter: blur(12px);
   }
 
-  .uk-card-body {
-    padding: 16px;
+  .c-code-tag {
+    position: absolute;
+    bottom: 14px;
+    right: 14px;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 8px;
+    background: rgba(6, 5, 8, 0.88);
+    border: 1px solid var(--c-border);
+    color: var(--c-gold-light);
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .c-code-tag:hover {
+    background: var(--c-gold);
+    color: #100d14;
+    box-shadow: 0 0 20px rgba(199, 168, 107, 0.5);
+  }
+
+  /* Card Body */
+  .c-card-body {
+    padding: 24px;
     flex: 1;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
   }
 
-  .uk-card-title {
-    font-size: 1.05rem;
-    font-weight: 700;
-    margin: 0 0 6px;
-    line-height: 1.25;
-  }
-
-  .uk-card-title a {
+  .c-card-title {
+    font-family: var(--font-serif);
+    font-size: 1.7rem;
+    font-weight: 600;
+    line-height: 1.15;
+    margin: 0 0 8px;
     color: #fff;
+  }
+
+  .c-card-title a {
+    color: inherit;
     text-decoration: none;
-    transition: color 0.15s;
+    transition: color 0.2s;
   }
 
-  .uk-card-title a:hover {
-    color: var(--gold-light);
+  .c-card-title a:hover {
+    color: var(--c-gold-light);
   }
 
-  .uk-card-meta {
+  .c-card-meta {
     display: flex;
-    gap: 12px;
-    font-size: 0.74rem;
-    color: var(--text-muted);
-    margin-bottom: 14px;
+    flex-wrap: wrap;
+    gap: 14px;
+    font-size: 0.78rem;
+    color: var(--c-muted);
+    margin-bottom: 18px;
   }
 
-  .uk-card-stats {
+  .c-card-meta span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .c-card-meta svg { width: 14px; height: 14px; color: var(--c-gold); }
+
+  /* Micro Stats Strip */
+  .c-stats-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 6px;
-    background: rgba(0, 0, 0, 0.25);
-    border: 1px solid var(--border-subtle);
-    border-radius: 8px;
-    padding: 8px 10px;
-    margin-bottom: 14px;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.025);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 14px;
+    padding: 12px 14px;
+    margin-bottom: 20px;
     text-align: center;
   }
 
-  .uk-stat-lbl {
-    font-size: 0.62rem;
-    color: var(--text-faint);
-    text-transform: uppercase;
+  .c-stat-lbl {
+    font-size: 0.65rem;
     font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--c-muted);
+    margin-bottom: 2px;
   }
 
-  .uk-stat-val {
-    font-family: var(--font-mono);
-    font-size: 0.95rem;
+  .c-stat-val {
+    font-family: var(--font-serif);
+    font-size: 1.45rem;
     font-weight: 700;
     color: #fff;
-    margin-top: 1px;
+    line-height: 1;
   }
 
-  .uk-card-actions {
+  .c-stat-val--gold { color: var(--c-gold-light); }
+
+  /* Actions Toolbar */
+  .c-actions {
     display: flex;
-    gap: 6px;
+    gap: 8px;
     align-items: center;
   }
 
-  .uk-btn-sm {
-    height: 32px;
-    padding: 0 11px;
-    border-radius: 6px;
-    font-size: 0.74rem;
-    font-weight: 600;
-    border: 1px solid var(--border-subtle);
-    background: var(--bg-surface-elevated);
-    color: var(--text-main);
-    text-decoration: none;
-    cursor: pointer;
+  .c-btn-action {
+    min-height: 40px;
+    padding: 0 16px;
+    border-radius: 10px;
+    font-size: 0.78rem;
+    font-weight: 700;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 5px;
-    transition: all 0.15s;
+    gap: 6px;
+    text-decoration: none;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: all 0.2s ease;
   }
 
-  .uk-btn-sm:hover {
-    background: var(--bg-surface-hover);
-    border-color: var(--border-gold-subtle);
-    color: #fff;
-  }
-
-  .uk-btn-manage {
+  .c-btn-manage {
     flex: 1;
-    background: rgba(212, 175, 55, 0.12);
-    border-color: var(--border-gold-subtle);
-    color: var(--gold-light);
-    font-weight: 700;
+    background: linear-gradient(115deg, #f5dfa8, #c7a86b);
+    color: #120e0a;
+    box-shadow: 0 4px 16px rgba(199, 168, 107, 0.25);
   }
 
-  .uk-btn-manage:hover {
-    background: var(--gold-primary);
-    color: #0c0a08;
-    border-color: var(--gold-primary);
+  .c-btn-manage:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(199, 168, 107, 0.4);
   }
 
-  .uk-btn-danger {
-    color: #f87171;
-    padding: 0 8px;
+  .c-btn-glass {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.12);
+    color: #eee;
   }
 
-  .uk-btn-danger:hover {
-    background: rgba(239, 68, 68, 0.15);
+  .c-btn-glass:hover {
+    background: rgba(199, 168, 107, 0.12);
+    border-color: var(--c-border-hover);
+    color: var(--c-gold-light);
+  }
+
+  .c-btn-danger {
+    background: rgba(239, 68, 68, 0.08);
+    border-color: rgba(239, 68, 68, 0.25);
+    color: #fca5a5;
+    padding: 0 12px;
+  }
+
+  .c-btn-danger:hover {
+    background: rgba(239, 68, 68, 0.25);
     border-color: #ef4444;
     color: #fff;
   }
 
-  /* Table View (High-Density List) */
-  .uk-table-wrap {
-    display: none;
-    background: var(--bg-surface);
-    border: 1px solid var(--border-subtle);
-    border-radius: 12px;
-    overflow: hidden;
+  /* Empty State */
+  .c-empty {
+    text-align: center;
+    padding: 90px 24px;
+    background: var(--c-card);
+    border: 1px solid var(--c-border);
+    border-radius: 28px;
+    backdrop-filter: blur(20px);
   }
 
-  .uk-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.8rem;
-    text-align: left;
+  .c-empty-mark {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    margin: 0 auto 20px;
+    display: grid;
+    place-items: center;
+    background: linear-gradient(135deg, rgba(245, 223, 168, 0.2), rgba(199, 168, 107, 0.05));
+    border: 1px solid var(--c-border);
+    color: var(--c-gold-light);
+    font-family: var(--font-display);
+    font-size: 2rem;
+    box-shadow: 0 0 35px rgba(199, 168, 107, 0.2);
   }
 
-  .uk-table th {
-    padding: 12px 16px;
-    color: var(--text-muted);
-    font-weight: 700;
-    text-transform: uppercase;
-    font-size: 0.68rem;
-    letter-spacing: 0.06em;
-    background: rgba(0, 0, 0, 0.2);
-    border-bottom: 1px solid var(--border-subtle);
+  .c-empty-title {
+    font-family: var(--font-serif);
+    font-size: 2.3rem;
+    margin: 0 0 10px;
+    color: #fff;
   }
 
-  .uk-table td {
-    padding: 14px 16px;
-    border-bottom: 1px solid var(--border-subtle);
-    color: #e2e2ea;
-  }
-
-  .uk-table tr:hover td {
-    background: var(--bg-surface-hover);
+  .c-empty-desc {
+    color: var(--c-muted);
+    font-size: 0.92rem;
+    max-width: 480px;
+    margin: 0 auto 28px;
+    line-height: 1.6;
   }
 
   /* Modals */
-  .uk-modal-backdrop {
+  .c-modal-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.82);
-    backdrop-filter: blur(12px);
     z-index: 99999;
+    background: rgba(4, 3, 6, 0.88);
+    backdrop-filter: blur(18px);
     display: none;
     align-items: center;
     justify-content: center;
-    padding: 16px;
+    padding: 18px;
   }
 
-  .uk-modal-card {
-    width: min(100%, 500px);
-    background: #111116;
-    border: 1px solid var(--border-gold-subtle);
-    border-radius: 16px;
-    box-shadow: 0 24px 60px rgba(0,0,0,0.8);
-    overflow: hidden;
+  .c-modal-window {
+    width: min(100%, 540px);
+    max-height: calc(100dvh - 36px);
+    overflow-y: auto;
+    background: linear-gradient(145deg, rgba(24, 19, 26, 0.98), rgba(11, 9, 13, 0.98));
+    border: 1.5px solid var(--c-border);
+    border-radius: 26px;
+    box-shadow: 0 35px 100px rgba(0,0,0,0.85), 0 0 40px rgba(199, 168, 107, 0.15);
   }
 
-  .uk-modal-head {
-    padding: 18px 24px;
-    border-bottom: 1px solid var(--border-subtle);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+  .c-modal-head {
+    padding: 24px 28px 18px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    position: relative;
   }
 
-  .uk-modal-head h3 {
+  .c-modal-head h3 {
+    font-family: var(--font-serif);
+    font-size: 2rem;
+    font-weight: 600;
     margin: 0;
-    font-size: 1.15rem;
-    font-weight: 700;
     color: #fff;
   }
 
-  .uk-modal-body {
-    padding: 22px 24px;
+  .c-modal-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.05);
+    color: #fff;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    transition: all 0.2s;
   }
 
-  .uk-field {
-    margin-bottom: 14px;
+  .c-modal-close:hover {
+    background: rgba(239, 68, 68, 0.2);
+    border-color: #ef4444;
+    color: #fca5a5;
+    transform: rotate(90deg);
   }
 
-  .uk-field label {
+  .c-modal-body {
+    padding: 24px 28px 28px;
+  }
+
+  .c-form-group {
+    margin-bottom: 16px;
+  }
+
+  .c-form-group label {
     display: block;
     font-size: 0.72rem;
     font-weight: 700;
-    color: var(--text-muted);
+    letter-spacing: 0.1em;
     text-transform: uppercase;
-    letter-spacing: 0.06em;
+    color: var(--c-gold);
     margin-bottom: 6px;
   }
 
-  .uk-input {
+  .c-input {
     width: 100%;
-    height: 40px;
-    padding: 0 12px;
-    background: #17171f;
-    border: 1px solid var(--border-subtle);
-    border-radius: 7px;
+    min-height: 48px;
+    padding: 0 16px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.045);
+    border: 1px solid rgba(255, 255, 255, 0.14);
     color: #fff;
-    font-size: 0.84rem;
-    outline: none;
     font-family: inherit;
+    font-size: 0.88rem;
+    outline: none;
+    transition: all 0.2s;
   }
 
-  .uk-input:focus {
-    border-color: var(--gold-primary);
+  .c-input:focus {
+    border-color: var(--c-gold);
+    background: rgba(199, 168, 107, 0.08);
+    box-shadow: 0 0 0 3px rgba(199, 168, 107, 0.18);
   }
 
-  @media (max-width: 800px) {
-    .studio-main { padding: 20px 16px 60px; }
-    .uk-kpi-bar { grid-template-columns: repeat(2, 1fr); }
+  @media (max-width: 900px) {
+    .studio-main { padding: 24px 18px 70px; }
+    .c-kpi-row { grid-template-columns: repeat(2, 1fr); }
   }
 
-  @media (max-width: 500px) {
-    .uk-kpi-bar { grid-template-columns: 1fr; }
-    .uk-grid { grid-template-columns: 1fr; }
+  @media (max-width: 600px) {
+    .c-kpi-row { grid-template-columns: 1fr; }
+    .c-gallery-grid { grid-template-columns: 1fr; }
+    .c-toolbar { border-radius: 20px; }
   }
 </style>
 
 <div class="studio-shell">
-  <!-- ── 01: SIDEBAR ────────────────────────────────── -->
+  <span class="c-orb c-orb--1" aria-hidden="true"></span>
+  <span class="c-orb c-orb--2" aria-hidden="true"></span>
+  <span class="c-orb c-orb--3" aria-hidden="true"></span>
+
+  <!-- ── SIDEBAR ────────────────────────────────── -->
   <aside class="studio-sidebar">
-    <div style="padding: 16px 16px 14px; border-bottom: 1px solid var(--border-subtle);">
+    <div style="padding: 18px 16px 14px; border-bottom: 1px solid rgba(199,168,107,0.12);">
       <div style="display: flex; align-items: center; gap: 10px;">
-        <div style="width: 32px; height: 32px; border-radius: 7px; background: linear-gradient(135deg, #f5df97, #d4af37); display: grid; place-items: center; font-size: 14px; font-weight: 800; color: #0c0a08;">K</div>
+        <div style="width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #f5dfa8, #c7a86b); display: grid; place-items: center; font-size: 15px; font-weight: 800; color: #120e0a; box-shadow: 0 4px 14px rgba(199,168,107,0.3);">K</div>
         <div>
-          <div style="font-size: 13px; font-weight: 700; letter-spacing: 0.06em; color: #fff;">KSHAN STUDIO</div>
-          <div style="font-size: 10px; color: var(--text-muted); margin-top: 1px;">{{ profile.studio_name|default:user.username }}</div>
+          <div style="font-family: var(--font-display); font-size: 13px; font-weight: 700; letter-spacing: 0.1em; color: #fff;">KSHAN STUDIO</div>
+          <div style="font-size: 10.5px; color: var(--c-muted); margin-top: 1px;">{{ profile.studio_name|default:user.username }}</div>
         </div>
       </div>
     </div>
 
     <nav style="flex: 1; display: flex; flex-direction: column; gap: 2px; padding: 12px 8px; overflow-y: auto;">
-      <div style="padding: 4px 10px; font-size: 8.5px; font-weight: 700; color: var(--gold-primary); letter-spacing: 0.1em; text-transform: uppercase;">WORKSPACE</div>
+      <div style="padding: 4px 12px; font-size: 8.5px; font-weight: 700; color: var(--c-gold); letter-spacing: 0.14em; text-transform: uppercase;">WORKSPACE</div>
       <a href="/admin/" class="sidebar-nav-item"><span>Overview</span></a>
       <a href="/studio/events/" class="sidebar-nav-item active"><span>Events ({{ total_events }})</span></a>
-      <a href="/studio/proofing/" class="sidebar-nav-item"><span>Album Studio</span></a>
+      <a href="/studio/proofing/" class="sidebar-nav-item">
+        <span>Album Studio</span>
+        <span class="badge badge-gold" style="margin-left: auto; font-size: 8px;">NEW</span>
+      </a>
 
-      <div style="margin: 8px 10px; border-top: 1px solid var(--border-subtle);"></div>
+      <div style="margin: 8px 12px; border-top: 1px solid rgba(199,168,107,0.1);"></div>
 
-      <div style="padding: 4px 10px; font-size: 8.5px; font-weight: 700; color: var(--gold-primary); letter-spacing: 0.1em; text-transform: uppercase;">ACTIONS</div>
-      <button onclick="openCreateModal()" class="sidebar-nav-item" style="color: var(--gold-light); background: none; border: none; width: 100%; text-align: left; cursor: pointer; font-weight: 600;">
-        <span>+ New Event</span>
+      <div style="padding: 4px 12px; font-size: 8.5px; font-weight: 700; color: var(--c-gold); letter-spacing: 0.14em; text-transform: uppercase;">ACTIONS</div>
+      <button onclick="openCreateModal()" class="sidebar-nav-item" style="color: var(--c-gold-light); background: none; border: none; width: 100%; text-align: left; cursor: pointer; font-weight: 700;">
+        <span>+ Create Event</span>
       </button>
       <a href="/studio/analytics/" class="sidebar-nav-item"><span>Analytics</span></a>
 
-      <div style="margin: 8px 10px; border-top: 1px solid var(--border-subtle);"></div>
+      <div style="margin: 8px 12px; border-top: 1px solid rgba(199,168,107,0.1);"></div>
 
-      <div style="padding: 4px 10px; font-size: 8.5px; font-weight: 700; color: var(--gold-primary); letter-spacing: 0.1em; text-transform: uppercase;">MANAGE</div>
-      <a href="/studio/guests/" class="sidebar-nav-item"><span>Guests & Logs</span></a>
+      <div style="padding: 4px 12px; font-size: 8.5px; font-weight: 700; color: var(--c-gold); letter-spacing: 0.14em; text-transform: uppercase;">ACCOUNT</div>
+      <a href="/studio/guests/" class="sidebar-nav-item"><span>Guest Discoveries</span></a>
       <a href="/studio/billing/" class="sidebar-nav-item"><span>Plan & Billing</span></a>
       <a href="/admin/profile/" class="sidebar-nav-item"><span>Studio Profile</span></a>
-      <a href="/logout/" class="sidebar-nav-item" style="color: #f87171; margin-top: 8px;"><span>Sign Out</span></a>
+      <a href="/logout/" class="sidebar-nav-item" style="color: #fca5a5; margin-top: 6px;"><span>Sign Out</span></a>
     </nav>
   </aside>
 
-  <!-- ── 02: MAIN CONTENT ───────────────────────────── -->
+  <!-- ── MAIN CONTENT ───────────────────────────── -->
   <main class="studio-main">
-    
-    <!-- Top Bar -->
-    <header class="uk-header">
-      <div class="uk-title-wrap">
-        <h1>
-          Events Directory
-          <span class="uk-title-badge">{{ total_events }} Total</span>
-        </h1>
-        <p>Manage photography repositories, client galleries, and instant AI face discoveries.</p>
-      </div>
 
-      <button class="uk-btn-primary" onclick="openCreateModal()">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        <span>Create Event</span>
-      </button>
+    <!-- 01: Hero Header -->
+    <header class="c-hero">
+      <div class="c-hero-content">
+        <div>
+          <div class="c-eyebrow">Studio Photography Portfolio</div>
+          <h1 class="c-title">Event Workspaces</h1>
+          <p class="c-sub">Curate celebration galleries, vector search guest moments with sub-second AI, and distribute interactive QR discovery standees.</p>
+        </div>
+
+        <button class="c-btn-gold" onclick="openCreateModal()">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          <span>Create New Event</span>
+        </button>
+      </div>
     </header>
 
-    <!-- KPI Metric Summary Strip -->
-    <section class="uk-kpi-bar">
-      <div class="uk-kpi-box">
-        <div>
-          <div class="uk-kpi-meta">Active Events</div>
-          <div class="uk-kpi-num">{{ total_events|default:0 }}</div>
+    <!-- 02: KPI Strip -->
+    <section class="c-kpi-row">
+      <div class="c-kpi-card">
+        <div class="c-kpi-head">
+          <span class="c-kpi-label">Active Events</span>
+          <span class="c-kpi-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          </span>
         </div>
-        <div class="uk-kpi-icon">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-        </div>
+        <div class="c-kpi-val">{{ total_events|default:0 }}</div>
+        <div class="c-kpi-sub">Client galleries managed</div>
       </div>
 
-      <div class="uk-kpi-box">
-        <div>
-          <div class="uk-kpi-meta">Indexed Photos</div>
-          <div class="uk-kpi-num">{{ total_photos|default:0 }}</div>
+      <div class="c-kpi-card">
+        <div class="c-kpi-head">
+          <span class="c-kpi-label">Indexed Photographs</span>
+          <span class="c-kpi-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          </span>
         </div>
-        <div class="uk-kpi-icon">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-        </div>
+        <div class="c-kpi-val">{{ total_photos|default:0 }}</div>
+        <div class="c-kpi-sub">{{ storage_display|default:"0 GB" }} storage used</div>
       </div>
 
-      <div class="uk-kpi-box">
-        <div>
-          <div class="uk-kpi-meta">Faces Detected</div>
-          <div class="uk-kpi-num" style="color: var(--gold-light);">{{ total_faces|default:0 }}</div>
+      <div class="c-kpi-card">
+        <div class="c-kpi-head">
+          <span class="c-kpi-label">Vectorized Faces</span>
+          <span class="c-kpi-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m13-5h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3m13 5h3a2 2 0 0 0 2-2v-3"/></svg>
+          </span>
         </div>
-        <div class="uk-kpi-icon">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m13-5h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3m13 5h3a2 2 0 0 0 2-2v-3"/></svg>
-        </div>
+        <div class="c-kpi-val" style="color: var(--c-gold-light);">{{ total_faces|default:0 }}</div>
+        <div class="c-kpi-sub">Ready for live facial match</div>
       </div>
 
-      <div class="uk-kpi-box">
-        <div>
-          <div class="uk-kpi-meta">Storage Used</div>
-          <div class="uk-kpi-num">{{ storage_display|default:"0 GB" }}</div>
+      <div class="c-kpi-card">
+        <div class="c-kpi-head">
+          <span class="c-kpi-label">Guest Discoveries</span>
+          <span class="c-kpi-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </span>
         </div>
-        <div class="uk-kpi-icon">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        </div>
+        <div class="c-kpi-val">{{ total_searches|default:0 }}</div>
+        <div class="c-kpi-sub">{{ total_guests|default:0 }} guests registered</div>
       </div>
     </section>
 
-    <!-- Search & Filter Controls -->
-    <section class="uk-controls">
-      <div class="uk-search-wrapper">
+    <!-- 03: Toolbar -->
+    <section class="c-toolbar">
+      <div class="c-search-wrap">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <input type="text" id="searchInput" class="uk-search-input" placeholder="Search event by title, code, or city..." oninput="doSearch()">
+        <input type="text" id="cSearchInput" class="c-search-input" placeholder="Search by event title, code, or city..." oninput="cDoSearch()">
       </div>
 
-      <div class="uk-filter-tags">
-        <button type="button" class="uk-tag is-active" data-filter="all" onclick="applyFilter(this, 'all')">All</button>
-        <button type="button" class="uk-tag" data-filter="wedding" onclick="applyFilter(this, 'wedding')">Wedding</button>
-        <button type="button" class="uk-tag" data-filter="engagement" onclick="applyFilter(this, 'engagement')">Engagement</button>
-        <button type="button" class="uk-tag" data-filter="birthday" onclick="applyFilter(this, 'birthday')">Birthday</button>
-        <button type="button" class="uk-tag" data-filter="corporate" onclick="applyFilter(this, 'corporate')">Corporate</button>
-      </div>
-
-      <div class="uk-view-switch">
-        <button type="button" id="gridSwitchBtn" class="uk-view-btn is-active" onclick="setViewMode('grid')" title="Grid View">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-        </button>
-        <button type="button" id="listSwitchBtn" class="uk-view-btn" onclick="setViewMode('list')" title="Table View">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
-        </button>
+      <div class="c-filter-group">
+        <button type="button" class="c-filter-btn is-active" data-cat="all" onclick="cFilter(this, 'all')">All Events ({{ total_events }})</button>
+        <button type="button" class="c-filter-btn" data-cat="wedding" onclick="cFilter(this, 'wedding')">Weddings</button>
+        <button type="button" class="c-filter-btn" data-cat="engagement" onclick="cFilter(this, 'engagement')">Engagements</button>
+        <button type="button" class="c-filter-btn" data-cat="pre_wedding" onclick="cFilter(this, 'pre_wedding')">Pre-Wedding</button>
+        <button type="button" class="c-filter-btn" data-cat="birthday" onclick="cFilter(this, 'birthday')">Birthdays</button>
+        <button type="button" class="c-filter-btn" data-cat="corporate" onclick="cFilter(this, 'corporate')">Corporate</button>
       </div>
     </section>
 
-    <!-- 03: GRID VIEW -->
+    <!-- 04: Visual Gallery Grid -->
     {% if events %}
-    <div class="uk-grid" id="eventsGrid">
+    <div class="c-gallery-grid" id="cEventsGrid">
       {% for ev in events %}
-      <div class="uk-card uk-event-item" data-name="{{ ev.name|lower }}" data-code="{{ ev.event_code|lower }}" data-loc="{{ ev.location|default:''|lower }}" data-type="{{ ev.event_type }}">
-        <div class="uk-card-top">
+      <article class="c-card c-event-item" data-name="{{ ev.name|lower }}" data-code="{{ ev.event_code|lower }}" data-loc="{{ ev.location|default:''|lower }}" data-cat="{{ ev.event_type }}">
+        <!-- Cover Banner -->
+        <div class="c-card-cover">
           {% if ev.cover_photo %}
             <img src="{{ ev.cover_photo.thumbnail_url }}" alt="{{ ev.name }}" loading="lazy">
           {% elif ev.photos.first %}
             <img src="{{ ev.photos.first.thumbnail_url }}" alt="{{ ev.name }}" loading="lazy">
           {% else %}
-            <div class="uk-card-top-empty">KSHAN</div>
+            <div class="c-card-cover-empty">K</div>
           {% endif %}
-          <div class="uk-card-top-grad"></div>
-          <span class="uk-code-badge">{{ ev.event_code }}</span>
-          <span class="uk-type-badge">{{ ev.get_event_type_display }}</span>
+
+          <div class="c-cover-vignette"></div>
+
+          <div class="c-cover-pill">{{ ev.get_event_type_display }}</div>
+
+          <button class="c-code-tag" type="button" onclick="copyGuestLink('{{ ev.event_code }}')" title="Click to copy guest link">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            {{ ev.event_code }}
+          </button>
         </div>
 
-        <div class="uk-card-body">
+        <!-- Body -->
+        <div class="c-card-body">
           <div>
-            <h2 class="uk-card-title">
+            <h2 class="c-card-title">
               <a href="/admin/events/{{ ev.event_code }}/">{{ ev.name }}</a>
             </h2>
-            <div class="uk-card-meta">
-              {% if ev.event_date %}<span>{{ ev.event_date }}</span>{% endif %}
-              {% if ev.location %}<span>• {{ ev.location }}</span>{% endif %}
+
+            <div class="c-card-meta">
+              {% if ev.event_date %}
+              <span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                {{ ev.event_date }}
+              </span>
+              {% endif %}
+              {% if ev.location %}
+              <span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                {{ ev.location }}
+              </span>
+              {% endif %}
             </div>
           </div>
 
-          <div class="uk-card-stats">
+          <!-- Micro Stats -->
+          <div class="c-stats-grid">
             <div>
-              <div class="uk-stat-lbl">Photos</div>
-              <div class="uk-stat-val">{{ ev.photos.count }}</div>
+              <div class="c-stat-lbl">Photographs</div>
+              <div class="c-stat-val">{{ ev.photos.count }}</div>
             </div>
             <div>
-              <div class="uk-stat-lbl">Faces</div>
-              <div class="uk-stat-val" style="color: var(--gold-light);">{{ ev.faces.count }}</div>
+              <div class="c-stat-lbl">Faces</div>
+              <div class="c-stat-val c-stat-val--gold">{{ ev.faces.count }}</div>
             </div>
             <div>
-              <div class="uk-stat-lbl">Access</div>
-              <div class="uk-stat-val" style="font-size: 0.75rem;">{{ ev.get_access_mode_display }}</div>
+              <div class="c-stat-lbl">Access</div>
+              <div class="c-stat-val" style="font-size: 0.85rem; font-family: inherit; font-weight: 700; margin-top: 3px;">{{ ev.get_access_mode_display }}</div>
             </div>
           </div>
 
-          <div class="uk-card-actions">
-            <a href="/admin/events/{{ ev.event_code }}/" class="uk-btn-sm uk-btn-manage">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-              Manage
+          <!-- Actions -->
+          <div class="c-actions">
+            <a href="/admin/events/{{ ev.event_code }}/" class="c-btn-action c-btn-manage">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              Manage Workspace
             </a>
-            <button type="button" class="uk-btn-sm" onclick="showQrModal('{{ ev.name|escapejs }}', '{{ ev.event_code }}')" title="Instant QR Code">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            <button type="button" class="c-btn-action c-btn-glass" onclick="openQrModal('{{ ev.name|escapejs }}', '{{ ev.event_code }}')" title="Instant Standee & QR">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
               QR
             </button>
-            <a href="/event/{{ ev.event_code }}/" target="_blank" rel="noopener noreferrer" class="uk-btn-sm" title="Open Guest Page">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            <a href="/event/{{ ev.event_code }}/" target="_blank" rel="noopener noreferrer" class="c-btn-action c-btn-glass" title="Guest Live View">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
             </a>
-            <button type="button" class="uk-btn-sm uk-btn-danger" onclick="deleteEvent({{ ev.id }}, '{{ ev.name|escapejs }}')" title="Delete Event">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            <button type="button" class="c-btn-action c-btn-danger" onclick="deleteEvent({{ ev.id }}, '{{ ev.name|escapejs }}')" title="Delete Event">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
             </button>
           </div>
         </div>
-      </div>
+      </article>
       {% endfor %}
     </div>
-
-    <!-- 04: TABLE LIST VIEW -->
-    <div class="uk-table-wrap" id="eventsTable">
-      <table class="uk-table">
-        <thead>
-          <tr>
-            <th>Event Details</th>
-            <th>Type</th>
-            <th>Photos</th>
-            <th>Faces</th>
-            <th>Date</th>
-            <th>Location</th>
-            <th style="text-align: right;">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for ev in events %}
-          <tr class="uk-event-item" data-name="{{ ev.name|lower }}" data-code="{{ ev.event_code|lower }}" data-loc="{{ ev.location|default:''|lower }}" data-type="{{ ev.event_type }}">
-            <td>
-              <div style="font-weight: 700; color: #fff; margin-bottom: 2px;">
-                <a href="/admin/events/{{ ev.event_code }}/" style="color: inherit; text-decoration: none;">{{ ev.name }}</a>
-              </div>
-              <span class="uk-code-badge" style="position: static; font-size: 0.68rem; padding: 1px 6px;">{{ ev.event_code }}</span>
-            </td>
-            <td><span class="uk-type-badge" style="position: static;">{{ ev.get_event_type_display }}</span></td>
-            <td><span style="font-family: var(--font-mono); font-weight: 700;">{{ ev.photos.count }}</span></td>
-            <td><span style="font-family: var(--font-mono); font-weight: 700; color: var(--gold-light);">{{ ev.faces.count }}</span></td>
-            <td><span style="color: var(--text-muted);">{{ ev.event_date|default:"-" }}</span></td>
-            <td><span style="color: var(--text-muted);">{{ ev.location|default:"-" }}</span></td>
-            <td style="text-align: right;">
-              <div style="display: inline-flex; gap: 6px;">
-                <a href="/admin/events/{{ ev.event_code }}/" class="uk-btn-sm uk-btn-manage" style="padding: 0 10px;">Manage</a>
-                <button type="button" class="uk-btn-sm" onclick="showQrModal('{{ ev.name|escapejs }}', '{{ ev.event_code }}')">QR</button>
-                <a href="/event/{{ ev.event_code }}/" target="_blank" class="uk-btn-sm">View</a>
-                <button type="button" class="uk-btn-sm uk-btn-danger" onclick="deleteEvent({{ ev.id }}, '{{ ev.name|escapejs }}')">Del</button>
-              </div>
-            </td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
     {% else %}
-    <div style="text-align: center; padding: 70px 20px; background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 14px;">
-      <div style="font-size: 1.5rem; color: var(--gold-light); margin-bottom: 8px;">No events created yet</div>
-      <p style="color: var(--text-muted); font-size: 0.88rem; margin-bottom: 20px;">Create your first celebration workspace to start uploading photos and generating instant QR posters.</p>
-      <button class="uk-btn-primary" onclick="openCreateModal()">+ Create First Event</button>
+    <!-- Empty State -->
+    <div class="c-empty">
+      <div class="c-empty-mark">K</div>
+      <h2 class="c-empty-title">No Photography Events Yet</h2>
+      <p class="c-empty-desc">Create your first private celebration workspace to upload high-res photos, index guest faces in real-time, and print instant QR standees.</p>
+      <button class="c-btn-gold" onclick="openCreateModal()">
+        <span>Create First Event</span>
+        <span>→</span>
+      </button>
     </div>
     {% endif %}
 
@@ -825,23 +936,25 @@
 </div>
 
 <!-- ── CREATE EVENT MODAL ───────────────────────── -->
-<div id="createModal" class="uk-modal-backdrop" onclick="if(event.target===this) closeCreateModal()">
-  <div class="uk-modal-card">
-    <div class="uk-modal-head">
-      <h3>Create New Event</h3>
-      <button type="button" onclick="closeCreateModal()" style="background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 18px;">✕</button>
+<div id="createModal" class="c-modal-overlay" onclick="if(event.target===this) closeCreateModal()">
+  <div class="c-modal-window">
+    <div class="c-modal-head">
+      <div class="c-eyebrow">New Celebration Workspace</div>
+      <h3>Create Event</h3>
+      <button type="button" class="c-modal-close" onclick="closeCreateModal()" aria-label="Close modal">✕</button>
     </div>
-    <div class="uk-modal-body">
+
+    <div class="c-modal-body">
       <form onsubmit="handleCreate(event)">
-        <div class="uk-field">
+        <div class="c-form-group">
           <label>Event Name *</label>
-          <input type="text" id="inName" class="uk-input" placeholder="e.g. Rahul & Priya's Wedding" required maxlength="150">
+          <input type="text" id="cName" class="c-input" placeholder="e.g. Meera & Kabir's Wedding" required maxlength="150">
         </div>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-          <div class="uk-field">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+          <div class="c-form-group">
             <label>Event Type</label>
-            <select id="inType" class="uk-input">
+            <select id="cType" class="c-input">
               <option value="wedding">Wedding</option>
               <option value="engagement">Engagement</option>
               <option value="pre_wedding">Pre-Wedding</option>
@@ -855,25 +968,26 @@
               <option value="other">Other</option>
             </select>
           </div>
-          <div class="uk-field">
+          <div class="c-form-group">
             <label>Event Date</label>
-            <input type="text" id="inDate" class="uk-input" placeholder="e.g. 24 Oct 2026">
+            <input type="text" id="cDate" class="c-input" placeholder="e.g. 18 Nov 2026">
           </div>
         </div>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-          <div class="uk-field">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+          <div class="c-form-group">
             <label>Location / Venue</label>
-            <input type="text" id="inLocation" class="uk-input" placeholder="e.g. Mumbai">
+            <input type="text" id="cLocation" class="c-input" placeholder="e.g. Umaid Bhawan Palace, Jodhpur">
           </div>
-          <div class="uk-field">
-            <label>Custom Code</label>
-            <input type="text" id="inCode" class="uk-input" placeholder="AUTO IF BLANK" style="text-transform: uppercase;">
+          <div class="c-form-group">
+            <label>Custom Code (Optional)</label>
+            <input type="text" id="cCode" class="c-input" placeholder="AUTO GENERATED" style="text-transform: uppercase;">
           </div>
         </div>
 
-        <button type="submit" id="submitCreateBtn" class="uk-btn-primary" style="width: 100%; height: 44px; margin-top: 10px; justify-content: center;">
-          Create Workspace →
+        <button type="submit" id="cSubmitBtn" class="c-btn-gold" style="width: 100%; min-height: 50px; justify-content: center; font-size: 0.9rem; margin-top: 8px;">
+          <span>Create Celebration Workspace</span>
+          <span>→</span>
         </button>
       </form>
     </div>
@@ -881,25 +995,27 @@
 </div>
 
 <!-- ── INSTANT QR MODAL ─────────────────────────── -->
-<div id="qrModal" class="uk-modal-backdrop" onclick="if(event.target===this) closeQrModal()">
-  <div class="uk-modal-card" style="width: min(100%, 420px); text-align: center;">
-    <div class="uk-modal-head">
+<div id="qrModal" class="c-modal-overlay" onclick="if(event.target===this) closeQrModal()">
+  <div class="c-modal-window" style="width: min(100%, 460px); text-align: center;">
+    <div class="c-modal-head">
+      <div class="c-eyebrow">Instant Standee & Poster</div>
       <h3 id="qrModalTitle">Event QR Code</h3>
-      <button type="button" onclick="closeQrModal()" style="background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 18px;">✕</button>
+      <button type="button" class="c-modal-close" onclick="closeQrModal()" aria-label="Close modal">✕</button>
     </div>
-    <div class="uk-modal-body">
-      <div style="background: #fff; padding: 18px; border-radius: 12px; display: inline-block; margin-bottom: 16px;">
-        <img id="qrImg" src="" alt="Event QR" style="width: 180px; height: 180px; display: block;">
-      </div>
-      <div id="qrEventCode" style="font-family: var(--font-mono); font-size: 0.9rem; font-weight: 700; color: var(--gold-light); margin-bottom: 16px;"></div>
 
-      <div style="display: grid; gap: 8px;">
-        <button type="button" class="uk-btn-primary" onclick="copyQrLink()" style="justify-content: center; height: 38px;">
+    <div class="c-modal-body">
+      <div style="background: #ffffff; padding: 22px; border-radius: 18px; display: inline-block; margin-bottom: 20px; box-shadow: 0 12px 35px rgba(0,0,0,0.5);">
+        <img id="qrImg" src="" alt="Event QR" style="width: 200px; height: 200px; display: block;">
+        <div id="qrEventCode" style="font-family: var(--font-mono); font-size: 0.95rem; font-weight: 800; color: #120e0a; margin-top: 10px; letter-spacing: 0.08em;"></div>
+      </div>
+
+      <div style="display: grid; gap: 10px;">
+        <button type="button" class="c-btn-gold" onclick="copyActiveQrLink()" style="justify-content: center; min-height: 44px;">
           Copy Guest Discovery Link
         </button>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-          <a id="qrDownloadLink" class="uk-btn-sm" href="#" download="kshan-qr.png" style="height: 38px;">Download QR</a>
-          <a id="qrStandeeLink" class="uk-btn-sm" href="#" target="_blank" style="height: 38px;">Print Standee</a>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <a id="qrDownloadLink" class="c-btn-action c-btn-glass" href="#" download="event-qr.png" style="min-height: 44px;">Download QR</a>
+          <a id="qrStandeeLink" class="c-btn-action c-btn-glass" href="#" target="_blank" style="min-height: 44px;">Print Standee</a>
         </div>
       </div>
     </div>
@@ -907,74 +1023,52 @@
 </div>
 
 <script>
-  let activeFilter = 'all';
-  let modalActiveCode = '';
+  let activeCatFilter = 'all';
+  let activeQrCode = '';
 
-  function setViewMode(mode) {
-    const grid = document.getElementById('eventsGrid');
-    const table = document.getElementById('eventsTable');
-    const gridBtn = document.getElementById('gridSwitchBtn');
-    const listBtn = document.getElementById('listSwitchBtn');
-
-    if (mode === 'list') {
-      if (grid) grid.style.display = 'none';
-      if (table) table.style.display = 'block';
-      gridBtn.classList.remove('is-active');
-      listBtn.classList.add('is-active');
-      localStorage.setItem('kshan_events_view', 'list');
-    } else {
-      if (grid) grid.style.display = 'grid';
-      if (table) table.style.display = 'none';
-      listBtn.classList.remove('is-active');
-      gridBtn.classList.add('is-active');
-      localStorage.setItem('kshan_events_view', 'grid');
-    }
-  }
-
-  // Restore previous view preference
-  if (localStorage.getItem('kshan_events_view') === 'list') {
-    setViewMode('list');
-  }
-
-  function applyFilter(btn, type) {
-    document.querySelectorAll('.uk-filter-tags .uk-tag').forEach(t => t.classList.remove('is-active'));
+  function cFilter(btn, category) {
+    document.querySelectorAll('.c-filter-btn').forEach(b => b.classList.remove('is-active'));
     btn.classList.add('is-active');
-    activeFilter = type;
-    doSearch();
+    activeCatFilter = category;
+    cDoSearch();
   }
 
-  function doSearch() {
-    const query = (document.getElementById('searchInput').value || '').trim().toLowerCase();
-    const items = document.querySelectorAll('.uk-event-item');
+  function cDoSearch() {
+    const q = (document.getElementById('cSearchInput').value || '').trim().toLowerCase();
+    const items = document.querySelectorAll('.c-event-item');
 
     items.forEach(item => {
       const name = item.getAttribute('data-name') || '';
       const code = item.getAttribute('data-code') || '';
       const loc = item.getAttribute('data-loc') || '';
-      const type = item.getAttribute('data-type') || '';
+      const cat = item.getAttribute('data-cat') || '';
 
-      const matchQuery = !query || name.includes(query) || code.includes(query) || loc.includes(query);
-      const matchType = activeFilter === 'all' || type === activeFilter;
+      const matchText = !q || name.includes(q) || code.includes(q) || loc.includes(q);
+      const matchCat = activeCatFilter === 'all' || cat === activeCatFilter;
 
-      if (matchQuery && matchType) {
-        item.style.display = '';
+      if (matchText && matchCat) {
+        item.style.display = 'flex';
       } else {
         item.style.display = 'none';
       }
     });
   }
 
-  function openCreateModal() {
-    document.getElementById('createModal').style.display = 'flex';
-    setTimeout(() => document.getElementById('inName').focus(), 80);
+  function copyGuestLink(code) {
+    const url = `${window.location.origin}/event/${encodeURIComponent(code)}/`;
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(url).then(() => showToast(`Copied guest link: ${url}`));
+    } else {
+      prompt('Copy guest link:', url);
+    }
   }
 
-  function closeCreateModal() {
-    document.getElementById('createModal').style.display = 'none';
+  function copyActiveQrLink() {
+    if (activeQrCode) copyGuestLink(activeQrCode);
   }
 
-  function showQrModal(name, code) {
-    modalActiveCode = code;
+  function openQrModal(name, code) {
+    activeQrCode = code;
     const url = `${window.location.origin}/event/${encodeURIComponent(code)}/`;
     const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(url)}&margin=10`;
 
@@ -983,6 +1077,7 @@
     document.getElementById('qrImg').src = qrUrl;
     document.getElementById('qrDownloadLink').href = qrUrl;
     document.getElementById('qrStandeeLink').href = `/admin/events/${encodeURIComponent(code)}/share/`;
+
     document.getElementById('qrModal').style.display = 'flex';
   }
 
@@ -990,27 +1085,26 @@
     document.getElementById('qrModal').style.display = 'none';
   }
 
-  function copyQrLink() {
-    if (!modalActiveCode) return;
-    const url = `${window.location.origin}/event/${encodeURIComponent(modalActiveCode)}/`;
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(url).then(() => showToast(`Copied guest URL: ${url}`));
-    } else {
-      prompt('Copy guest URL:', url);
-    }
+  function openCreateModal() {
+    document.getElementById('createModal').style.display = 'flex';
+    setTimeout(() => document.getElementById('cName').focus(), 80);
+  }
+
+  function closeCreateModal() {
+    document.getElementById('createModal').style.display = 'none';
   }
 
   async function handleCreate(e) {
     e.preventDefault();
-    const btn = document.getElementById('submitCreateBtn');
+    const btn = document.getElementById('cSubmitBtn');
     btn.disabled = true;
-    btn.textContent = 'Creating...';
+    btn.innerHTML = '<span>Creating workspace...</span>';
 
-    const name = document.getElementById('inName').value.trim();
-    const event_type = document.getElementById('inType').value;
-    const event_date = document.getElementById('inDate').value.trim();
-    const location = document.getElementById('inLocation').value.trim();
-    const event_code = document.getElementById('inCode').value.trim().toUpperCase();
+    const name = document.getElementById('cName').value.trim();
+    const event_type = document.getElementById('cType').value;
+    const event_date = document.getElementById('cDate').value.trim();
+    const location = document.getElementById('cLocation').value.trim();
+    const event_code = document.getElementById('cCode').value.trim().toUpperCase();
 
     try {
       const res = await authFetch('/api/admin/events/', {
@@ -1022,20 +1116,20 @@
       if (!res.ok) {
         showToast(data.error || 'Failed to create event', true);
         btn.disabled = false;
-        btn.textContent = 'Create Workspace →';
+        btn.innerHTML = '<span>Create Celebration Workspace</span><span>→</span>';
         return;
       }
-      showToast('Event created successfully!');
+      showToast('Event workspace created successfully!');
       window.location.href = `/admin/events/${encodeURIComponent(data.event.event_code)}/`;
     } catch (err) {
       showToast('Error: ' + err.message, true);
       btn.disabled = false;
-      btn.textContent = 'Create Workspace →';
+      btn.innerHTML = '<span>Create Celebration Workspace</span><span>→</span>';
     }
   }
 
   async function deleteEvent(id, name) {
-    if (!confirm(`Permanently delete '${name}' and all indexed photos & faces?`)) return;
+    if (!confirm(`Permanently delete '${name}' and all indexed photos & face embeddings?`)) return;
 
     try {
       const res = await authFetch(`/api/admin/events/${id}/`, { method: 'DELETE' });
@@ -1050,5 +1144,12 @@
       showToast('Error: ' + err.message, true);
     }
   }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeCreateModal();
+      closeQrModal();
+    }
+  });
 </script>
 {% endblock %}
