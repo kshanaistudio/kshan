@@ -22,4 +22,5 @@ EXPOSE 8000
 
 # Migrate, collect static, then start gunicorn
 # t2.micro = 1GB RAM: 1 worker to stay within limits
-CMD sh -c "python manage.py migrate --noinput && python manage.py collectstatic --noinput && gunicorn --bind 0.0.0.0:${PORT:-8000} --workers 1 --threads 4 --timeout 300 --keep-alive 75 --graceful-timeout 30 --max-requests 500 --max-requests-jitter 50 kshan_project.wsgi:application"
+CMD sh -c "python manage.py migrate --noinput && python manage.py create_admin && python manage.py collectstatic --noinput && gunicorn --bind 0.0.0.0:${PORT:-8000} --workers 1 --threads 4 --timeout 300 --keep-alive 75 --graceful-timeout 30 --max-requests 500 --max-requests-jitter 50 kshan_project.wsgi:application"
+
