@@ -82,18 +82,28 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'kshan_project.wsgi.application'
 
-import dj_database_url
-
 # Database (Supabase PostgreSQL / SQLite fallback)
 DATABASE_URL = os.getenv('DATABASE_URL', '')
 if DATABASE_URL:
-    db_config = dj_database_url.parse(DATABASE_URL, conn_max_age=600, ssl_require=True)
-    db_config.setdefault('OPTIONS', {})
-    db_config['OPTIONS']['connect_timeout'] = 30
-    db_config['OPTIONS']['options'] = '-c statement_timeout=0'
-    DATABASES = {
-        'default': db_config
-    }
+    try:
+        import dj_database_url
+        db_config = dj_database_url.parse(DATABASE_URL, conn_max_age=600, ssl_require=True)
+        db_config.setdefault('OPTIONS', {})
+        db_config['OPTIONS']['connect_timeout'] = 30
+        db_config['OPTIONS']['options'] = '-c statement_timeout=0'
+        DATABASES = {
+            'default': db_config
+        }
+    except Exception:
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.sqlite3',
+                'NAME': BASE_DIR / 'db.sqlite3',
+                'OPTIONS': {
+                    'timeout': 30,
+                }
+            }
+        }
 else:
     DATABASES = {
         'default': {
@@ -104,6 +114,7 @@ else:
             }
         }
     }
+
 
 # Session Configuration — persistent DB-backed sessions that survive Render restarts
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
