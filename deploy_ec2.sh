@@ -83,8 +83,9 @@ if [ ! -f "$REPO_DIR/.env" ]; then
 DJANGO_SECRET_KEY=kshan-aws-prod-key-change-this-abc123xyz
 DEBUG=False
 
-# Supabase PostgreSQL
-DATABASE_URL=postgresql://postgres:%255*LN%25NYf6$mD<"@db.rndharbouyewlfooykxl.supabase.co:5432/postgres
+# Database (Local SQLite)
+DATABASE_URL=
+
 
 # Firebase
 FIREBASE_API_KEY=AIzaSyC0oJJ-j9nRAu6Hw55j21MGh2FgYH3nl6E
