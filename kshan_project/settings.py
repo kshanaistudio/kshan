@@ -136,6 +136,7 @@ CSRF_TRUSTED_ORIGINS = [
     'https://*.onrender.com',
     'https://*.hf.space',
     'https://*.trycloudflare.com',
+    'https://*.azurewebsites.net',
     'http://localhost:1212',
     'http://127.0.0.1:1212',
     'http://0.0.0.0:1212',
