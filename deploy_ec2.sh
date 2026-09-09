@@ -38,10 +38,20 @@ fi
 
 # ── 3. Install Docker ───────────────────────────────────────────────
 echo "▶ [3/8] Installing Docker & tools..."
-sudo apt install -y docker.io docker-compose git curl ufw
+sudo apt install -y docker.io docker-compose-v2 git curl ufw 2>/dev/null || sudo apt install -y docker.io docker-compose git curl ufw
 sudo systemctl enable docker
 sudo systemctl start docker
 sudo usermod -aG docker $USER
+
+# Determine compose command
+if docker compose version >/dev/null 2>&1; then
+    DOCKER_COMPOSE="sudo docker compose"
+elif command -v docker-compose >/dev/null 2>&1; then
+    DOCKER_COMPOSE="sudo docker-compose"
+else
+    sudo apt install -y docker-compose-v2 2>/dev/null || true
+    DOCKER_COMPOSE="sudo docker compose"
+fi
 
 # ── 4. Firewall ─────────────────────────────────────────────────────
 echo "▶ [4/8] Configuring firewall..."
@@ -110,8 +120,8 @@ fi
 echo "▶ [7/8] Building Docker image and launching..."
 echo "   (First build takes 5-10 min — downloading Python packages + InsightFace model)"
 cd "$REPO_DIR"
-sudo docker-compose down --remove-orphans 2>/dev/null || true
-sudo docker-compose up -d --build
+$DOCKER_COMPOSE down --remove-orphans 2>/dev/null || true
+$DOCKER_COMPOSE up -d --build
 
 # ── 8. Verify & show info ───────────────────────────────────────────
 echo ""
@@ -120,11 +130,12 @@ sleep 20
 
 echo ""
 echo "Container status:"
-sudo docker-compose ps
+$DOCKER_COMPOSE ps
 
 echo ""
 echo "Recent logs:"
-sudo docker-compose logs --tail=25 web
+$DOCKER_COMPOSE logs --tail=25 web
+
 
 PUBLIC_IP=$(curl -s http://169.254.169.254/latest/meta-data/public-ipv4 2>/dev/null || curl -s ifconfig.me 2>/dev/null || echo "YOUR_IP")
 
