@@ -1,0 +1,28 @@
+services:
+  - type: web
+    name: kshan-ai
+    runtime: python
+    plan: free
+    buildCommand: ./build.sh
+    startCommand: gunicorn kshan_project.wsgi:application
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: DJANGO_SETTINGS_MODULE
+        value: kshan_project.settings
+      - key: DEBUG
+        value: "False"
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+      - key: R2_ENABLED
+        value: "True"
+      - key: R2_ACCESS_KEY_ID
+        value: "413a841c58484ffb5a89f6f285a762ed"
+      - key: R2_SECRET_ACCESS_KEY
+        value: "65a1b26c5a4cad9d68744508d968a6c1e82d8e73865cca9c4de975b762276431"
+      - key: R2_BUCKET_NAME
+        value: "kshan"
+      - key: R2_ENDPOINT_URL
+        value: "https://2454357021a59b9543557e633d183fcf.r2.cloudflarestorage.com"
+      - key: R2_ACCOUNT_ID
+        value: "2454357021a59b9543557e633d183fcf"
