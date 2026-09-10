@@ -2299,10 +2299,11 @@ main {
     position: fixed;
     top: 0;
     right: 0;
-    width: 300px;
+    width: 320px;
+    max-width: 85vw;
     height: 100vh;
-    background: var(--bg-surface);
-    box-shadow: -8px 0 40px rgba(0,0,0,0.12);
+    background: var(--bg-surface) !important;
+    box-shadow: -8px 0 40px rgba(0,0,0,0.5);
     flex-direction: column;
     align-items: stretch;
     justify-content: flex-start;
@@ -2311,25 +2312,47 @@ main {
     padding: 72px 0 32px;
     animation: slideInRight 0.3s var(--ease-out) both;
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .kshan-nav-links.mobile-open > div:first-of-type {
+    display: flex !important;
+    flex-direction: column !important;
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+    backdrop-filter: none !important;
+    border-radius: 0 !important;
+    gap: 0 !important;
+    width: 100% !important;
   }
   .kshan-nav-links.mobile-open .kshan-nav-link {
-    font-size: 15px;
-    padding: 14px 24px;
-    border-bottom: 1px solid var(--border);
-    width: 100%;
-    text-align: left;
+    font-size: 15px !important;
+    font-weight: 600 !important;
+    padding: 16px 24px !important;
+    border-bottom: 1px solid var(--border) !important;
+    width: 100% !important;
+    text-align: left !important;
+    color: var(--text-primary) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    border-radius: 0 !important;
     transition: background var(--duration-fast) ease, color var(--duration-fast) ease;
   }
   .kshan-nav-links.mobile-open .kshan-nav-link:hover {
-    background: var(--bg-warm);
-    color: var(--gold);
+    background: var(--bg-warm) !important;
+    color: var(--gold) !important;
   }
   .kshan-nav-links.mobile-open .btn {
-    margin: 8px 24px;
-    width: calc(100% - 48px);
-    justify-content: center;
-    padding: 14px 24px;
-    font-size: 14px;
+    margin: 14px 20px !important;
+    width: calc(100% - 40px) !important;
+    justify-content: center !important;
+    padding: 14px 24px !important;
+    font-size: 14px !important;
+  }
+  .kshan-nav-links.mobile-open .theme-toggle {
+    margin: 10px 24px !important;
+    align-self: flex-start !important;
   }
   .mobile-close-btn {
     display: flex !important;
