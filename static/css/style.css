@@ -884,10 +884,13 @@ html {
   scroll-behavior: smooth;
   -webkit-text-size-adjust: 100%;
   scroll-padding-top: 80px;
+  overflow-x: hidden;
+  width: 100%;
 }
 
 body {
   min-height: 100vh;
+  min-height: -webkit-fill-available;
   background: var(--bg-warm);
   color: var(--text-primary);
   font-family: var(--font-sans);
@@ -898,6 +901,9 @@ body {
   display: flex;
   flex-direction: column;
   overflow-x: hidden;
+  width: 100%;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: auto;
 }
 
 img {
@@ -2977,6 +2983,7 @@ main {
   html, body {
     overflow-x: hidden !important;
     width: 100% !important;
+    -webkit-overflow-scrolling: touch !important;
   }
 
   /* Responsive Spacings */
@@ -2990,6 +2997,20 @@ main {
 
   .kshan-brand span:first-child {
     font-size: 18px !important;
+  }
+
+  /* Scrapbook Canvas Single / Dual Column Stack on Mobile & Tablet */
+  .scrapbook-canvas {
+    grid-template-columns: 1fr !important;
+    gap: 32px 16px !important;
+    min-height: auto !important;
+  }
+
+  .card-wedding, .card-birthday, .card-graduation, 
+  .card-roadtrip, .card-office, .card-festival {
+    grid-column: 1 / -1 !important;
+    transform: none !important;
+    margin-bottom: 8px !important;
   }
 
   /* Studio Workspace Shell on Mobile */
@@ -3016,7 +3037,7 @@ main {
     flex-direction: row !important;
     flex-wrap: nowrap !important;
     overflow-x: auto !important;
-    -webkit-overflow-scrolling: touch;
+    -webkit-overflow-scrolling: touch !important;
     padding: 8px 12px !important;
     gap: 6px !important;
   }
@@ -3218,7 +3239,7 @@ main {
   .table-responsive,
   div[style*="overflow: hidden"] > table {
     overflow-x: auto !important;
-    -webkit-overflow-scrolling: touch;
+    -webkit-overflow-scrolling: touch !important;
     width: 100% !important;
     display: block !important;
   }
@@ -3286,7 +3307,7 @@ main {
   div[style*="flex-wrap: wrap"][style*="border-bottom"] {
     flex-wrap: nowrap !important;
     overflow-x: auto !important;
-    -webkit-overflow-scrolling: touch;
+    -webkit-overflow-scrolling: touch !important;
     padding-bottom: 8px !important;
     scrollbar-width: none;
   }
