@@ -1,0 +1,43 @@
+name: Deploy KSHAN to AWS EC2
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Deploy to Production EC2
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Execute Remote SSH Deploy Commands
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd /home/ubuntu/kshan
+            echo "▶ Pulling latest changes from main branch..."
+            git pull origin main
+            
+            echo "▶ Activating virtual environment..."
+            source venv/bin/activate
+            
+            echo "▶ Installing updated dependencies..."
+            pip install --no-cache-dir -r requirements.txt
+            
+            echo "▶ Running database migrations..."
+            python manage.py migrate --noinput
+            
+            echo "▶ Collecting static assets..."
+            python manage.py collectstatic --noinput
+            
+            echo "▶ Restarting KSHAN service..."
+            sudo systemctl restart kshan
+            
+            echo "✅ Deployment Successful!"
