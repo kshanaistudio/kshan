@@ -690,19 +690,24 @@
   opacity: 0.5;
 }
 [data-theme="light"] .mobile-nav-overlay {
-  background: rgba(0,0,0,0.25);
+  background: rgba(0,0,0,0.4);
 }
 [data-theme="light"] .kshan-nav-links.mobile-open {
-  background: #FFFFFF;
-  box-shadow: -8px 0 40px rgba(0,0,0,0.12);
+  background: #FFFFFF !important;
+  box-shadow: -8px 0 40px rgba(0,0,0,0.2) !important;
+}
+[data-theme="light"] .kshan-nav-links.mobile-open > div:first-of-type {
+  background: transparent !important;
+  border: none !important;
 }
 [data-theme="light"] .kshan-nav-links.mobile-open .kshan-nav-link {
-  color: var(--text-secondary);
-  border-bottom-color: var(--border);
+  color: #12100E !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
+  font-weight: 600 !important;
 }
 [data-theme="light"] .kshan-nav-links.mobile-open .kshan-nav-link:hover {
-  background: var(--bg-surface-dark);
-  color: var(--gold);
+  background: #F8F5EE !important;
+  color: var(--gold) !important;
 }
 
 /* ── LANDING PAGE LIGHT MODE ─────────────────────────────────── */
