@@ -16,7 +16,8 @@ from django.db.models import Sum, Count
 from .models import (
     Event, Photo, Face, PhotographerProfile, SearchLog, DownloadLog, 
     SubEvent, GuestRegistration, GuestFavorite, Album, AlbumPhoto,
-    PaymentOrder, GuestPurchase, Collection, WhatsAppOTPVerification
+    PaymentOrder, GuestPurchase, Collection, WhatsAppOTPVerification,
+    GlobalSiteSettings
 )
 from .services.face_service import get_face_service
 from .services.matching_service import find_matching_photos
@@ -2081,9 +2082,9 @@ def thepranit_admin_view(request):
                 event_id = request.POST.get("event_id")
                 try:
                     ev = Event.objects.get(id=event_id)
-                    ev.is_published = not ev.is_published
-                    ev.save(update_fields=['is_published'])
-                    return JsonResponse({"success": True, "is_published": ev.is_published})
+                    ev.status = 'draft' if ev.status == 'live' else 'live'
+                    ev.save(update_fields=['status'])
+                    return JsonResponse({"success": True, "status": ev.status, "is_live": ev.status == 'live'})
                 except Exception as e:
                     return JsonResponse({"success": False, "error": str(e)}, status=400)
 
@@ -2119,10 +2120,31 @@ def thepranit_admin_view(request):
                 site_settings.save()
                 return JsonResponse({"success": True, "message": "Site-wide watermark settings updated successfully."})
 
+            elif action == "toggle_user_active":
+                user_id = request.POST.get("user_id")
+                try:
+                    target_user = User.objects.get(id=user_id)
+                    target_user.is_active = not target_user.is_active
+                    target_user.save(update_fields=['is_active'])
+                    return JsonResponse({"success": True, "is_active": target_user.is_active})
+                except Exception as e:
+                    return JsonResponse({"success": False, "error": str(e)}, status=400)
+
+            elif action == "delete_user":
+                user_id = request.POST.get("user_id")
+                try:
+                    target_user = User.objects.get(id=user_id)
+                    if target_user.is_superuser:
+                        return JsonResponse({"success": False, "error": "Cannot delete superuser."}, status=400)
+                    target_user.delete()
+                    return JsonResponse({"success": True, "message": "User account and all related events deleted."})
+                except Exception as e:
+                    return JsonResponse({"success": False, "error": str(e)}, status=400)
+
         # Fetch comprehensive database stats
-        all_events = Event.objects.select_related('photographer', 'photographer__profile').order_by('-created_at')
-        all_users = User.objects.select_related('profile').prefetch_related('events').order_by('-date_joined')
-        all_orders = PaymentOrder.objects.select_related('event').order_by('-created_at')[:20]
+        all_events = Event.objects.select_related('photographer', 'photographer__profile').prefetch_related('photos').order_by('-created_at')
+        all_users = User.objects.select_related('profile').prefetch_related('events', 'events__photos').order_by('-date_joined')
+        all_orders = PaymentOrder.objects.select_related('event').order_by('-created_at')[:30]
         site_settings = GlobalSiteSettings.get_settings()
         
         total_events = all_events.count()
@@ -2134,6 +2156,18 @@ def thepranit_admin_view(request):
         revenue_data = PaymentOrder.objects.filter(status='paid').aggregate(total=Sum('amount'))
         total_revenue = revenue_data['total'] or 0
 
+        # Server & System Telemetry
+        import sys
+        import platform
+        system_telemetry = {
+            "python_version": sys.version.split()[0],
+            "django_version": "5.1.6",
+            "os_name": f"{platform.system()} {platform.release()}",
+            "r2_storage_status": "Enabled (Cloudflare R2)" if getattr(settings, 'R2_ENABLED', False) else "Local Media Storage",
+            "ai_engine": "MediaPipe + Cosine 128D (Active)",
+            "db_engine": "PostgreSQL" if "postgresql" in str(settings.DATABASES['default'].get('ENGINE', '')) else "SQLite 3",
+        }
+
         return render(request, "master_super_admin.html", {
             "all_events": all_events,
             "all_users": all_users,
@@ -2144,6 +2178,7 @@ def thepranit_admin_view(request):
             "total_photos": total_photos,
             "total_faces": total_faces,
             "total_revenue": total_revenue,
+            "telemetry": system_telemetry,
         })
 
     # If POST request on login gate, verify passkey
