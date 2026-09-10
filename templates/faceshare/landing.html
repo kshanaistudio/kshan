@@ -1,0 +1,197 @@
+{% extends "base.html" %}
+
+{% block title %}FaceShare — Smart Peer-to-Peer Photo Sharing | KSHAN{% endblock %}
+
+{% block content %}
+<div style="flex: 1; display: flex; flex-direction: column; background: var(--bg-warm);">
+
+  <!-- ── HERO SECTION ─────────────────────────────────────────── -->
+  <section class="bg-gradient-hero" style="position: relative; padding: 70px 24px 60px; overflow: hidden; border-bottom: 1px solid var(--border);">
+    <div style="max-width: 1100px; margin: 0 auto; text-align: center; position: relative; z-index: 2;">
+      
+      <!-- Privacy Badge -->
+      <div style="display: inline-flex; align-items: center; gap: 8px; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3); padding: 6px 16px; border-radius: var(--radius-pill); margin-bottom: 24px;">
+        <span style="width: 8px; height: 8px; border-radius: 50%; background: #34D399; box-shadow: 0 0 10px #34D399;"></span>
+        <span style="font-size: 12.5px; font-weight: 700; color: #34D399; letter-spacing: 0.05em; text-transform: uppercase;">100% Private & Peer-to-Peer</span>
+      </div>
+
+      <h1 style="font-family: var(--font-display); font-size: clamp(34px, 5.5vw, 62px); font-weight: 300; line-height: 1.15; color: var(--text-primary); margin-bottom: 16px;">
+        Smart Trip Photo Sharing.<br>
+        <span class="text-gradient-gold" style="font-weight: 600; font-style: italic;">Scan Face. Get Only Your Photos.</span>
+      </h1>
+
+      <p style="font-size: 16px; color: var(--text-secondary); max-width: 650px; margin: 0 auto 36px; line-height: 1.7;">
+        Went on a trip or trek with friends? One person has all 200+ photos. 
+        Create a temporary room — your friends scan their face and download only the photos they appear in, directly device-to-device.
+      </p>
+
+      <!-- Security Guarantee Notice -->
+      <div class="glass-dark" style="max-width: 680px; margin: 0 auto 40px; padding: 14px 20px; border-radius: 16px; display: flex; align-items: center; justify-content: center; gap: 12px; border: 1px solid rgba(199,168,107,0.3); background: rgba(199,168,107,0.05);">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--gold); flex-shrink: 0;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        <span style="font-size: 13px; color: var(--text-primary); font-weight: 500;">
+          <strong>Zero Server Storage:</strong> Photos, selfies, and face data never touch our servers. Transfers happen directly over WebRTC.
+        </span>
+      </div>
+
+      <!-- Action Choice Cards -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 24px; max-width: 780px; margin: 0 auto; text-align: left;">
+        
+        <!-- Option 1: Create Room (Host) -->
+        <div class="bento-card-gold" style="padding: 32px; border-radius: 24px; display: flex; flex-direction: column; justify-content: space-between;">
+          <div>
+            <div style="width: 50px; height: 50px; border-radius: 14px; background: var(--gold-subtle); border: 1.5px solid var(--gold-border); display: flex; align-items: center; justify-content: center; color: var(--gold); margin-bottom: 20px;">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+            </div>
+            <h3 style="font-family: var(--font-display); font-size: 24px; font-weight: 600; color: var(--text-primary); margin-bottom: 8px;">I have the photos</h3>
+            <p style="font-size: 13.5px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 24px;">
+              Create a room, select your trip photos, and let your friends scan to grab only their photos.
+            </p>
+          </div>
+          <button onclick="openCreateModal()" class="btn btn-gold btn-lg" style="width: 100%; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 8px;">
+            Create a Room
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </button>
+        </div>
+
+        <!-- Option 2: Join Room (Participant) -->
+        <div class="bento-card" style="padding: 32px; border-radius: 24px; display: flex; flex-direction: column; justify-content: space-between;">
+          <div>
+            <div style="width: 50px; height: 50px; border-radius: 14px; background: var(--violet-subtle); border: 1.5px solid rgba(168,85,247,0.3); display: flex; align-items: center; justify-content: center; color: var(--violet-light); margin-bottom: 20px;">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+            </div>
+            <h3 style="font-family: var(--font-display); font-size: 24px; font-weight: 600; color: var(--text-primary); margin-bottom: 8px;">I want my photos</h3>
+            <p style="font-size: 13.5px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 24px;">
+              Have a 6-digit Room Code or QR link? Join the room, snap a selfie, and get your memories instantly.
+            </p>
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <input type="text" id="joinRoomCodeInput" placeholder="ROOM CODE" maxlength="6" style="text-transform: uppercase; letter-spacing: 0.15em; text-align: center; font-weight: 700; font-size: 16px; background: var(--bg-surface); border: 1.5px solid var(--border); border-radius: 12px; padding: 12px; color: var(--text-primary); width: 50%;">
+            <button onclick="handleJoinSubmit()" class="btn btn-secondary" style="flex: 1; font-weight: 700;">
+              Join Room
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── 3 STEP HOW IT WORKS ────────────────────────────────────── -->
+  <section style="padding: 70px 24px; max-width: 1100px; margin: 0 auto; width: 100%;">
+    <div style="text-align: center; margin-bottom: 48px;">
+      <h2 style="font-family: var(--font-display); font-size: 32px; font-weight: 400; color: var(--text-primary); margin-bottom: 8px;">How FaceShare Works</h2>
+      <p style="color: var(--text-muted); font-size: 14px;">Direct device-to-device AI matching with zero cloud storage</p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px;">
+      
+      <div class="glass-dark" style="padding: 28px; border-radius: 20px;">
+        <div style="font-size: 32px; font-family: var(--font-display); color: var(--gold); margin-bottom: 12px; font-weight: 700;">01</div>
+        <h4 style="font-size: 17px; font-weight: 700; color: var(--text-primary); margin-bottom: 8px;">Host Picks Trip Photos</h4>
+        <p style="font-size: 13.5px; color: var(--text-secondary); line-height: 1.6;">
+          The host selects up to 300 trip photos. AI detects faces right in the phone browser without uploading anything.
+        </p>
+      </div>
+
+      <div class="glass-dark" style="padding: 28px; border-radius: 20px;">
+        <div style="font-size: 32px; font-family: var(--font-display); color: var(--violet-light); margin-bottom: 12px; font-weight: 700;">02</div>
+        <h4 style="font-size: 17px; font-weight: 700; color: var(--text-primary); margin-bottom: 8px;">Friends Scan Selfie</h4>
+        <p style="font-size: 13.5px; color: var(--text-secondary); line-height: 1.6;">
+          Friends join via QR code, take a quick selfie, and generate their face vector on their own device.
+        </p>
+      </div>
+
+      <div class="glass-dark" style="padding: 28px; border-radius: 20px;">
+        <div style="font-size: 32px; font-family: var(--font-display); color: #34D399; margin-bottom: 12px; font-weight: 700;">03</div>
+        <h4 style="font-size: 17px; font-weight: 700; color: var(--text-primary); margin-bottom: 8px;">Direct Peer Download</h4>
+        <p style="font-size: 13.5px; color: var(--text-secondary); line-height: 1.6;">
+          Photos stream directly from the host's phone to the friend's phone at maximum Wi-Fi / Hotspot speed.
+        </p>
+      </div>
+
+    </div>
+  </section>
+
+</div>
+
+<!-- ── CREATE ROOM MODAL ────────────────────────────────────── -->
+<div id="createRoomModal" style="display: none; position: fixed; inset: 0; z-index: 1000; background: rgba(0,0,0,0.75); backdrop-filter: blur(16px); align-items: center; justify-content: center; padding: 20px;">
+  <div class="glass-dark" style="max-width: 440px; width: 100%; border-radius: 24px; padding: 32px; border: 1.5px solid var(--gold-border); box-shadow: 0 25px 60px rgba(0,0,0,0.8);">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+      <h3 style="font-family: var(--font-display); font-size: 24px; color: var(--text-primary);">Create Trip Room</h3>
+      <button onclick="closeCreateModal()" style="background: none; border: none; color: var(--text-muted); font-size: 24px; cursor: pointer;">&times;</button>
+    </div>
+
+    <div style="margin-bottom: 20px;">
+      <label style="display: block; font-size: 12px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.05em;">Your Name (Host)</label>
+      <input type="text" id="hostNameInput" placeholder="e.g. Rahul / Trip Leader" value="Host" style="width: 100%; background: var(--bg-surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; color: var(--text-primary); font-size: 15px;">
+    </div>
+
+    <div style="background: rgba(199,168,107,0.08); border: 1px solid var(--gold-border); border-radius: 12px; padding: 12px 16px; margin-bottom: 24px;">
+      <div style="font-size: 12px; color: var(--gold); font-weight: 600;">⚡ Room Expiry: {{ ttl_minutes }} Minutes</div>
+      <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">The room and connection tokens expire automatically.</div>
+    </div>
+
+    <button id="btnCreateSubmit" onclick="submitCreateRoom()" class="btn btn-gold btn-lg" style="width: 100%; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 8px;">
+      <span>Launch Room</span>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+    </button>
+  </div>
+</div>
+
+<script>
+function openCreateModal() {
+  const m = document.getElementById('createRoomModal');
+  m.style.display = 'flex';
+  document.getElementById('hostNameInput').focus();
+}
+
+function closeCreateModal() {
+  document.getElementById('createRoomModal').style.display = 'none';
+}
+
+async function submitCreateRoom() {
+  const btn = document.getElementById('btnCreateSubmit');
+  const hostName = document.getElementById('hostNameInput').value.trim() || 'Trip Host';
+  btn.disabled = true;
+  btn.innerText = 'Creating room...';
+
+  try {
+    const res = await authFetch('/faceshare/api/create/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ host_name: hostName })
+    });
+    const data = await res.json();
+    if (data.success && data.host_url) {
+      window.location.href = data.host_url;
+    } else {
+      alert(data.error || 'Failed to create room');
+      btn.disabled = false;
+      btn.innerText = 'Launch Room';
+    }
+  } catch (err) {
+    alert('Network error. Please try again.');
+    btn.disabled = false;
+    btn.innerText = 'Launch Room';
+  }
+}
+
+function handleJoinSubmit() {
+  const input = document.getElementById('joinRoomCodeInput');
+  const code = input.value.trim().toUpperCase();
+  if (!code || code.length < 4) {
+    alert('Please enter a valid Room Code');
+    input.focus();
+    return;
+  }
+  window.location.href = `/faceshare/join/${code}/`;
+}
+
+// Enter key submit in input
+document.getElementById('joinRoomCodeInput')?.addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') handleJoinSubmit();
+});
+</script>
+{% endblock %}

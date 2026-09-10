@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Room Not Found — FaceShare | KSHAN{% endblock %}
+
+{% block content %}
+<div style="flex: 1; display: flex; align-items: center; justify-content: center; padding: 40px 20px; background: var(--bg-warm);">
+  <div class="glass-dark" style="max-width: 440px; width: 100%; border-radius: 24px; padding: 40px 32px; border: 1.5px solid var(--border); text-align: center;">
+    
+    <div style="width: 64px; height: 64px; border-radius: 20px; background: var(--gold-subtle); border: 1.5px solid var(--gold-border); display: flex; align-items: center; justify-content: center; color: var(--gold); margin: 0 auto 20px; font-size: 26px;">
+      &#9888;
+    </div>
+
+    <h2 style="font-family: var(--font-display); font-size: 26px; color: var(--text-primary); margin-bottom: 8px;">
+      Room Not Found
+    </h2>
+
+    <p style="font-size: 14px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 28px;">
+      Room <strong style="color: var(--gold);">{{ room_code }}</strong> may have expired or was ended by the host. Please check the code or ask the host for a new link.
+    </p>
+
+    <a href="/faceshare/" class="btn btn-gold" style="display: inline-flex; align-items: center; gap: 8px; text-decoration: none; padding: 12px 24px;">
+      Go to FaceShare
+    </a>
+
+  </div>
+</div>
+{% endblock %}

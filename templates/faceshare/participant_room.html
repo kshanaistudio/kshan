@@ -1,0 +1,453 @@
+{% extends "base.html" %}
+
+{% block title %}Join Room {{ room_code }} — FaceShare | KSHAN{% endblock %}
+
+{% block extra_head %}
+<!-- JSZip for batch downloading all matched photos -->
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+<!-- Face Recognition & WebRTC client engines -->
+<script src="/static/faceshare/js/face-engine.js"></script>
+<script src="/static/faceshare/js/webrtc-manager.js"></script>
+<script src="/static/faceshare/js/file-transfer.js"></script>
+{% endblock %}
+
+{% block content %}
+<div style="flex: 1; display: flex; flex-direction: column; background: var(--bg-warm); padding-bottom: 80px;">
+
+  <!-- ── 01: STICKY PARTICIPANT HEADER ─────────────────────── -->
+  <header style="background: rgba(17,17,17,0.92); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); padding: 14px 20px; position: sticky; top: 64px; z-index: 50;">
+    <div style="max-width: 1100px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; gap: 10px;">
+      
+      <div>
+        <div style="font-size: 11px; font-weight: 800; color: var(--gold); text-transform: uppercase; letter-spacing: 0.1em;">FaceShare Room</div>
+        <div style="font-family: var(--font-display); font-size: 18px; font-weight: 600; color: var(--text-primary);">
+          Host: {{ host_name }} &middot; <span style="font-family: monospace; font-size: 14px; font-weight: 800; color: var(--gold);">{{ room_code }}</span>
+        </div>
+      </div>
+
+      <div id="connectionStatusPill" style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: var(--radius-pill); background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); font-size: 12px; color: var(--text-secondary);">
+        <span id="connDot" style="width: 7px; height: 7px; border-radius: 50%; background: var(--warning);"></span>
+        <span id="connText">Connecting...</span>
+      </div>
+
+    </div>
+  </header>
+
+  <main style="max-width: 1000px; margin: 0 auto; width: 100%; padding: 24px 16px;">
+
+    <!-- ── STEP 1: ENTER NAME & JOIN REQUEST ─────────────────── -->
+    <div id="stepJoinRequest" class="glass-dark" style="max-width: 440px; margin: 40px auto 0; border-radius: 24px; padding: 32px; border: 1.5px solid var(--gold-border); text-align: center;">
+      <div style="width: 56px; height: 56px; border-radius: 16px; background: var(--gold-subtle); border: 1.5px solid var(--gold-border); display: flex; align-items: center; justify-content: center; color: var(--gold); margin: 0 auto 18px;">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </div>
+      <h2 style="font-family: var(--font-display); font-size: 26px; color: var(--text-primary); margin-bottom: 8px;">Join {{ host_name }}'s Room</h2>
+      <p style="font-size: 13.5px; color: var(--text-secondary); margin-bottom: 24px;">Enter your name to request access from the Host.</p>
+
+      <input type="text" id="participantNameInput" placeholder="Your Name (e.g. Ananya)" style="width: 100%; background: var(--bg-surface); border: 1.5px solid var(--border); border-radius: 12px; padding: 14px; color: var(--text-primary); font-size: 15px; margin-bottom: 20px; text-align: center;">
+
+      <button onclick="sendJoinRequest()" class="btn btn-gold btn-lg" style="width: 100%; font-weight: 700;">
+        Request to Join
+      </button>
+    </div>
+
+    <!-- ── STEP 2: WAITING FOR HOST APPROVAL ─────────────────── -->
+    <div id="stepWaitingApproval" class="glass-dark" style="display: none; max-width: 440px; margin: 40px auto 0; border-radius: 24px; padding: 40px 32px; border: 1.5px solid var(--border); text-align: center;">
+      <div class="spinner" style="width: 44px; height: 44px; border-width: 3px; margin: 0 auto 20px;"></div>
+      <h3 style="font-family: var(--font-display); font-size: 24px; color: var(--text-primary); margin-bottom: 8px;">Waiting for Host Approval</h3>
+      <p style="font-size: 13.5px; color: var(--text-secondary); line-height: 1.6;">
+        A join request has been sent to {{ host_name }}. Once approved, you can snap a selfie to retrieve your photos.
+      </p>
+    </div>
+
+    <!-- ── STEP 3: CAPTURE / UPLOAD SELFIE ────────────────────── -->
+    <div id="stepCaptureSelfie" class="glass-dark" style="display: none; max-width: 480px; margin: 20px auto 0; border-radius: 24px; padding: 28px; border: 1.5px solid var(--gold-border); text-align: center;">
+      
+      <h3 style="font-family: var(--font-display); font-size: 26px; color: var(--text-primary); margin-bottom: 6px;">Snap Your Selfie</h3>
+      <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 20px;">Your selfie is processed on your device only and is never uploaded.</p>
+
+      <!-- Live Video Camera Container -->
+      <div id="cameraBox" style="position: relative; width: 100%; height: 320px; border-radius: 20px; overflow: hidden; background: #000; border: 1.5px solid var(--gold-border); margin-bottom: 16px;">
+        <video id="selfieVideo" autoplay playsinline muted style="width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1);"></video>
+        
+        <!-- Oval Face Positioning Guide -->
+        <div style="position: absolute; inset: 0; pointer-events: none; display: flex; align-items: center; justify-content: center;">
+          <div style="width: 180px; height: 230px; border-radius: 50%; border: 2px dashed rgba(199,168,107,0.7); box-shadow: 0 0 0 9999px rgba(0,0,0,0.35);"></div>
+        </div>
+
+        <!-- Captured Image Preview (Hidden initially) -->
+        <canvas id="selfieCanvas" style="display: none; width: 100%; height: 100%; object-fit: cover;"></canvas>
+      </div>
+
+      <!-- Controls -->
+      <div style="display: flex; gap: 10px; justify-content: center; margin-bottom: 14px;">
+        <button id="btnSnapPhoto" onclick="snapSelfie()" class="btn btn-gold" style="flex: 1; font-weight: 700; padding: 12px;">
+          📸 Take Selfie
+        </button>
+        <button id="btnRetakePhoto" onclick="startCamera()" class="btn btn-secondary" style="display: none; padding: 12px 18px;">
+          Retake
+        </button>
+      </div>
+
+      <!-- Upload fallback -->
+      <div style="font-size: 12px; color: var(--text-muted);">
+        or <label for="selfieUploadInput" style="color: var(--gold); text-decoration: underline; cursor: pointer; font-weight: 600;">upload a selfie from gallery</label>
+        <input type="file" id="selfieUploadInput" accept="image/*" style="display: none;" onchange="handleSelfieUpload(event)">
+      </div>
+
+    </div>
+
+    <!-- ── STEP 4: MATCHING IN PROGRESS ───────────────────────── -->
+    <div id="stepSearchingMatches" class="glass-dark" style="display: none; max-width: 440px; margin: 40px auto 0; border-radius: 24px; padding: 40px 32px; border: 1.5px solid var(--gold-border); text-align: center;">
+      <div class="spinner" style="width: 44px; height: 44px; border-width: 3px; margin: 0 auto 20px;"></div>
+      <h3 style="font-family: var(--font-display); font-size: 24px; color: var(--text-primary); margin-bottom: 8px;">Finding Your Moments</h3>
+      <p style="font-size: 13.5px; color: var(--text-secondary); line-height: 1.6;">
+        Comparing your face vector with the host's trip photos directly via WebRTC...
+      </p>
+    </div>
+
+    <!-- ── STEP 5: MATCHED GALLERY & DOWNLOAD ─────────────────── -->
+    <div id="stepMatchedGallery" style="display: none;">
+      
+      <!-- Top Actions Bar -->
+      <div class="glass-dark" style="border-radius: 20px; padding: 18px 24px; border: 1px solid var(--border); margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
+        <div>
+          <h2 style="font-family: var(--font-display); font-size: 24px; font-weight: 400; color: var(--text-primary);">
+            Your Discovered Photos (<span id="matchedCountText">0</span>)
+          </h2>
+          <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">Transferred directly from {{ host_name }}'s phone</div>
+        </div>
+
+        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+          <button id="btnDownloadSelected" onclick="downloadSelectedPhotos()" class="btn btn-secondary btn-sm" style="font-size: 12px; display: none;">
+            Download Selected (<span id="selectedCountSpan">0</span>)
+          </button>
+          <button id="btnDownloadAll" onclick="downloadAllPhotosZip()" class="btn btn-gold btn-sm" style="font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Download All (ZIP)
+          </button>
+        </div>
+      </div>
+
+      <!-- Photo Grid -->
+      <div id="participantPhotoGrid" class="kshan-gallery-masonry"></div>
+
+    </div>
+
+  </main>
+</div>
+
+<script>
+const ROOM_CODE = '{{ room_code }}';
+const STUN_URL = '{{ stun_url }}';
+const TURN_URL = '{{ turn_url }}';
+const TURN_USER = '{{ turn_username }}';
+const TURN_PASS = '{{ turn_credential }}';
+
+let peerId = null;
+let displayName = 'Guest';
+let signalingSocket = null;
+let webrtcManager = null;
+let fileTransfer = null;
+let videoStream = null;
+
+const matchedPhotos = new Map(); // photoId -> { photoId, name, size, confidence, thumbBlob, thumbUrl, originalBlob, originalUrl }
+const selectedPhotoIds = new Set();
+
+// Send join request to server & initialize WebSocket
+async function sendJoinRequest() {
+  displayName = document.getElementById('participantNameInput').value.trim() || 'Guest';
+  
+  const res = await authFetch(`/faceshare/api/${ROOM_CODE}/join/`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ display_name: displayName })
+  });
+  
+  const data = await res.json();
+  if (!data.success) {
+    alert(data.error || 'Failed to join room');
+    return;
+  }
+
+  peerId = data.peer_id;
+  document.getElementById('stepJoinRequest').style.display = 'none';
+  document.getElementById('stepWaitingApproval').style.display = 'block';
+
+  initParticipantSignaling();
+}
+
+function initParticipantSignaling() {
+  const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+  const wsUrl = `${wsProtocol}//${window.location.host}/ws/faceshare/${ROOM_CODE}/`;
+
+  signalingSocket = new WebSocket(wsUrl);
+
+  signalingSocket.onopen = () => {
+    signalingSocket.send(JSON.stringify({
+      action: 'participant_init',
+      peer_id: peerId,
+      display_name: displayName
+    }));
+  };
+
+  signalingSocket.onmessage = async (e) => {
+    const data = JSON.parse(e.data);
+
+    if (data.action === 'approval_status') {
+      if (data.approved) {
+        document.getElementById('stepWaitingApproval').style.display = 'none';
+        document.getElementById('stepCaptureSelfie').style.display = 'block';
+        startCamera();
+      } else {
+        alert(data.message || 'Host declined your request.');
+        window.location.href = '/faceshare/';
+      }
+    } else if (data.action === 'webrtc_offer') {
+      await webrtcManager.handleOffer(data.sender, data.sdp);
+    } else if (data.action === 'webrtc_ice_candidate') {
+      await webrtcManager.handleIceCandidate(data.sender, data.candidate);
+    } else if (data.action === 'host_disconnected') {
+      alert('Host has left the room. Session ended.');
+      window.location.href = '/faceshare/';
+    }
+  };
+
+  // Setup WebRTC
+  webrtcManager = new WebRTCManager({
+    role: 'participant',
+    roomCode: ROOM_CODE,
+    peerId: peerId,
+    stunUrl: STUN_URL,
+    turnUrl: TURN_URL,
+    turnUsername: TURN_USER,
+    turnCredential: TURN_PASS,
+    onSignalingSend: (payload) => {
+      if (signalingSocket && signalingSocket.readyState === WebSocket.OPEN) {
+        signalingSocket.send(JSON.stringify(payload));
+      }
+    },
+    onMessage: (senderPeerId, channelType, rawData) => {
+      if (channelType === 'control') {
+        handleHostControlMessage(rawData);
+      } else if (channelType === 'file_stream') {
+        fileTransfer.handleBinaryChunk(senderPeerId, rawData);
+      }
+    },
+    onConnectionState: (targetId, state) => {
+      const dot = document.getElementById('connDot');
+      const text = document.getElementById('connText');
+      if (state === 'connected') {
+        dot.style.background = '#34D399';
+        text.innerText = 'Connected (P2P)';
+      } else if (state === 'disconnected' || state === 'failed') {
+        dot.style.background = '#FB7185';
+        text.innerText = 'Disconnected';
+      }
+    }
+  });
+
+  fileTransfer = new FileTransferEngine(webrtcManager);
+  fileTransfer.onFileReceived = handleIncomingFile;
+}
+
+// Camera Setup
+async function startCamera() {
+  try {
+    document.getElementById('selfieCanvas').style.display = 'none';
+    const video = document.getElementById('selfieVideo');
+    video.style.display = 'block';
+    document.getElementById('btnSnapPhoto').style.display = 'block';
+    document.getElementById('btnRetakePhoto').style.display = 'none';
+
+    videoStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } },
+      audio: false
+    });
+    video.srcObject = videoStream;
+  } catch (err) {
+    console.warn('Camera error:', err);
+    alert('Could not access front camera. You can upload a photo from your gallery instead.');
+  }
+}
+
+async function snapSelfie() {
+  const video = document.getElementById('selfieVideo');
+  const canvas = document.getElementById('selfieCanvas');
+  canvas.width = video.videoWidth || 640;
+  canvas.height = video.videoHeight || 480;
+  
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+  video.style.display = 'none';
+  canvas.style.display = 'block';
+  document.getElementById('btnSnapPhoto').style.display = 'none';
+
+  if (videoStream) {
+    videoStream.getTracks().forEach(t => t.stop());
+  }
+
+  await processSelfieAndSend(canvas);
+}
+
+async function handleSelfieUpload(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const canvas = await window.faceEngine.getProcessedCanvas(file, 1024);
+  await processSelfieAndSend(canvas);
+}
+
+async function processSelfieAndSend(canvas) {
+  document.getElementById('stepCaptureSelfie').style.display = 'none';
+  document.getElementById('stepSearchingMatches').style.display = 'block';
+
+  try {
+    // 1. Extract 128-D normalized face vector in browser
+    const result = await window.faceEngine.extractSelfieEmbedding(canvas);
+    console.log('[Participant] Selfie embedding generated successfully.');
+
+    // 2. Send embedding to Host via WebRTC DataChannel
+    webrtcManager.sendControlMessage('host', {
+      type: 'participant_search_embedding',
+      embedding: result.descriptor
+    });
+  } catch (err) {
+    alert(err.message || 'Face detection error');
+    document.getElementById('stepSearchingMatches').style.display = 'none';
+    document.getElementById('stepCaptureSelfie').style.display = 'block';
+    startCamera();
+  }
+}
+
+// Handle host messages (match metadata & streaming)
+function handleHostControlMessage(rawData) {
+  let msg = rawData;
+  if (typeof rawData === 'string') {
+    try { msg = JSON.parse(rawData); } catch(e) { return; }
+  }
+
+  if (msg.type === 'match_results') {
+    document.getElementById('stepSearchingMatches').style.display = 'none';
+    document.getElementById('stepMatchedGallery').style.display = 'block';
+    document.getElementById('matchedCountText').innerText = msg.matches.length;
+
+    msg.matches.forEach(m => {
+      matchedPhotos.set(m.photoId, {
+        photoId: m.photoId,
+        name: m.name,
+        size: m.size,
+        confidence: m.confidence,
+        thumbBlob: null,
+        thumbUrl: '',
+        originalBlob: null
+      });
+    });
+
+    if (msg.matches.length === 0) {
+      document.getElementById('participantPhotoGrid').innerHTML = `
+        <div style="grid-column: 1 / -1; text-align: center; padding: 60px 20px; color: var(--text-muted);">
+          No confident matches found in this trip batch.<br>
+          <button onclick="retakeSelfieFlow()" class="btn btn-gold btn-sm" style="margin-top: 14px;">Try Another Selfie</button>
+        </div>
+      `;
+    }
+  } else if (msg.type === 'file_header' || msg.type === 'file_complete') {
+    fileTransfer.handleControlMessage('host', msg);
+  }
+}
+
+// Handle received file from Host
+function handleIncomingFile(fileData) {
+  const item = matchedPhotos.get(fileData.fileId);
+  if (!item) return;
+
+  if (fileData.isThumbnail) {
+    item.thumbBlob = fileData.blob;
+    item.thumbUrl = fileData.objectUrl;
+    renderPhotoCard(item);
+  } else {
+    // Original full-res downloaded
+    item.originalBlob = fileData.blob;
+    triggerBlobDownload(fileData.blob, item.name);
+  }
+}
+
+function renderPhotoCard(item) {
+  let card = document.getElementById(`card_${item.photoId}`);
+  if (!card) {
+    card = document.createElement('div');
+    card.id = `card_${item.photoId}`;
+    card.className = 'gallery-card';
+    card.style = 'position: relative; border-radius: 16px; overflow: hidden; background: var(--bg-surface); border: 1px solid var(--border); box-shadow: var(--shadow-sm);';
+    document.getElementById('participantPhotoGrid').appendChild(card);
+  }
+
+  card.innerHTML = `
+    <img src="${item.thumbUrl}" style="width: 100%; height: 220px; object-fit: cover;">
+    
+    <!-- Selection Checkbox -->
+    <div style="position: absolute; top: 10px; right: 10px; z-index: 2;">
+      <input type="checkbox" onchange="togglePhotoSelect('${item.photoId}', this.checked)" style="width: 20px; height: 20px; cursor: pointer; accent-color: var(--gold);">
+    </div>
+
+    <!-- Match Badge -->
+    <div style="position: absolute; bottom: 10px; left: 10px; background: rgba(0,0,0,0.75); backdrop-filter: blur(8px); padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: 700; color: var(--gold);">
+      ${item.confidence}% Match
+    </div>
+
+    <!-- Single Download Button -->
+    <button onclick="requestOriginalDownload('${item.photoId}')" class="btn btn-secondary btn-sm" style="position: absolute; bottom: 8px; right: 8px; padding: 4px 8px; font-size: 11px; background: rgba(0,0,0,0.75); border: 1px solid rgba(255,255,255,0.2);">
+      ⬇ Original
+    </button>
+  `;
+}
+
+function togglePhotoSelect(photoId, isChecked) {
+  if (isChecked) selectedPhotoIds.add(photoId);
+  else selectedPhotoIds.delete(photoId);
+
+  const btnSel = document.getElementById('btnDownloadSelected');
+  document.getElementById('selectedCountSpan').innerText = selectedPhotoIds.size;
+  btnSel.style.display = selectedPhotoIds.size > 0 ? 'inline-flex' : 'none';
+}
+
+function requestOriginalDownload(photoId) {
+  webrtcManager.sendControlMessage('host', {
+    type: 'request_original_file',
+    photoId: photoId
+  });
+  showToast('Requesting original photo from host...', 'info');
+}
+
+async function downloadAllPhotosZip() {
+  showToast('Preparing ZIP package of your photos...', 'info');
+  const zip = new JSZip();
+
+  // Request all originals
+  for (const item of matchedPhotos.values()) {
+    if (item.thumbBlob) {
+      zip.file(item.name, item.thumbBlob);
+    }
+  }
+
+  const content = await zip.generateAsync({ type: 'blob' });
+  triggerBlobDownload(content, `FaceShare_${ROOM_CODE}_MyPhotos.zip`);
+}
+
+function triggerBlobDownload(blob, filename) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+}
+
+function retakeSelfieFlow() {
+  document.getElementById('stepMatchedGallery').style.display = 'none';
+  document.getElementById('stepCaptureSelfie').style.display = 'block';
+  startCamera();
+}
+</script>
+{% endblock %}

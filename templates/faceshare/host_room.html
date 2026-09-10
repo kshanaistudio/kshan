@@ -1,0 +1,464 @@
+{% extends "base.html" %}
+
+{% block title %}Host Room {{ room_code }} — FaceShare | KSHAN{% endblock %}
+
+{% block extra_head %}
+<!-- QR Code Generator -->
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+<!-- Face Recognition client engines -->
+<script src="/static/faceshare/js/face-engine.js"></script>
+<script src="/static/faceshare/js/photo-indexer.js"></script>
+<script src="/static/faceshare/js/webrtc-manager.js"></script>
+<script src="/static/faceshare/js/file-transfer.js"></script>
+{% endblock %}
+
+{% block content %}
+<div style="flex: 1; display: flex; flex-direction: column; background: var(--bg-warm); padding-bottom: 60px;">
+
+  <!-- ── 01: STICKY HOST HEADER ─────────────────────────────── -->
+  <header style="background: rgba(17,17,17,0.92); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); padding: 14px 24px; position: sticky; top: 64px; z-index: 50;">
+    <div style="max-width: 1280px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+      
+      <div style="display: flex; align-items: center; gap: 14px;">
+        <div style="width: 40px; height: 40px; border-radius: 12px; background: var(--gold-subtle); border: 1.5px solid var(--gold-border); display: flex; align-items: center; justify-content: center; color: var(--gold); font-weight: 800;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+        </div>
+        <div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="font-size: 11px; font-weight: 800; color: var(--gold); text-transform: uppercase; letter-spacing: 0.1em;">Host Room</span>
+            <span style="font-size: 11px; color: var(--text-muted);">&middot;</span>
+            <span style="font-family: monospace; font-size: 15px; font-weight: 800; letter-spacing: 0.15em; color: var(--text-primary); background: rgba(255,255,255,0.06); padding: 2px 8px; border-radius: 6px;">{{ room_code }}</span>
+          </div>
+          <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">Keep this tab open while friends download</div>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+        <!-- Screen Wake Lock Pill -->
+        <button id="wakeLockBtn" onclick="toggleWakeLock()" class="btn btn-secondary btn-sm" style="font-size: 12px; display: inline-flex; align-items: center; gap: 6px;">
+          <span style="width: 7px; height: 7px; border-radius: 50%; background: #9CA3AF;" id="wakeDot"></span>
+          <span id="wakeText">Keep Screen Awake</span>
+        </button>
+
+        <!-- QR Code Trigger -->
+        <button onclick="openQrModal()" class="btn btn-secondary btn-sm" style="font-size: 12px; display: inline-flex; align-items: center; gap: 6px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          Show QR Code
+        </button>
+
+        <!-- End Room -->
+        <button onclick="confirmEndRoom()" class="btn btn-danger btn-sm" style="font-size: 12px;">
+          End Room
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <main style="max-width: 1280px; margin: 0 auto; width: 100%; padding: 28px 20px;">
+    
+    <!-- ── 02: PHOTO SELECTION / SCANNING BANNER ──────────────── -->
+    <div id="photoSelectionSection" class="glass-dark" style="border-radius: 24px; padding: 32px; border: 1.5px solid var(--border); margin-bottom: 28px; text-align: center;">
+      <div style="max-width: 560px; margin: 0 auto;">
+        
+        <div style="width: 64px; height: 64px; border-radius: 20px; background: var(--gold-subtle); border: 1.5px solid var(--gold-border); display: flex; align-items: center; justify-content: center; color: var(--gold); margin: 0 auto 18px;">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        </div>
+
+        <h2 style="font-family: var(--font-display); font-size: 28px; font-weight: 400; color: var(--text-primary); margin-bottom: 8px;">
+          Select Trip Photos
+        </h2>
+        <p style="font-size: 14px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 24px;">
+          Select up to {{ max_photos }} photos from your device. Face scanning runs completely locally in your browser RAM without uploading.
+        </p>
+
+        <!-- Hidden File Input -->
+        <input type="file" id="hostFileInput" multiple accept="image/jpeg,image/png,image/webp,image/heic" style="display: none;" onchange="handlePhotosSelected(event)">
+
+        <button onclick="document.getElementById('hostFileInput').click()" class="btn btn-gold btn-lg" style="padding: 14px 32px; font-weight: 700; display: inline-flex; align-items: center; gap: 8px;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+          Choose Photos
+        </button>
+
+      </div>
+    </div>
+
+    <!-- ── 03: LIVE SCANNING PROGRESS ─────────────────────────── -->
+    <div id="scanningProgressSection" class="glass-dark" style="display: none; border-radius: 24px; padding: 28px; border: 1.5px solid var(--gold-border); margin-bottom: 28px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <div class="spinner" style="width: 20px; height: 20px; border-width: 2px;"></div>
+          <span id="scanStatusTitle" style="font-weight: 700; font-size: 15px; color: var(--text-primary);">Scanning trip photos...</span>
+        </div>
+        <span id="scanPercentText" style="font-size: 14px; font-weight: 800; color: var(--gold);">0%</span>
+      </div>
+
+      <!-- Progress Bar -->
+      <div style="height: 8px; background: rgba(255,255,255,0.08); border-radius: 99px; overflow: hidden; margin-bottom: 12px;">
+        <div id="scanProgressBar" style="width: 0%; height: 100%; background: var(--gradient-gold); transition: width 0.2s ease;"></div>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; font-size: 12px; color: var(--text-muted);">
+        <span id="scanDetailText">Preparing files in browser memory...</span>
+        <span id="scanFacesCountText">Faces Detected: 0</span>
+      </div>
+    </div>
+
+    <!-- ── 04: ROOM ACTIVE DASHBOARD ───────────────────────────── -->
+    <div id="roomActiveDashboard" style="display: none; grid-template-columns: 340px 1fr; gap: 24px;">
+      
+      <!-- Left Column: Participants & Approvals -->
+      <div class="glass-dark" style="border-radius: 20px; padding: 24px; border: 1px solid var(--border); height: fit-content;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;">
+          <h3 style="font-size: 16px; font-weight: 700; color: var(--text-primary);">Connected Friends</h3>
+          <span id="participantCountBadge" style="font-size: 11px; font-weight: 800; padding: 3px 8px; border-radius: 10px; background: var(--gold-subtle); color: var(--gold); border: 1px solid var(--gold-border);">0 Connected</span>
+        </div>
+
+        <div id="participantsList" style="display: flex; flex-direction: column; gap: 10px;">
+          <div id="noParticipantsMsg" style="text-align: center; padding: 24px 10px; color: var(--text-muted); font-size: 13px;">
+            Waiting for friends to join...<br>
+            <button onclick="openQrModal()" class="btn btn-ghost btn-sm" style="color: var(--gold); margin-top: 8px; text-decoration: underline;">Share QR Code</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Indexed Photo Grid & Activity -->
+      <div>
+        <div class="glass-dark" style="border-radius: 20px; padding: 20px 24px; border: 1px solid var(--border); margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+          <div>
+            <div style="font-size: 16px; font-weight: 700; color: var(--text-primary);"><span id="totalPhotosCount">0</span> Photos Ready for P2P Sharing</div>
+            <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;"><span id="totalFacesCount">0</span> faces indexed in local device RAM</div>
+          </div>
+          <button onclick="document.getElementById('hostFileInput').click()" class="btn btn-secondary btn-sm" style="font-size: 12px;">
+            + Add More Photos
+          </button>
+        </div>
+
+        <!-- Thumbnail Strip Preview -->
+        <div id="hostThumbnailGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; max-height: 480px; overflow-y: auto; padding-right: 4px;">
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+</div>
+
+<!-- ── QR CODE MODAL ────────────────────────────────────────── -->
+<div id="qrModal" style="display: none; position: fixed; inset: 0; z-index: 1000; background: rgba(0,0,0,0.8); backdrop-filter: blur(16px); align-items: center; justify-content: center; padding: 20px;">
+  <div class="glass-dark" style="max-width: 380px; width: 100%; border-radius: 24px; padding: 32px; border: 1.5px solid var(--gold-border); text-align: center;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+      <h3 style="font-family: var(--font-display); font-size: 22px; color: var(--text-primary);">Join Room QR</h3>
+      <button onclick="closeQrModal()" style="background: none; border: none; color: var(--text-muted); font-size: 24px; cursor: pointer;">&times;</button>
+    </div>
+
+    <!-- QR Canvas Container -->
+    <div id="qrcodeBox" style="background: #FFFFFF; padding: 16px; border-radius: 16px; display: inline-block; margin-bottom: 20px; box-shadow: 0 8px 30px rgba(0,0,0,0.5);"></div>
+
+    <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 6px;">ROOM CODE</div>
+    <div style="font-family: monospace; font-size: 28px; font-weight: 800; letter-spacing: 0.25em; color: var(--gold); margin-bottom: 18px;">
+      {{ room_code }}
+    </div>
+
+    <button onclick="copyJoinLink()" class="btn btn-gold btn-sm" style="width: 100%; font-weight: 700; padding: 10px;">
+      Copy Join Link
+    </button>
+  </div>
+</div>
+
+<script>
+const ROOM_CODE = '{{ room_code }}';
+const HOST_TOKEN = '{{ host_token }}';
+const STUN_URL = '{{ stun_url }}';
+const TURN_URL = '{{ turn_url }}';
+const TURN_USER = '{{ turn_username }}';
+const TURN_PASS = '{{ turn_credential }}';
+
+let signalingSocket = null;
+let webrtcManager = null;
+let fileTransfer = null;
+let wakeLock = null;
+
+// Initialize WebSocket Signaling & WebRTC
+function initHostSignaling() {
+  const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+  const wsUrl = `${wsProtocol}//${window.location.host}/ws/faceshare/${ROOM_CODE}/`;
+  
+  signalingSocket = new WebSocket(wsUrl);
+
+  signalingSocket.onopen = () => {
+    console.log('[HostSignaling] Connected to server.');
+    signalingSocket.send(JSON.stringify({
+      action: 'host_init',
+      host_token: HOST_TOKEN
+    }));
+  };
+
+  signalingSocket.onmessage = async (e) => {
+    const data = JSON.parse(e.data);
+    console.log('[HostSignaling] Received:', data);
+
+    if (data.action === 'participant_waiting') {
+      handleParticipantWaiting(data.peer_id, data.display_name);
+    } else if (data.action === 'webrtc_answer') {
+      await webrtcManager.handleAnswer(data.sender, data.sdp);
+    } else if (data.action === 'webrtc_ice_candidate') {
+      await webrtcManager.handleIceCandidate(data.sender, data.candidate);
+    } else if (data.action === 'peer_disconnected') {
+      removeParticipantUI(data.peer_id);
+    }
+  };
+
+  signalingSocket.onclose = () => {
+    console.log('[HostSignaling] Disconnected.');
+  };
+
+  // Setup WebRTC
+  webrtcManager = new WebRTCManager({
+    role: 'host',
+    roomCode: ROOM_CODE,
+    peerId: 'host',
+    stunUrl: STUN_URL,
+    turnUrl: TURN_URL,
+    turnUsername: TURN_USER,
+    turnCredential: TURN_PASS,
+    onSignalingSend: (payload) => {
+      if (signalingSocket && signalingSocket.readyState === WebSocket.OPEN) {
+        signalingSocket.send(JSON.stringify(payload));
+      }
+    },
+    onMessage: (senderPeerId, channelType, rawData) => {
+      if (channelType === 'control') {
+        handleParticipantControlMessage(senderPeerId, rawData);
+      }
+    },
+    onConnectionState: (peerId, state) => {
+      console.log(`[Host] Peer ${peerId} state: ${state}`);
+    }
+  });
+
+  fileTransfer = new FileTransferEngine(webrtcManager);
+}
+
+// Handle photos selected locally
+async function handlePhotosSelected(event) {
+  const files = event.target.files;
+  if (!files || files.length === 0) return;
+
+  document.getElementById('photoSelectionSection').style.display = 'none';
+  document.getElementById('scanningProgressSection').style.display = 'block';
+
+  // 1. Add files to PhotoIndexer & generate thumbnails
+  await window.photoIndexer.addFiles(files, (prog) => {
+    const pct = Math.round((prog.current / prog.total) * 100);
+    document.getElementById('scanProgressBar').style.width = `${pct}%`;
+    document.getElementById('scanPercentText').innerText = `${pct}%`;
+    document.getElementById('scanDetailText').innerText = `Preparing photo ${prog.current} of ${prog.total}...`;
+  });
+
+  // 2. Scan all faces locally using FaceEngine
+  document.getElementById('scanStatusTitle').innerText = 'Detecting and indexing faces with on-device AI...';
+  
+  await window.photoIndexer.scanAllFaces((prog) => {
+    const pct = Math.round((prog.current / prog.total) * 100);
+    document.getElementById('scanProgressBar').style.width = `${pct}%`;
+    document.getElementById('scanPercentText').innerText = `${pct}%`;
+    document.getElementById('scanDetailText').innerText = `Scanning: ${prog.currentPhoto} (${prog.current}/${prog.total})`;
+    document.getElementById('scanFacesCountText').innerText = `Faces Detected: ${prog.totalFaces}`;
+  });
+
+  // 3. Show Active Dashboard
+  document.getElementById('scanningProgressSection').style.display = 'none';
+  document.getElementById('roomActiveDashboard').style.display = 'grid';
+
+  const photos = Array.from(window.photoIndexer.photos.values());
+  document.getElementById('totalPhotosCount').innerText = photos.length;
+  document.getElementById('totalFacesCount').innerText = photos.reduce((acc, p) => acc + (p.faceCount || 0), 0);
+
+  // Render Thumbnails in Host view
+  const grid = document.getElementById('hostThumbnailGrid');
+  grid.innerHTML = '';
+  photos.forEach(p => {
+    const div = document.createElement('div');
+    div.style = 'position: relative; height: 100px; border-radius: 12px; overflow: hidden; border: 1px solid var(--border);';
+    div.innerHTML = `
+      <img src="${p.thumbUrl}" style="width: 100%; height: 100%; object-fit: cover;">
+      <div style="position: absolute; bottom: 4px; right: 4px; background: rgba(0,0,0,0.7); font-size: 10px; font-weight: 700; color: var(--gold); padding: 2px 6px; border-radius: 6px;">
+        ${p.faceCount} 👤
+      </div>
+    `;
+    grid.appendChild(div);
+  });
+
+  showToast('Trip photos indexed successfully! Friends can now connect.', 'success');
+}
+
+// Participant waiting approval UI
+function handleParticipantWaiting(peerId, displayName) {
+  document.getElementById('noParticipantsMsg')?.remove();
+  const list = document.getElementById('participantsList');
+  
+  if (document.getElementById(`peer_${peerId}`)) return;
+
+  const card = document.createElement('div');
+  card.id = `peer_${peerId}`;
+  card.className = 'glass-dark';
+  card.style = 'padding: 12px 14px; border-radius: 14px; border: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 8px;';
+  
+  card.innerHTML = `
+    <div>
+      <div style="font-weight: 700; font-size: 13px; color: var(--text-primary);">${displayName}</div>
+      <div id="peer_status_${peerId}" style="font-size: 11px; color: var(--warning);">Pending approval</div>
+    </div>
+    <div id="peer_actions_${peerId}" style="display: flex; gap: 6px;">
+      <button onclick="decideParticipant('${peerId}', 'approved')" class="btn btn-gold btn-sm" style="padding: 4px 10px; font-size: 11px;">Approve</button>
+      <button onclick="decideParticipant('${peerId}', 'rejected')" class="btn btn-secondary btn-sm" style="padding: 4px 10px; font-size: 11px;">Decline</button>
+    </div>
+  `;
+
+  list.appendChild(card);
+}
+
+// Host approves or declines
+async function decideParticipant(peerId, decision) {
+  signalingSocket.send(JSON.stringify({
+    action: 'host_decision',
+    peer_id: peerId,
+    decision: decision
+  }));
+
+  const actions = document.getElementById(`peer_actions_${peerId}`);
+  const status = document.getElementById(`peer_status_${peerId}`);
+
+  if (decision === 'approved') {
+    actions.innerHTML = `<span style="font-size: 11px; color: #34D399; font-weight: 700;">Approved</span>`;
+    status.innerText = 'Connected & matching';
+    status.style.color = '#34D399';
+    // Create WebRTC Offer to participant
+    await webrtcManager.createOffer(peerId);
+  } else {
+    document.getElementById(`peer_${peerId}`).remove();
+  }
+}
+
+// Handle participant message received over WebRTC DataChannel
+async function handleParticipantControlMessage(peerId, rawData) {
+  let msg = rawData;
+  if (typeof rawData === 'string') {
+    try { msg = JSON.parse(rawData); } catch(e) { return; }
+  }
+
+  if (msg.type === 'participant_search_embedding') {
+    console.log(`[Host] Received face vector from participant ${peerId}`);
+    
+    // Find matching photos
+    const result = window.photoIndexer.findMatchesForParticipant(msg.embedding);
+    console.log(`[Host] Found ${result.matches.length} matches for ${peerId}`);
+
+    // Send match results metadata back to participant
+    webrtcManager.sendControlMessage(peerId, {
+      type: 'match_results',
+      matches: result.matches.map(m => ({ photoId: m.photoId, name: m.name, size: m.size, confidence: m.confidence })),
+      totalPhotos: window.photoIndexer.photos.size
+    });
+
+    // Send thumbnails of matching photos over DataChannel
+    for (const match of result.matches) {
+      const item = window.photoIndexer.getPhoto(match.photoId);
+      if (item && item.thumbBlob) {
+        await fileTransfer.sendFile(peerId, item.thumbBlob, {
+          fileId: match.photoId,
+          name: match.name,
+          isThumbnail: true
+        });
+      }
+    }
+  } else if (msg.type === 'request_original_file') {
+    // Participant requested original high-res photo download
+    const item = window.photoIndexer.getPhoto(msg.photoId);
+    if (item && item.file) {
+      console.log(`[Host] Streaming original file ${item.name} to ${peerId}...`);
+      await fileTransfer.sendFile(peerId, item.file, {
+        fileId: item.id,
+        name: item.name,
+        isThumbnail: false
+      });
+    }
+  }
+}
+
+function removeParticipantUI(peerId) {
+  document.getElementById(`peer_${peerId}`)?.remove();
+}
+
+// Screen Wake Lock API
+async function toggleWakeLock() {
+  if ('wakeLock' in navigator) {
+    try {
+      if (!wakeLock) {
+        wakeLock = await navigator.wakeLock.request('screen');
+        document.getElementById('wakeDot').style.background = '#34D399';
+        document.getElementById('wakeText').innerText = 'Screen Kept Awake';
+        wakeLock.addEventListener('release', () => {
+          wakeLock = null;
+          document.getElementById('wakeDot').style.background = '#9CA3AF';
+          document.getElementById('wakeText').innerText = 'Keep Screen Awake';
+        });
+      } else {
+        await wakeLock.release();
+      }
+    } catch (err) {
+      console.warn('Wake Lock error:', err);
+    }
+  } else {
+    alert('Screen Wake Lock is not supported on this browser.');
+  }
+}
+
+// QR Code Modal
+function openQrModal() {
+  const box = document.getElementById('qrcodeBox');
+  box.innerHTML = '';
+  const joinUrl = `${window.location.origin}/faceshare/join/${ROOM_CODE}/`;
+  new QRCode(box, {
+    text: joinUrl,
+    width: 200,
+    height: 200,
+    colorDark: "#000000",
+    colorLight: "#ffffff",
+    correctLevel: QRCode.CorrectLevel.H
+  });
+  document.getElementById('qrModal').style.display = 'flex';
+}
+
+function closeQrModal() {
+  document.getElementById('qrModal').style.display = 'none';
+}
+
+function copyJoinLink() {
+  const joinUrl = `${window.location.origin}/faceshare/join/${ROOM_CODE}/`;
+  navigator.clipboard.writeText(joinUrl);
+  showToast('Join link copied to clipboard!', 'success');
+}
+
+async function confirmEndRoom() {
+  if (!confirm('Are you sure you want to end this room? All connections will be closed and temporary data cleared.')) return;
+  
+  await authFetch(`/faceshare/api/${ROOM_CODE}/end/`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ host_token: HOST_TOKEN })
+  });
+
+  window.photoIndexer.clear();
+  webrtcManager.closeAll();
+  window.location.href = '/faceshare/';
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  initHostSignaling();
+  toggleWakeLock();
+});
+</script>
+{% endblock %}

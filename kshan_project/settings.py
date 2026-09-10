@@ -42,6 +42,8 @@ ALLOWED_HOSTS = ['*']
 
 # Application definition
 INSTALLED_APPS = [
+    'daphne',
+    'channels',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -49,7 +51,28 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'gallery.apps.GalleryConfig',
+    'faceshare',
 ]
+
+ASGI_APPLICATION = 'kshan_project.asgi.application'
+
+# Channel Layers Configuration (In-Memory default, Redis fallback if env configured)
+REDIS_URL = os.getenv('REDIS_URL', '')
+if REDIS_URL:
+    CHANNEL_LAYERS = {
+        'default': {
+            'BACKEND': 'channels_redis.core.RedisChannelLayer',
+            'CONFIG': {
+                "hosts": [REDIS_URL],
+            },
+        },
+    }
+else:
+    CHANNEL_LAYERS = {
+        'default': {
+            'BACKEND': 'channels.layers.InMemoryChannelLayer'
+        }
+    }
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -193,5 +216,14 @@ DETECTION_SIZE = (640, 640)           # Standard InsightFace input size for maxi
 THUMBNAIL_MAX_SIZE = 500
 SUPPORTED_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.webp'}
 
-# Set to False on memory-constrained hosts to disable face detection entirely
-FACE_RECOGNITION_ENABLED = os.getenv('FACE_RECOGNITION_ENABLED', 'True').lower() in ('true', '1', 't')
+# FaceShare Peer-to-Peer Settings
+FACESHARE_ROOM_TTL_MINUTES = int(os.getenv('FACESHARE_ROOM_TTL_MINUTES', '60'))
+FACESHARE_MAX_PHOTOS = int(os.getenv('FACESHARE_MAX_PHOTOS', '300'))
+FACESHARE_MAX_PARTICIPANTS = int(os.getenv('FACESHARE_MAX_PARTICIPANTS', '15'))
+FACESHARE_MATCH_THRESHOLD = float(os.getenv('FACESHARE_MATCH_THRESHOLD', '0.62'))
+
+# WebRTC STUN/TURN Configuration (Default Google STUN, custom TURN via env)
+WEBRTC_STUN_URL = os.getenv('WEBRTC_STUN_URL', 'stun:stun.l.google.com:19302')
+WEBRTC_TURN_URL = os.getenv('WEBRTC_TURN_URL', '')
+WEBRTC_TURN_USERNAME = os.getenv('WEBRTC_TURN_USERNAME', '')
+WEBRTC_TURN_CREDENTIAL = os.getenv('WEBRTC_TURN_CREDENTIAL', '')
