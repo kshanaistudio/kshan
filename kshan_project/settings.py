@@ -149,12 +149,27 @@ CSRF_TRUSTED_ORIGINS = [
     'https://*.trycloudflare.com',
     'https://*.azurewebsites.net',
     'https://*.elasticbeanstalk.com',
+    'https://kshan.online',
+    'https://*.kshan.online',
+    'https://www.kshan.online',
+    'http://kshan.online',
+    'http://*.kshan.online',
+    'http://www.kshan.online',
+    'http://13.204.43.143',
     'http://localhost:1212',
     'http://127.0.0.1:1212',
     'http://0.0.0.0:1212',
     'http://0.0.0.0:7860',
     'http://localhost:7860'
 ]
+
+# Cloudflare Proxy SSL Headers & Host trust
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+USE_X_FORWARDED_HOST = True
+USE_X_FORWARDED_PORT = True
+CSRF_COOKIE_HTTPONLY = False
+CSRF_USE_SESSIONS = False
+
 
 # Media files
 MEDIA_URL = '/media/'
