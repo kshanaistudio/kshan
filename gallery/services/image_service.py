@@ -1,10 +1,19 @@
 import os
 import hashlib
+from io import BytesIO
 from PIL import Image, ImageOps
 import cv2
 import numpy as np
 from pathlib import Path
 from django.conf import settings
+import exifread
+from datetime import datetime
+import logging
+
+logger = logging.getLogger("kshan.image_service")
+
+# Configure Pillow decompression bomb protection limit
+Image.MAX_IMAGE_PIXELS = getattr(settings, 'MAX_IMAGE_PIXELS', 100_000_000)
 
 def compute_sha256(file_path: str, chunk_size: int = 65536) -> str:
     """Compute SHA-256 hash of a file for duplicate protection."""
@@ -14,8 +23,55 @@ def compute_sha256(file_path: str, chunk_size: int = 65536) -> str:
             sha256.update(chunk)
     return sha256.hexdigest()
 
-import exifread
-from datetime import datetime
+def validate_image_upload(file_obj_or_bytes, max_size_bytes: int = None) -> tuple[bool, str, str]:
+    """
+    Strict security validation for uploaded images:
+    - Checks file size against upper limits.
+    - Decodes header and image structure using Pillow to verify true MIME/signature (no extension spoofing).
+    - Checks for decompression bomb dimensions / pixel count.
+    - Returns: (is_valid: bool, format_name: str, error_message: str)
+    """
+    if max_size_bytes is None:
+        max_size_bytes = getattr(settings, 'MAX_PHOTO_UPLOAD_FILE_SIZE', 50 * 1024 * 1024)
+
+    if isinstance(file_obj_or_bytes, bytes):
+        raw_bytes = file_obj_or_bytes
+    elif hasattr(file_obj_or_bytes, 'read'):
+        raw_bytes = file_obj_or_bytes.read()
+        if hasattr(file_obj_or_bytes, 'seek'):
+            file_obj_or_bytes.seek(0)
+    else:
+        return False, "", "Invalid image data source"
+
+    if len(raw_bytes) == 0:
+        return False, "", "Image file is empty (0 bytes)."
+
+    if len(raw_bytes) > max_size_bytes:
+        mb_limit = max_size_bytes / (1024 * 1024)
+        return False, "", f"File size ({len(raw_bytes)/(1024*1024):.1f}MB) exceeds maximum limit of {mb_limit:.0f}MB."
+
+    try:
+        bio = BytesIO(raw_bytes)
+        with Image.open(bio) as img:
+            img_format = (img.format or "").upper()
+            if img_format not in ("JPEG", "JPG", "PNG", "WEBP"):
+                return False, "", f"Unsupported image format: {img_format}. Allowed formats: JPEG, PNG, WEBP."
+            
+            w, h = img.size
+            if w <= 0 or h <= 0:
+                return False, "", "Invalid image dimensions."
+
+            total_pixels = w * h
+            if total_pixels > getattr(settings, 'MAX_IMAGE_PIXELS', 100_000_000):
+                return False, "", f"Image resolution ({w}x{h}) exceeds safe processing limit."
+
+            # Verify image integrity by decoding image chunks
+            img.verify()
+
+        return True, img_format.lower(), ""
+
+    except Exception as e:
+        return False, "", f"Invalid or corrupted image file: {str(e)}"
 
 def get_image_metadata(file_path: str) -> dict:
     """Extract width, height, file size, and detailed EXIF metadata handling EXIF rotation."""
@@ -75,8 +131,7 @@ def get_image_metadata(file_path: str) -> dict:
                 except:
                     pass
     except Exception as e:
-        import logging
-        logging.getLogger("kshan.image_service").warning(f"Failed to read EXIF: {e}")
+        logger.warning(f"Failed to read EXIF: {e}")
 
     return {
         "width": width,
@@ -94,7 +149,6 @@ def apply_watermark(input_path: str, watermark_text: str = None, logo_path: str 
     try:
         from PIL import ImageDraw, ImageFont
         from ..models import GlobalSiteSettings
-        from django.conf import settings
         
         site_settings = GlobalSiteSettings.get_settings()
         
@@ -234,11 +288,13 @@ def apply_watermark(input_path: str, watermark_text: str = None, logo_path: str 
             final_img.save(input_path, "JPEG", quality=92, optimize=True)
 
     except Exception as e:
-        import logging
-        logging.getLogger("kshan.image_service").warning(f"Failed to apply watermark: {e}")
+        logger.warning(f"Failed to apply watermark: {e}")
 
-def create_thumbnail(input_path: str, output_path: str, max_size: int = settings.THUMBNAIL_MAX_SIZE) -> str:
+def create_thumbnail(input_path: str, output_path: str, max_size: int = None) -> str:
     """Generate an optimized thumbnail preserving aspect ratio and EXIF orientation."""
+    if max_size is None:
+        max_size = getattr(settings, 'THUMBNAIL_MAX_SIZE', 500)
+        
     Path(output_path).parent.mkdir(parents=True, exist_ok=True)
     with Image.open(input_path) as img:
         img = ImageOps.exif_transpose(img) or img
@@ -279,8 +335,6 @@ def load_cv2_image_safe(image_path_or_bytes, max_dimension: int = 1280) -> np.nd
     else:
         raise TypeError("Invalid image input type for OpenCV loader")
 
-    # Downscale large images to prevent OOM on memory-constrained servers (e.g. Render 512MB)
-    # A 6000x4000 photo = 72MB numpy array; at 1280px = 5MB — faces still detected perfectly
     if max_dimension and max_dimension > 0:
         h, w = img.shape[:2]
         if max(h, w) > max_dimension:

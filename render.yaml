@@ -15,14 +15,14 @@ services:
       - key: DJANGO_SECRET_KEY
         generateValue: true
       - key: R2_ENABLED
-        value: "True"
+        sync: false
       - key: R2_ACCESS_KEY_ID
-        value: "413a841c58484ffb5a89f6f285a762ed"
+        sync: false
       - key: R2_SECRET_ACCESS_KEY
-        value: "65a1b26c5a4cad9d68744508d968a6c1e82d8e73865cca9c4de975b762276431"
+        sync: false
       - key: R2_BUCKET_NAME
-        value: "kshan"
+        sync: false
       - key: R2_ENDPOINT_URL
-        value: "https://2454357021a59b9543557e633d183fcf.r2.cloudflarestorage.com"
+        sync: false
       - key: R2_ACCOUNT_ID
-        value: "2454357021a59b9543557e633d183fcf"
+        sync: false

@@ -78,8 +78,10 @@ def get_event_thumbnail_path(event_code: str, filename: str) -> Path:
 
 def save_uploaded_photo(event_code: str, original_filename: str, content: bytes) -> tuple[str, Path]:
     originals_dir, _ = ensure_event_directories(event_code)
-    ext = Path(original_filename).suffix.lower() or ".jpg"
-    unique_filename = f"{uuid.uuid4().hex[:12]}_{Path(original_filename).stem}{ext}"
+    # Sanitize extension and generate safe server-controlled UUID filename
+    raw_ext = Path(original_filename).suffix.lower()
+    ext = raw_ext if raw_ext in settings.SUPPORTED_EXTENSIONS else ".jpg"
+    unique_filename = f"{uuid.uuid4().hex[:12]}_{uuid.uuid4().hex[:8]}{ext}"
     target_path = originals_dir / unique_filename
 
     with open(target_path, "wb") as f:
@@ -104,7 +106,9 @@ def create_zip_archive(photos_info: list[dict]) -> BytesIO:
         seen_names = {}
         for photo in photos_info:
             file_path = photo.get("file_path")
-            orig_name = photo.get("original_filename") or Path(file_path).name
+            orig_name = photo.get("original_filename") or (Path(file_path).name if file_path else "photo.jpg")
+            # Strip path separators from archive names to prevent zip traversal
+            orig_name = Path(orig_name).name
             
             if file_path and os.path.exists(file_path):
                 if orig_name in seen_names:
@@ -121,7 +125,15 @@ def create_zip_archive(photos_info: list[dict]) -> BytesIO:
     zip_buffer.seek(0)
     return zip_buffer
 
-def delete_event_storage(event_code: str):
+def delete_event_storage(event_or_code):
+    """
+    Safely deletes storage directories and R2 objects for an event.
+    Accepts either an Event instance or event_code string.
+    """
+    event_code = getattr(event_or_code, 'event_code', str(event_or_code))
+    if not event_code or not isinstance(event_code, str):
+        return
+
     # Local deletion
     event_dir = settings.EVENTS_STORAGE_DIR / event_code
     if event_dir.exists():

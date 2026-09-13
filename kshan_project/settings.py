@@ -1,4 +1,5 @@
 import os
+import sys
 from pathlib import Path
 from dotenv import load_dotenv
 
@@ -21,12 +22,14 @@ for d in [STORAGE_DIR, EVENTS_STORAGE_DIR, TEMP_STORAGE_DIR, LOGS_DIR]:
 R2_ENABLED = os.getenv('R2_ENABLED', 'False').lower() in ('true', '1', 't')
 R2_ACCESS_KEY_ID = os.getenv('R2_ACCESS_KEY_ID', '')
 R2_SECRET_ACCESS_KEY = os.getenv('R2_SECRET_ACCESS_KEY', '')
-R2_BUCKET_NAME = os.getenv('R2_BUCKET_NAME', 'kshan-database')
+R2_BUCKET_NAME = os.getenv('R2_BUCKET_NAME', 'kshan')
 R2_ENDPOINT_URL = os.getenv('R2_ENDPOINT_URL', '')
+R2_ACCOUNT_ID = os.getenv('R2_ACCOUNT_ID', '')
 
 # Razorpay Payment Gateway Configuration
 RAZORPAY_KEY_ID = os.getenv('RAZORPAY_KEY_ID', '')
 RAZORPAY_KEY_SECRET = os.getenv('RAZORPAY_KEY_SECRET', '')
+RAZORPAY_WEBHOOK_SECRET = os.getenv('RAZORPAY_WEBHOOK_SECRET', '')
 RAZORPAY_CURRENCY = os.getenv('RAZORPAY_CURRENCY', 'INR')
 
 # Meta WhatsApp Cloud API Configuration
@@ -35,10 +38,30 @@ META_WA_ACCESS_TOKEN = os.getenv('META_WA_ACCESS_TOKEN', '')
 META_WA_API_VERSION = os.getenv('META_WA_API_VERSION', 'v21.0')
 META_WA_OTP_TEMPLATE_NAME = os.getenv('META_WA_OTP_TEMPLATE_NAME', '')
 
+# Firebase Configuration
+FIREBASE_API_KEY = os.getenv('FIREBASE_API_KEY', '')
+FIREBASE_AUTH_DOMAIN = os.getenv('FIREBASE_AUTH_DOMAIN', '')
+FIREBASE_PROJECT_ID = os.getenv('FIREBASE_PROJECT_ID', '')
+FIREBASE_STORAGE_BUCKET = os.getenv('FIREBASE_STORAGE_BUCKET', '')
+FIREBASE_MESSAGING_SENDER_ID = os.getenv('FIREBASE_MESSAGING_SENDER_ID', '')
+FIREBASE_APP_ID = os.getenv('FIREBASE_APP_ID', '')
+
 # Security & Secret Key
-SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'django-insecure-kshan-face-gallery-key-2026-x99a!b')
 DEBUG = os.getenv('DEBUG', 'False').lower() in ('true', '1', 't')
-ALLOWED_HOSTS = ['*']
+
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
+if not SECRET_KEY:
+    if DEBUG or 'test' in sys.argv or 'check' in sys.argv:
+        SECRET_KEY = 'django-insecure-kshan-dev-local-fallback-key-strictly-for-testing-only'
+    else:
+        raise ValueError("CRITICAL: DJANGO_SECRET_KEY environment variable is mandatory in production!")
+
+# Host Configuration
+_allowed_hosts_raw = os.getenv('ALLOWED_HOSTS', '')
+if _allowed_hosts_raw:
+    ALLOWED_HOSTS = [h.strip() for h in _allowed_hosts_raw.split(',') if h.strip()]
+else:
+    ALLOWED_HOSTS = ['*'] if DEBUG else ['localhost', '127.0.0.1', 'kshan.online', '.kshan.online']
 
 # Application definition
 INSTALLED_APPS = [
@@ -56,7 +79,7 @@ INSTALLED_APPS = [
 
 ASGI_APPLICATION = 'kshan_project.asgi.application'
 
-# Channel Layers Configuration (In-Memory default, Redis fallback if env configured)
+# Channel Layers Configuration
 REDIS_URL = os.getenv('REDIS_URL', '')
 if REDIS_URL:
     CHANNEL_LAYERS = {
@@ -105,12 +128,12 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'kshan_project.wsgi.application'
 
-# Database (Supabase PostgreSQL / SQLite fallback)
+# Database Configuration
 DATABASE_URL = os.getenv('DATABASE_URL', '')
 if DATABASE_URL:
     try:
         import dj_database_url
-        db_config = dj_database_url.parse(DATABASE_URL, conn_max_age=600, ssl_require=True)
+        db_config = dj_database_url.parse(DATABASE_URL, conn_max_age=600, ssl_require=not DEBUG)
         db_config.setdefault('OPTIONS', {})
         db_config['OPTIONS']['connect_timeout'] = 30
         db_config['OPTIONS']['options'] = '-c statement_timeout=0'
@@ -138,19 +161,46 @@ else:
         }
     }
 
-
-# Session Configuration — persistent DB-backed sessions that survive Render restarts
+# Session Configuration
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 SESSION_COOKIE_AGE = 86400 * 30          # 30 days
-SESSION_COOKIE_SECURE = False             # Allow both HTTP and HTTPS
 SESSION_COOKIE_HTTPONLY = True
-SESSION_SAVE_EVERY_REQUEST = True         # Refresh session on every request
-SESSION_EXPIRE_AT_BROWSER_CLOSE = False   # Keep session even after closing browser
+SESSION_COOKIE_SAMESITE = 'Lax'
+SESSION_SAVE_EVERY_REQUEST = True
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False
+
+# HTTPS & Transport Security (Strict in production, relaxed for local dev)
+if not DEBUG:
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    CSRF_COOKIE_HTTPONLY = False
+    CSRF_COOKIE_SAMESITE = 'Lax'
+    SECURE_SSL_REDIRECT = os.getenv('SECURE_SSL_REDIRECT', 'True').lower() in ('true', '1', 't')
+    SECURE_HSTS_SECONDS = int(os.getenv('SECURE_HSTS_SECONDS', '31536000')) # 1 year
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    SECURE_BROWSER_XSS_FILTER = True
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+else:
+    SESSION_COOKIE_SECURE = False
+    CSRF_COOKIE_SECURE = False
+    CSRF_COOKIE_HTTPONLY = False
+    CSRF_COOKIE_SAMESITE = 'Lax'
+    SECURE_SSL_REDIRECT = False
+    SECURE_HSTS_SECONDS = 0
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+USE_X_FORWARDED_HOST = True
+USE_X_FORWARDED_PORT = True
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
-    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator', 'OPTIONS': {'min_length': 8}},
+    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
 # Internationalization
@@ -159,40 +209,29 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 
-# Static files (CSS, JavaScript, Images)
+# Static files
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-# CSRF Trusted Origins (Allows Render, Hugging Face, AWS App Runner & Cloudflare domains)
-CSRF_TRUSTED_ORIGINS = [
-    'https://*.awsapprunner.com',
-    'https://*.onrender.com',
-    'https://*.hf.space',
-    'https://*.trycloudflare.com',
-    'https://*.azurewebsites.net',
-    'https://*.elasticbeanstalk.com',
-    'https://kshan.online',
-    'https://*.kshan.online',
-    'https://www.kshan.online',
-    'http://kshan.online',
-    'http://*.kshan.online',
-    'http://www.kshan.online',
-    'http://13.204.43.143',
-    'http://localhost:1212',
-    'http://127.0.0.1:1212',
-    'http://0.0.0.0:1212',
-    'http://0.0.0.0:7860',
-    'http://localhost:7860'
-]
-
-# Cloudflare Proxy SSL Headers & Host trust
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-USE_X_FORWARDED_HOST = True
-USE_X_FORWARDED_PORT = True
-CSRF_COOKIE_HTTPONLY = False
-CSRF_USE_SESSIONS = False
-
+# CSRF Trusted Origins
+_csrf_origins_raw = os.getenv('CSRF_TRUSTED_ORIGINS', '')
+if _csrf_origins_raw:
+    CSRF_TRUSTED_ORIGINS = [o.strip() for o in _csrf_origins_raw.split(',') if o.strip()]
+else:
+    CSRF_TRUSTED_ORIGINS = [
+        'https://kshan.online',
+        'https://*.kshan.online',
+        'https://www.kshan.online',
+        'https://*.onrender.com',
+        'https://*.awsapprunner.com',
+        'https://*.hf.space',
+        'https://*.trycloudflare.com',
+        'http://localhost:8000',
+        'http://127.0.0.1:8000',
+        'http://localhost:1212',
+        'http://127.0.0.1:1212',
+    ]
 
 # Media files
 MEDIA_URL = '/media/'
@@ -200,21 +239,24 @@ MEDIA_ROOT = BASE_DIR / 'storage'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Multi-Gigabyte Upload Configuration (Supports large 5GB+ wedding batches)
-DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024 * 1024  # 10 GB
-FILE_UPLOAD_MAX_MEMORY_SIZE = 100 * 1024 * 1024        # 100 MB per file in-memory buffer before streaming to disk
-DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000                  # Support up to 10,000 files in one payload
+# Upload Limits & Configuration
+DATA_UPLOAD_MAX_MEMORY_SIZE = 100 * 1024 * 1024       # 100 MB max payload in request body
+FILE_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024        # 10 MB per file in memory buffer before streaming
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 1000                  # Max fields
+MAX_PHOTO_UPLOAD_FILE_SIZE = 50 * 1024 * 1024         # 50 MB max single photo file
+MAX_SELFIE_UPLOAD_FILE_SIZE = 15 * 1024 * 1024        # 15 MB max selfie file
+MAX_IMAGE_PIXELS = 100_000_000                        # Pillow decompression bomb limit (100MP)
+MAX_PHOTOS_PER_BATCH = 200                            # Max photos in a single upload batch
 
 # Face Recognition Settings
-# buffalo_s = lightweight model (~150MB RAM) — fast and accurate on CPU
-# buffalo_l = large model (~500MB RAM) — needs 2GB+ RAM
 INSIGHTFACE_MODEL_NAME = os.getenv('INSIGHTFACE_MODEL', 'buffalo_s')
-FACE_MATCH_THRESHOLD = 0.40           # Calibrated ArcFace cosine threshold for event photography
-MIN_DET_SCORE = 0.40                  # Detection confidence score threshold for candid / angled faces
-MIN_FACE_SIZE = 25                    # Minimum face width/height in pixels
-DETECTION_SIZE = (640, 640)           # Standard InsightFace input size for maximum detection accuracy
+FACE_MATCH_THRESHOLD = float(os.getenv('FACE_MATCH_THRESHOLD', '0.40')) # Calibrated ArcFace cosine threshold
+MIN_DET_SCORE = float(os.getenv('MIN_DET_SCORE', '0.40'))               # Detection confidence score threshold
+MIN_FACE_SIZE = int(os.getenv('MIN_FACE_SIZE', '25'))                   # Minimum face width/height in pixels
+DETECTION_SIZE = (640, 640)                                             # Standard InsightFace input size
 THUMBNAIL_MAX_SIZE = 500
 SUPPORTED_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.webp'}
+SUPPORTED_MIME_TYPES = {'image/jpeg', 'image/png', 'image/webp'}
 
 # FaceShare Peer-to-Peer Settings
 FACESHARE_ROOM_TTL_MINUTES = int(os.getenv('FACESHARE_ROOM_TTL_MINUTES', '60'))
@@ -222,7 +264,7 @@ FACESHARE_MAX_PHOTOS = int(os.getenv('FACESHARE_MAX_PHOTOS', '300'))
 FACESHARE_MAX_PARTICIPANTS = int(os.getenv('FACESHARE_MAX_PARTICIPANTS', '15'))
 FACESHARE_MATCH_THRESHOLD = float(os.getenv('FACESHARE_MATCH_THRESHOLD', '0.62'))
 
-# WebRTC STUN/TURN Configuration (Default Google STUN, custom TURN via env)
+# WebRTC STUN/TURN Configuration
 WEBRTC_STUN_URL = os.getenv('WEBRTC_STUN_URL', 'stun:stun.l.google.com:19302')
 WEBRTC_TURN_URL = os.getenv('WEBRTC_TURN_URL', '')
 WEBRTC_TURN_USERNAME = os.getenv('WEBRTC_TURN_USERNAME', '')

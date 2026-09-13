@@ -21,7 +21,7 @@ from .models import (
 )
 from .services.face_service import get_face_service
 from .services.matching_service import find_matching_photos
-from .services.image_service import compute_sha256, get_image_metadata
+from .services.image_service import compute_sha256, get_image_metadata, validate_image_upload
 from .services.storage_service import (
     save_uploaded_photo, 
     create_zip_archive, 
@@ -40,6 +40,42 @@ from .services.razorpay_service import create_razorpay_order, verify_razorpay_si
 def get_or_create_profile(user):
     profile, _ = PhotographerProfile.objects.get_or_create(user=user)
     return profile
+
+def check_photo_access(request, photo) -> tuple[bool, str]:
+    """
+    Centralized Access Policy for viewing thumbnails and photos:
+    1. Superusers and staff have full access.
+    2. Event photographer / owner has full access.
+    3. Master superadmin session has full access.
+    4. Guests access:
+       - If event is in 'draft' or 'ended' status, only photographer/staff/superadmin may view.
+       - If event has PIN protection ('pin' access_mode), checks if current session verified PIN.
+       - If event has 'private' access_mode, requires PIN or authenticated photographer.
+       - If event is public or PIN verified, allowed.
+    """
+    user = request.user
+    if user and user.is_authenticated and (user.is_superuser or user.is_staff or user == photo.event.photographer):
+        return True, "Authorized as staff or event photographer"
+
+    if request.session.get("is_master_superadmin"):
+        return True, "Authorized as superadmin"
+
+    event = photo.event
+
+    # Status check: unreleased / draft events cannot be accessed by public
+    if event.status not in ('live', 'published'):
+        return False, "Event is not published"
+
+    # Access mode check
+    if event.access_mode == 'pin':
+        if not request.session.get(f"pin_verified_{event.event_code}"):
+            return False, "Event PIN required"
+    elif event.access_mode == 'private':
+        # Private requires either verified pin or photographer
+        if not request.session.get(f"pin_verified_{event.event_code}"):
+            return False, "Private event access unauthorized"
+
+    return True, "Access granted"
 
 # ================= PUBLIC GUEST HTML VIEWS =================
 
@@ -529,6 +565,11 @@ def admin_event_view(request, event_code):
         event.photographer = request.user
         event.save(update_fields=['photographer'])
 
+    # Enforce authorization: user must be owner or superuser/staff or master superadmin
+    is_super = request.user.is_authenticated and (request.user.is_superuser or request.user.is_staff)
+    if not is_master and not is_super and event.photographer != request.user:
+        return render(request, "index.html", {"error": "You do not have permission to manage this event."}, status=403)
+
     photos = Photo.objects.filter(event=event).order_by('-uploaded_at')
     progress = get_event_progress(event.id)
     profile = get_or_create_profile(request.user) if request.user.is_authenticated else (event.photographer.profile if hasattr(event.photographer, 'profile') else None)
@@ -653,11 +694,17 @@ def search_face_api(request, event_id=None, event_code=None):
     )
 
     if uploaded_file:
+        is_valid, fmt, err = validate_image_upload(uploaded_file, max_size_bytes=getattr(settings, 'MAX_SELFIE_UPLOAD_FILE_SIZE', 15 * 1024 * 1024))
+        if not is_valid:
+            return JsonResponse({"error": f"Invalid selfie: {err}"}, status=400)
         image_bytes = uploaded_file.read()
     elif request.POST.get("image_base64"):
         raw_b64 = re.sub(r"^data:image/.+;base64,", "", request.POST.get("image_base64"))
         try:
             image_bytes = base64.b64decode(raw_b64)
+            is_valid, fmt, err = validate_image_upload(image_bytes, max_size_bytes=getattr(settings, 'MAX_SELFIE_UPLOAD_FILE_SIZE', 15 * 1024 * 1024))
+            if not is_valid:
+                return JsonResponse({"error": f"Invalid selfie: {err}"}, status=400)
         except Exception:
             return JsonResponse({"error": "Invalid base64 image data"}, status=400)
 
@@ -726,6 +773,10 @@ def upload_photos_api(request, event_id=None, event_code=None):
     if not files:
         return JsonResponse({"error": "No image files found in upload payload."}, status=400)
 
+    max_batch = getattr(settings, 'MAX_PHOTOS_PER_BATCH', 200)
+    if len(files) > max_batch:
+        return JsonResponse({"error": f"Upload batch exceeds maximum limit of {max_batch} files per request."}, status=400)
+
     import uuid as _uuid
     from gallery.services.storage_service import ensure_event_directories
 
@@ -736,14 +787,24 @@ def upload_photos_api(request, event_id=None, event_code=None):
     originals_dir, _ = ensure_event_directories(event.event_code)
 
     for f in files:
-        filename = f.name or "photo.jpg"
-        ext = Path(filename).suffix.lower()
-        if ext not in settings.SUPPORTED_EXTENSIONS:
+        filename = Path(f.name or "photo.jpg").name  # Sanitize filename path traversal
+        raw_ext = Path(filename).suffix.lower()
+        if raw_ext not in settings.SUPPORTED_EXTENSIONS:
             errors.append(f"Unsupported format for {filename}")
             continue
 
-        # Stream file directly to disk — no f.read() to avoid loading into RAM
-        saved_filename = f"{_uuid.uuid4().hex[:12]}_{Path(filename).stem}{ext}"
+        # Strict security validation: check byte signatures and decode image structure
+        is_valid, detected_fmt, err_msg = validate_image_upload(f)
+        if not is_valid:
+            errors.append(f"{filename}: {err_msg}")
+            continue
+
+        safe_ext = f".{detected_fmt}" if detected_fmt in ('jpeg', 'jpg', 'png', 'webp') else raw_ext
+        if safe_ext == '.jpeg':
+            safe_ext = '.jpg'
+
+        # Server-controlled UUID filename
+        saved_filename = f"{_uuid.uuid4().hex[:12]}_{_uuid.uuid4().hex[:8]}{safe_ext}"
         saved_path = originals_dir / saved_filename
 
         try:
@@ -812,15 +873,25 @@ def guest_upload_photo_api(request, event_code):
     if not files:
         return JsonResponse({"error": "No image files found in upload payload."}, status=400)
 
+    max_batch = getattr(settings, 'MAX_PHOTOS_PER_BATCH', 200)
+    if len(files) > max_batch:
+        return JsonResponse({"error": f"Upload batch exceeds maximum limit of {max_batch} files per request."}, status=400)
+
     saved_photo_ids = []
     skipped_duplicates = 0
     errors = []
 
     for f in files:
-        filename = f.name or "photo.jpg"
-        ext = Path(filename).suffix.lower()
-        if ext not in settings.SUPPORTED_EXTENSIONS:
+        filename = Path(f.name or "photo.jpg").name
+        raw_ext = Path(filename).suffix.lower()
+        if raw_ext not in settings.SUPPORTED_EXTENSIONS:
             errors.append(f"Unsupported format for {filename}")
+            continue
+
+        # Strict security validation: check byte signatures and decode image structure
+        is_valid, detected_fmt, err_msg = validate_image_upload(f)
+        if not is_valid:
+            errors.append(f"{filename}: {err_msg}")
             continue
 
         content = f.read()
@@ -1086,6 +1157,10 @@ def delete_event_api(request, event_id):
 
 def get_thumbnail_view(request, photo_id):
     photo = get_object_or_404(Photo, id=photo_id)
+    has_access, reason = check_photo_access(request, photo)
+    if not has_access:
+        return JsonResponse({"error": reason}, status=403)
+
     if photo.thumbnail_path and Path(photo.thumbnail_path).exists():
         return FileResponse(open(photo.thumbnail_path, 'rb'), content_type="image/jpeg")
     if photo.file_path and Path(photo.file_path).exists():
@@ -1102,6 +1177,10 @@ def get_thumbnail_view(request, photo_id):
 
 def view_photo_full(request, photo_id):
     photo = get_object_or_404(Photo, id=photo_id)
+    has_access, reason = check_photo_access(request, photo)
+    if not has_access:
+        return JsonResponse({"error": reason}, status=403)
+
     if photo.file_path and Path(photo.file_path).exists():
         ext = Path(photo.file_path).suffix.lower()
         content_type = "image/png" if ext == ".png" else "image/webp" if ext == ".webp" else "image/jpeg"
@@ -2061,10 +2140,29 @@ def verify_guest_payment_api(request, event_code):
 def thepranit_admin_view(request):
     """
     Master root administrative control panel for the whole software system.
-    Protected by master passkey 'thepranit' or superuser authentication.
+    Requires authenticated Django superuser (is_staff=True, is_superuser=True).
     """
-    # Check if already authenticated in session
-    if request.session.get("is_master_superadmin"):
+    # Verify superuser access (either logged in Django superuser or active authenticated session)
+    is_super = (
+        request.user.is_authenticated and 
+        request.user.is_active and 
+        request.user.is_staff and 
+        request.user.is_superuser
+    )
+
+    if not is_super and request.session.get("is_master_superadmin"):
+        # Double check user model state if marked in session
+        user_id = request.session.get("master_superadmin_user_id")
+        if user_id:
+            try:
+                user = User.objects.get(id=user_id, is_active=True, is_staff=True, is_superuser=True)
+                is_super = True
+            except User.DoesNotExist:
+                is_super = False
+                request.session.pop("is_master_superadmin", None)
+                request.session.pop("master_superadmin_user_id", None)
+
+    if is_super:
         # Handle SuperAdmin POST actions (delete event, change tier, toggle status)
         if request.method == "POST":
             action = request.POST.get("action")
@@ -2164,7 +2262,7 @@ def thepranit_admin_view(request):
             "django_version": "5.1.6",
             "os_name": f"{platform.system()} {platform.release()}",
             "r2_storage_status": "Enabled (Cloudflare R2)" if getattr(settings, 'R2_ENABLED', False) else "Local Media Storage",
-            "ai_engine": "MediaPipe + Cosine 128D (Active)",
+            "ai_engine": f"InsightFace {getattr(settings, 'INSIGHTFACE_MODEL_NAME', 'buffalo_s')} (512D)",
             "db_engine": "PostgreSQL" if "postgresql" in str(settings.DATABASES['default'].get('ENGINE', '')) else "SQLite 3",
         }
 
@@ -2181,15 +2279,20 @@ def thepranit_admin_view(request):
             "telemetry": system_telemetry,
         })
 
-    # If POST request on login gate, verify passkey
+    # If POST request on login gate, verify username and password against Django auth
     if request.method == "POST":
-        entered_pass = request.POST.get("super_password", "").strip()
-        if entered_pass == "thepranit":
+        username = request.POST.get("username", "").strip()
+        password = request.POST.get("password", "").strip()
+        
+        user = authenticate(request, username=username, password=password)
+        if user is not None and user.is_active and user.is_staff and user.is_superuser:
+            login(request, user)
             request.session["is_master_superadmin"] = True
+            request.session["master_superadmin_user_id"] = user.id
             return redirect("/thepranit/")
         else:
             return render(request, "master_super_admin_login.html", {
-                "error": "Invalid master passkey. Access denied."
+                "error": "Invalid superadmin credentials. Access denied."
             })
 
     # Render login gate
@@ -2198,10 +2301,13 @@ def thepranit_admin_view(request):
 
 def thepranit_logout_view(request):
     """
-    Clears the superadmin session and locks the panel.
+    Logs out the superadmin and locks the panel.
     """
     if "is_master_superadmin" in request.session:
         del request.session["is_master_superadmin"]
+    if "master_superadmin_user_id" in request.session:
+        del request.session["master_superadmin_user_id"]
+    logout(request)
     return redirect("/thepranit/")
 
 
