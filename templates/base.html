@@ -242,6 +242,7 @@
         if (drawer) drawer.classList.add('active');
         if (overlay) overlay.classList.add('active');
         document.body.style.overflow = 'hidden';
+        document.documentElement.style.overflow = 'hidden';
       } else {
         closeMobileNav();
       }
@@ -252,8 +253,20 @@
       const overlay = document.getElementById('mobileNavOverlay');
       if (drawer) drawer.classList.remove('active');
       if (overlay) overlay.classList.remove('active');
+      document.body.style.removeProperty('overflow');
       document.body.style.overflow = '';
+      document.documentElement.style.removeProperty('overflow');
+      document.documentElement.style.overflow = '';
     }
+
+    // Safety: Ensure scrolling is never permanently locked on screen resize or hash navigation
+    window.addEventListener('resize', () => {
+      if (window.innerWidth > 900 && isNavOpen) {
+        closeMobileNav();
+      }
+    });
+    window.addEventListener('hashchange', closeMobileNav);
+    window.addEventListener('pageshow', closeMobileNav);
 
     /* ── Scroll-aware navbar ── */
     let lastScroll = 0;
