@@ -201,8 +201,8 @@ function initHostSignaling() {
     const data = JSON.parse(e.data);
     console.log('[HostSignaling] Received:', data);
 
-    if (data.action === 'participant_waiting') {
-      handleParticipantWaiting(data.peer_id, data.display_name);
+    if (data.action === 'participant_joined' || data.action === 'participant_waiting') {
+      handleParticipantJoined(data.peer_id, data.display_name);
     } else if (data.action === 'webrtc_answer') {
       await webrtcManager.handleAnswer(data.sender, data.sdp);
     } else if (data.action === 'webrtc_ice_candidate') {
@@ -237,6 +237,11 @@ function initHostSignaling() {
     },
     onConnectionState: (peerId, state) => {
       console.log(`[Host] Peer ${peerId} state: ${state}`);
+      const st = document.getElementById(`peer_status_${peerId}`);
+      if (st) {
+        if (state === 'connected') st.innerHTML = `<span style="color: #34D399;">● Connected</span> &middot; Matching face...`;
+        else if (state === 'disconnected') st.innerHTML = `<span style="color: #FB7185;">Disconnected</span>`;
+      }
     }
   });
 
@@ -293,54 +298,38 @@ async function handlePhotosSelected(event) {
     grid.appendChild(div);
   });
 
-  showToast('Trip photos indexed successfully! Friends can now connect.', 'success');
+  showToast('Trip photos indexed successfully! Friends can now connect and match.', 'success');
 }
 
-// Participant waiting approval UI
-function handleParticipantWaiting(peerId, displayName) {
+// Participant joined auto-connection UI
+async function handleParticipantJoined(peerId, displayName) {
   document.getElementById('noParticipantsMsg')?.remove();
   const list = document.getElementById('participantsList');
   
-  if (document.getElementById(`peer_${peerId}`)) return;
+  let card = document.getElementById(`peer_${peerId}`);
+  if (!card) {
+    card = document.createElement('div');
+    card.id = `peer_${peerId}`;
+    card.className = 'glass-dark';
+    card.style = 'padding: 12px 14px; border-radius: 14px; border: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 8px;';
+    
+    card.innerHTML = `
+      <div>
+        <div style="font-weight: 700; font-size: 13px; color: var(--text-primary);">${displayName}</div>
+        <div id="peer_status_${peerId}" style="font-size: 11px; color: #34D399;">● Connected &middot; Matching face...</div>
+      </div>
+      <div id="peer_badge_${peerId}">
+        <span style="font-size: 11px; color: var(--gold); font-weight: 700;">Scanning</span>
+      </div>
+    `;
+    list.appendChild(card);
+  }
 
-  const card = document.createElement('div');
-  card.id = `peer_${peerId}`;
-  card.className = 'glass-dark';
-  card.style = 'padding: 12px 14px; border-radius: 14px; border: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 8px;';
-  
-  card.innerHTML = `
-    <div>
-      <div style="font-weight: 700; font-size: 13px; color: var(--text-primary);">${displayName}</div>
-      <div id="peer_status_${peerId}" style="font-size: 11px; color: var(--warning);">Pending approval</div>
-    </div>
-    <div id="peer_actions_${peerId}" style="display: flex; gap: 6px;">
-      <button onclick="decideParticipant('${peerId}', 'approved')" class="btn btn-gold btn-sm" style="padding: 4px 10px; font-size: 11px;">Approve</button>
-      <button onclick="decideParticipant('${peerId}', 'rejected')" class="btn btn-secondary btn-sm" style="padding: 4px 10px; font-size: 11px;">Decline</button>
-    </div>
-  `;
-
-  list.appendChild(card);
-}
-
-// Host approves or declines
-async function decideParticipant(peerId, decision) {
-  signalingSocket.send(JSON.stringify({
-    action: 'host_decision',
-    peer_id: peerId,
-    decision: decision
-  }));
-
-  const actions = document.getElementById(`peer_actions_${peerId}`);
-  const status = document.getElementById(`peer_status_${peerId}`);
-
-  if (decision === 'approved') {
-    actions.innerHTML = `<span style="font-size: 11px; color: #34D399; font-weight: 700;">Approved</span>`;
-    status.innerText = 'Connected & matching';
-    status.style.color = '#34D399';
-    // Create WebRTC Offer to participant
+  // Automatically create WebRTC offer for instant face match
+  try {
     await webrtcManager.createOffer(peerId);
-  } else {
-    document.getElementById(`peer_${peerId}`).remove();
+  } catch (err) {
+    console.warn(`[Host] WebRTC offer creation error for ${peerId}:`, err);
   }
 }
 
@@ -358,6 +347,12 @@ async function handleParticipantControlMessage(peerId, rawData) {
     const result = window.photoIndexer.findMatchesForParticipant(msg.embedding);
     console.log(`[Host] Found ${result.matches.length} matches for ${peerId}`);
 
+    // Update Host UI for this friend
+    const statusEl = document.getElementById(`peer_status_${peerId}`);
+    const badgeEl = document.getElementById(`peer_badge_${peerId}`);
+    if (statusEl) statusEl.innerHTML = `<span style="color: #34D399;">● Matched</span> &middot; ${result.matches.length} photos sent`;
+    if (badgeEl) badgeEl.innerHTML = `<span style="font-size: 11px; color: #34D399; font-weight: 800; background: rgba(52,211,153,0.15); padding: 2px 8px; border-radius: 6px;">${result.matches.length} Photos</span>`;
+
     // Send match results metadata back to participant
     webrtcManager.sendControlMessage(peerId, {
       type: 'match_results',
@@ -365,7 +360,7 @@ async function handleParticipantControlMessage(peerId, rawData) {
       totalPhotos: window.photoIndexer.photos.size
     });
 
-    // Send thumbnails of matching photos over DataChannel
+    // Stream thumbnails of matching photos over DataChannel
     for (const match of result.matches) {
       const item = window.photoIndexer.getPhoto(match.photoId);
       if (item && item.thumbBlob) {

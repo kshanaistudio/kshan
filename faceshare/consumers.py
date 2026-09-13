@@ -92,21 +92,29 @@ class FaceShareSignalingConsumer(AsyncJsonWebsocketConsumer):
             peer_id = content.get('peer_id')
             self.role = 'participant'
             self.peer_id = peer_id
+            display_name = content.get('display_name', 'Friend')
             await self.channel_layer.group_add(
                 self.room_group_name,
                 self.channel_name
             )
-            # Notify Host that a participant is present in room signaling
+            # Notify Host that a participant joined for instant face matching
             await self.channel_layer.group_send(
                 self.room_group_name,
                 {
                     'type': 'signaling_message',
                     'sender': self.peer_id,
-                    'action': 'participant_waiting',
+                    'action': 'participant_joined',
                     'peer_id': self.peer_id,
-                    'display_name': content.get('display_name', 'Guest')
+                    'display_name': display_name
                 }
             )
+            # Send immediate auto-approval to participant
+            await self.send_json({
+                'action': 'approval_status',
+                'approved': True,
+                'message': 'Connected for instant face matching.'
+            })
+            logger.info(f"Participant {display_name} ({peer_id}) joined room {self.room_code} for direct matching")
 
         # 3. Host Approves / Rejects Participant
         elif action == 'host_decision':

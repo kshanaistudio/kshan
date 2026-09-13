@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Join Room {{ room_code }} — FaceShare | KSHAN{% endblock %}
+{% block title %}FaceShare Room {{ room_code }} — KSHAN{% endblock %}
 
 {% block extra_head %}
 <!-- JSZip for batch downloading all matched photos -->
@@ -21,7 +21,7 @@
     <div style="max-width: 1100px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; gap: 10px;">
       
       <div>
-        <div style="font-size: 11px; font-weight: 800; color: var(--gold); text-transform: uppercase; letter-spacing: 0.1em;">FaceShare Room</div>
+        <div style="font-size: 11px; font-weight: 800; color: var(--gold); text-transform: uppercase; letter-spacing: 0.1em;">FaceShare Live</div>
         <div style="font-family: var(--font-display); font-size: 18px; font-weight: 600; color: var(--text-primary);">
           Host: {{ host_name }} &middot; <span style="font-family: monospace; font-size: 14px; font-weight: 800; color: var(--gold);">{{ room_code }}</span>
         </div>
@@ -29,7 +29,7 @@
 
       <div id="connectionStatusPill" style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: var(--radius-pill); background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); font-size: 12px; color: var(--text-secondary);">
         <span id="connDot" style="width: 7px; height: 7px; border-radius: 50%; background: var(--warning);"></span>
-        <span id="connText">Connecting...</span>
+        <span id="connText">Connecting to Host...</span>
       </div>
 
     </div>
@@ -37,41 +37,22 @@
 
   <main style="max-width: 1000px; margin: 0 auto; width: 100%; padding: 24px 16px;">
 
-    <!-- ── STEP 1: ENTER NAME & JOIN REQUEST ─────────────────── -->
-    <div id="stepJoinRequest" class="glass-dark" style="max-width: 440px; margin: 40px auto 0; border-radius: 24px; padding: 32px; border: 1.5px solid var(--gold-border); text-align: center;">
-      <div style="width: 56px; height: 56px; border-radius: 16px; background: var(--gold-subtle); border: 1.5px solid var(--gold-border); display: flex; align-items: center; justify-content: center; color: var(--gold); margin: 0 auto 18px;">
-        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-      </div>
-      <h2 style="font-family: var(--font-display); font-size: 26px; color: var(--text-primary); margin-bottom: 8px;">Join {{ host_name }}'s Room</h2>
-      <p style="font-size: 13.5px; color: var(--text-secondary); margin-bottom: 24px;">Enter your name to request access from the Host.</p>
-
-      <input type="text" id="participantNameInput" placeholder="Your Name (e.g. Ananya)" style="width: 100%; background: var(--bg-surface); border: 1.5px solid var(--border); border-radius: 12px; padding: 14px; color: var(--text-primary); font-size: 15px; margin-bottom: 20px; text-align: center;">
-
-      <button onclick="sendJoinRequest()" class="btn btn-gold btn-lg" style="width: 100%; font-weight: 700;">
-        Request to Join
-      </button>
-    </div>
-
-    <!-- ── STEP 2: WAITING FOR HOST APPROVAL ─────────────────── -->
-    <div id="stepWaitingApproval" class="glass-dark" style="display: none; max-width: 440px; margin: 40px auto 0; border-radius: 24px; padding: 40px 32px; border: 1.5px solid var(--border); text-align: center;">
-      <div class="spinner" style="width: 44px; height: 44px; border-width: 3px; margin: 0 auto 20px;"></div>
-      <h3 style="font-family: var(--font-display); font-size: 24px; color: var(--text-primary); margin-bottom: 8px;">Waiting for Host Approval</h3>
-      <p style="font-size: 13.5px; color: var(--text-secondary); line-height: 1.6;">
-        A join request has been sent to {{ host_name }}. Once approved, you can snap a selfie to retrieve your photos.
-      </p>
-    </div>
-
-    <!-- ── STEP 3: CAPTURE / UPLOAD SELFIE ────────────────────── -->
-    <div id="stepCaptureSelfie" class="glass-dark" style="display: none; max-width: 480px; margin: 20px auto 0; border-radius: 24px; padding: 28px; border: 1.5px solid var(--gold-border); text-align: center;">
+    <!-- ── STEP 1: CAPTURE / UPLOAD SELFIE (DEFAULT IMMEDIATE VIEW) ── -->
+    <div id="stepCaptureSelfie" class="glass-dark" style="max-width: 480px; margin: 20px auto 0; border-radius: 24px; padding: 28px; border: 1.5px solid var(--gold-border); text-align: center;">
       
-      <h3 style="font-family: var(--font-display); font-size: 26px; color: var(--text-primary); margin-bottom: 6px;">Snap Your Selfie</h3>
-      <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 20px;">Your selfie is processed on your device only and is never uploaded.</p>
+      <div style="display: inline-flex; align-items: center; gap: 6px; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3); padding: 4px 12px; border-radius: var(--radius-pill); margin-bottom: 14px;">
+        <span style="width: 6px; height: 6px; border-radius: 50%; background: #34D399;"></span>
+        <span style="font-size: 11px; font-weight: 700; color: #34D399; text-transform: uppercase;">Instant Face Match</span>
+      </div>
+
+      <h3 style="font-family: var(--font-display); font-size: 26px; color: var(--text-primary); margin-bottom: 6px;">Snap Your Face</h3>
+      <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 20px;">Take a quick selfie to automatically retrieve all photos you appear in.</p>
 
       <!-- Live Video Camera Container -->
       <div id="cameraBox" style="position: relative; width: 100%; height: 320px; border-radius: 20px; overflow: hidden; background: #000; border: 1.5px solid var(--gold-border); margin-bottom: 16px;">
         <video id="selfieVideo" autoplay playsinline muted style="width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1);"></video>
         
-        <!-- Oval Face Positioning Guide -->
+        <!-- Oval Face Guide -->
         <div style="position: absolute; inset: 0; pointer-events: none; display: flex; align-items: center; justify-content: center;">
           <div style="width: 180px; height: 230px; border-radius: 50%; border: 2px dashed rgba(199,168,107,0.7); box-shadow: 0 0 0 9999px rgba(0,0,0,0.35);"></div>
         </div>
@@ -83,7 +64,7 @@
       <!-- Controls -->
       <div style="display: flex; gap: 10px; justify-content: center; margin-bottom: 14px;">
         <button id="btnSnapPhoto" onclick="snapSelfie()" class="btn btn-gold" style="flex: 1; font-weight: 700; padding: 12px;">
-          📸 Take Selfie
+          📸 Match My Photos
         </button>
         <button id="btnRetakePhoto" onclick="startCamera()" class="btn btn-secondary" style="display: none; padding: 12px 18px;">
           Retake
@@ -92,34 +73,37 @@
 
       <!-- Upload fallback -->
       <div style="font-size: 12px; color: var(--text-muted);">
-        or <label for="selfieUploadInput" style="color: var(--gold); text-decoration: underline; cursor: pointer; font-weight: 600;">upload a selfie from gallery</label>
+        or <label for="selfieUploadInput" style="color: var(--gold); text-decoration: underline; cursor: pointer; font-weight: 600;">upload a photo from gallery</label>
         <input type="file" id="selfieUploadInput" accept="image/*" style="display: none;" onchange="handleSelfieUpload(event)">
       </div>
 
     </div>
 
-    <!-- ── STEP 4: MATCHING IN PROGRESS ───────────────────────── -->
+    <!-- ── STEP 2: MATCHING IN PROGRESS ───────────────────────── -->
     <div id="stepSearchingMatches" class="glass-dark" style="display: none; max-width: 440px; margin: 40px auto 0; border-radius: 24px; padding: 40px 32px; border: 1.5px solid var(--gold-border); text-align: center;">
       <div class="spinner" style="width: 44px; height: 44px; border-width: 3px; margin: 0 auto 20px;"></div>
       <h3 style="font-family: var(--font-display); font-size: 24px; color: var(--text-primary); margin-bottom: 8px;">Finding Your Moments</h3>
-      <p style="font-size: 13.5px; color: var(--text-secondary); line-height: 1.6;">
-        Comparing your face vector with the host's trip photos directly via WebRTC...
+      <p id="searchProgressText" style="font-size: 13.5px; color: var(--text-secondary); line-height: 1.6;">
+        Matching your face vector against the host's trip photos directly via WebRTC...
       </p>
     </div>
 
-    <!-- ── STEP 5: MATCHED GALLERY & DOWNLOAD ─────────────────── -->
+    <!-- ── STEP 3: MATCHED GALLERY & DOWNLOAD ─────────────────── -->
     <div id="stepMatchedGallery" style="display: none;">
       
       <!-- Top Actions Bar -->
       <div class="glass-dark" style="border-radius: 20px; padding: 18px 24px; border: 1px solid var(--border); margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
         <div>
           <h2 style="font-family: var(--font-display); font-size: 24px; font-weight: 400; color: var(--text-primary);">
-            Your Discovered Photos (<span id="matchedCountText">0</span>)
+            Your Matched Photos (<span id="matchedCountText">0</span>)
           </h2>
-          <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">Transferred directly from {{ host_name }}'s phone</div>
+          <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">Transferred directly from {{ host_name }}'s device</div>
         </div>
 
         <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+          <button onclick="retakeSelfieFlow()" class="btn btn-secondary btn-sm" style="font-size: 12px;">
+            📸 Try Another Selfie
+          </button>
           <button id="btnDownloadSelected" onclick="downloadSelectedPhotos()" class="btn btn-secondary btn-sm" style="font-size: 12px; display: none;">
             Download Selected (<span id="selectedCountSpan">0</span>)
           </button>
@@ -131,7 +115,7 @@
       </div>
 
       <!-- Photo Grid -->
-      <div id="participantPhotoGrid" class="kshan-gallery-masonry"></div>
+      <div id="participantPhotoGrid" class="kshan-gallery-masonry" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px;"></div>
 
     </div>
 
@@ -146,36 +130,36 @@ const TURN_USER = '{{ turn_username }}';
 const TURN_PASS = '{{ turn_credential }}';
 
 let peerId = null;
-let displayName = 'Guest';
+let displayName = 'Friend';
 let signalingSocket = null;
 let webrtcManager = null;
 let fileTransfer = null;
 let videoStream = null;
+let pendingEmbeddingToSend = null;
 
 const matchedPhotos = new Map(); // photoId -> { photoId, name, size, confidence, thumbBlob, thumbUrl, originalBlob, originalUrl }
 const selectedPhotoIds = new Set();
 
-// Send join request to server & initialize WebSocket
-async function sendJoinRequest() {
-  displayName = document.getElementById('participantNameInput').value.trim() || 'Guest';
-  
-  const res = await authFetch(`/faceshare/api/${ROOM_CODE}/join/`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ display_name: displayName })
-  });
-  
-  const data = await res.json();
-  if (!data.success) {
-    alert(data.error || 'Failed to join room');
-    return;
+// 1. Auto-connect on page load without manual approval request
+async function autoJoinRoom() {
+  try {
+    const res = await authFetch(`/faceshare/api/${ROOM_CODE}/join/`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ display_name: displayName })
+    });
+    
+    const data = await res.json();
+    if (!data.success) {
+      console.warn('Join notice:', data.error);
+    }
+
+    peerId = data.peer_id || ('p_' + Math.random().toString(36).substring(2, 10));
+    initParticipantSignaling();
+  } catch (e) {
+    peerId = 'p_' + Math.random().toString(36).substring(2, 10);
+    initParticipantSignaling();
   }
-
-  peerId = data.peer_id;
-  document.getElementById('stepJoinRequest').style.display = 'none';
-  document.getElementById('stepWaitingApproval').style.display = 'block';
-
-  initParticipantSignaling();
 }
 
 function initParticipantSignaling() {
@@ -185,6 +169,7 @@ function initParticipantSignaling() {
   signalingSocket = new WebSocket(wsUrl);
 
   signalingSocket.onopen = () => {
+    console.log('[Participant] Signaling connected.');
     signalingSocket.send(JSON.stringify({
       action: 'participant_init',
       peer_id: peerId,
@@ -195,22 +180,16 @@ function initParticipantSignaling() {
   signalingSocket.onmessage = async (e) => {
     const data = JSON.parse(e.data);
 
-    if (data.action === 'approval_status') {
-      if (data.approved) {
-        document.getElementById('stepWaitingApproval').style.display = 'none';
-        document.getElementById('stepCaptureSelfie').style.display = 'block';
-        startCamera();
-      } else {
-        alert(data.message || 'Host declined your request.');
-        window.location.href = '/faceshare/';
-      }
-    } else if (data.action === 'webrtc_offer') {
+    if (data.action === 'webrtc_offer') {
       await webrtcManager.handleOffer(data.sender, data.sdp);
     } else if (data.action === 'webrtc_ice_candidate') {
       await webrtcManager.handleIceCandidate(data.sender, data.candidate);
     } else if (data.action === 'host_disconnected') {
-      alert('Host has left the room. Session ended.');
-      window.location.href = '/faceshare/';
+      showToast('Host has ended the sharing room.', 'warning');
+      const dot = document.getElementById('connDot');
+      const text = document.getElementById('connText');
+      if (dot) dot.style.background = '#FB7185';
+      if (text) text.innerText = 'Host Disconnected';
     }
   };
 
@@ -239,11 +218,17 @@ function initParticipantSignaling() {
       const dot = document.getElementById('connDot');
       const text = document.getElementById('connText');
       if (state === 'connected') {
-        dot.style.background = '#34D399';
-        text.innerText = 'Connected (P2P)';
+        if (dot) dot.style.background = '#34D399';
+        if (text) text.innerText = 'Connected (P2P)';
+        
+        // If participant snapped selfie before connection opened, send it now
+        if (pendingEmbeddingToSend) {
+          sendEmbeddingToHost(pendingEmbeddingToSend);
+          pendingEmbeddingToSend = null;
+        }
       } else if (state === 'disconnected' || state === 'failed') {
-        dot.style.background = '#FB7185';
-        text.innerText = 'Disconnected';
+        if (dot) dot.style.background = '#FB7185';
+        if (text) text.innerText = 'Disconnected';
       }
     }
   });
@@ -268,7 +253,6 @@ async function startCamera() {
     video.srcObject = videoStream;
   } catch (err) {
     console.warn('Camera error:', err);
-    alert('Could not access front camera. You can upload a photo from your gallery instead.');
   }
 }
 
@@ -303,23 +287,38 @@ async function handleSelfieUpload(e) {
 async function processSelfieAndSend(canvas) {
   document.getElementById('stepCaptureSelfie').style.display = 'none';
   document.getElementById('stepSearchingMatches').style.display = 'block';
+  document.getElementById('searchProgressText').innerText = 'Detecting your face vector in browser...';
 
   try {
     // 1. Extract 128-D normalized face vector in browser
     const result = await window.faceEngine.extractSelfieEmbedding(canvas);
     console.log('[Participant] Selfie embedding generated successfully.');
 
+    document.getElementById('searchProgressText').innerText = 'Matching face against trip photos on host device...';
+
     // 2. Send embedding to Host via WebRTC DataChannel
-    webrtcManager.sendControlMessage('host', {
+    const sent = webrtcManager.sendControlMessage('host', {
       type: 'participant_search_embedding',
       embedding: result.descriptor
     });
+
+    if (!sent) {
+      console.log('[Participant] WebRTC channel still opening. Queuing face vector...');
+      pendingEmbeddingToSend = result.descriptor;
+    }
   } catch (err) {
-    alert(err.message || 'Face detection error');
+    alert(err.message || 'Face detection error. Please try another selfie.');
     document.getElementById('stepSearchingMatches').style.display = 'none';
     document.getElementById('stepCaptureSelfie').style.display = 'block';
     startCamera();
   }
+}
+
+function sendEmbeddingToHost(descriptor) {
+  webrtcManager.sendControlMessage('host', {
+    type: 'participant_search_embedding',
+    embedding: descriptor
+  });
 }
 
 // Handle host messages (match metadata & streaming)
@@ -334,6 +333,10 @@ function handleHostControlMessage(rawData) {
     document.getElementById('stepMatchedGallery').style.display = 'block';
     document.getElementById('matchedCountText').innerText = msg.matches.length;
 
+    matchedPhotos.clear();
+    const grid = document.getElementById('participantPhotoGrid');
+    grid.innerHTML = '';
+
     msg.matches.forEach(m => {
       matchedPhotos.set(m.photoId, {
         photoId: m.photoId,
@@ -347,10 +350,10 @@ function handleHostControlMessage(rawData) {
     });
 
     if (msg.matches.length === 0) {
-      document.getElementById('participantPhotoGrid').innerHTML = `
+      grid.innerHTML = `
         <div style="grid-column: 1 / -1; text-align: center; padding: 60px 20px; color: var(--text-muted);">
           No confident matches found in this trip batch.<br>
-          <button onclick="retakeSelfieFlow()" class="btn btn-gold btn-sm" style="margin-top: 14px;">Try Another Selfie</button>
+          <button onclick="retakeSelfieFlow()" class="btn btn-gold btn-sm" style="margin-top: 14px;">Try Another Photo</button>
         </div>
       `;
     }
@@ -372,6 +375,7 @@ function handleIncomingFile(fileData) {
     // Original full-res downloaded
     item.originalBlob = fileData.blob;
     triggerBlobDownload(fileData.blob, item.name);
+    showToast(`Downloaded ${item.name}`, 'success');
   }
 }
 
@@ -386,7 +390,7 @@ function renderPhotoCard(item) {
   }
 
   card.innerHTML = `
-    <img src="${item.thumbUrl}" style="width: 100%; height: 220px; object-fit: cover;">
+    <img src="${item.thumbUrl}" style="width: 100%; height: 220px; object-fit: cover; display: block;">
     
     <!-- Selection Checkbox -->
     <div style="position: absolute; top: 10px; right: 10px; z-index: 2;">
@@ -419,14 +423,20 @@ function requestOriginalDownload(photoId) {
     type: 'request_original_file',
     photoId: photoId
   });
-  showToast('Requesting original photo from host...', 'info');
+  showToast('Downloading full-resolution photo from host...', 'info');
+}
+
+async function downloadSelectedPhotos() {
+  for (const id of selectedPhotoIds) {
+    requestOriginalDownload(id);
+    await new Promise(r => setTimeout(r, 200));
+  }
 }
 
 async function downloadAllPhotosZip() {
-  showToast('Preparing ZIP package of your photos...', 'info');
+  showToast('Packaging your matched photos into ZIP...', 'info');
   const zip = new JSZip();
 
-  // Request all originals
   for (const item of matchedPhotos.values()) {
     if (item.thumbBlob) {
       zip.file(item.name, item.thumbBlob);
@@ -451,5 +461,10 @@ function retakeSelfieFlow() {
   document.getElementById('stepCaptureSelfie').style.display = 'block';
   startCamera();
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+  autoJoinRoom();
+  startCamera();
+});
 </script>
 {% endblock %}

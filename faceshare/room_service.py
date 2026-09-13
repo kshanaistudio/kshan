@@ -149,22 +149,22 @@ class FaceShareRoomService:
             participant = {
                 "peer_id": peer_id,
                 "display_name": (display_name or "Guest")[:25],
-                "approved": False,
-                "connected": False,
+                "approved": True,
+                "connected": True,
                 "channel_name": None,
                 "joined_at": now,
-                "status": "pending_approval",  # pending_approval, approved, rejected, connected
+                "status": "connected",  # auto-connected for direct face matching
             }
             room["participants"][peer_id] = participant
             self._peer_map[peer_id] = room_code
 
-        logger.info(f"Participant {participant['display_name']} ({peer_id}) requested to join room {room_code}")
+        logger.info(f"Participant {participant['display_name']} ({peer_id}) joined room {room_code} for direct face matching")
         return {
             "success": True,
             "peer_id": peer_id,
             "room_code": room_code,
             "display_name": participant["display_name"],
-            "status": "pending_approval",
+            "status": "connected",
         }
 
     def set_approval(self, room_code: str, host_token: str, peer_id: str, approved: bool) -> dict:
