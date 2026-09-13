@@ -1,6 +1,10 @@
 /**
  * FaceShare WebRTC Peer Connection Manager
  * Manages peer-to-peer data channels for signaling, metadata exchange and file streaming.
+ * Features:
+ * - Robust ICE Candidate buffering before remote description is set
+ * - Ordered control and file streaming RTCDataChannels
+ * - Automatic connection state tracking and graceful reconnection/teardown
  */
 
 class WebRTCManager {
@@ -17,7 +21,7 @@ class WebRTCManager {
     this.onConnectionState = options.onConnectionState || null;
     this.onSignalingSend = options.onSignalingSend || null;
 
-    this.peers = new Map(); // targetPeerId -> { pc, controlChannel, fileChannel, state }
+    this.peers = new Map(); // targetPeerId -> { pc, controlChannel, fileChannel, state, pendingCandidates, isRemoteDescriptionSet }
     this.iceServers = this.buildIceServers();
   }
 
@@ -37,13 +41,19 @@ class WebRTCManager {
       return this.peers.get(targetPeerId);
     }
 
-    const pc = new RTCPeerConnection({ iceServers: this.iceServers });
+    const pc = new RTCPeerConnection({
+      iceServers: this.iceServers,
+      iceCandidatePoolSize: 10
+    });
+
     const peerData = {
       targetPeerId,
       pc,
       controlChannel: null,
       fileChannel: null,
-      state: 'new'
+      state: 'new',
+      pendingCandidates: [],
+      isRemoteDescriptionSet: false
     };
 
     pc.onicecandidate = (event) => {
@@ -51,7 +61,7 @@ class WebRTCManager {
         this.onSignalingSend({
           action: 'webrtc_ice_candidate',
           target_peer: targetPeerId,
-          candidate: event.candidate
+          candidate: event.candidate.toJSON ? event.candidate.toJSON() : event.candidate
         });
       }
     };
@@ -61,6 +71,17 @@ class WebRTCManager {
       console.log(`[WebRTC] Peer ${targetPeerId} connection state: ${pc.connectionState}`);
       if (this.onConnectionState) {
         this.onConnectionState(targetPeerId, pc.connectionState);
+      }
+    };
+
+    pc.oniceconnectionstatechange = () => {
+      console.log(`[WebRTC] Peer ${targetPeerId} ICE state: ${pc.iceConnectionState}`);
+      if (pc.iceConnectionState === 'failed') {
+        try {
+          pc.restartIce();
+        } catch (e) {
+          console.warn('[WebRTC] ICE restart error:', e);
+        }
       }
     };
 
@@ -76,6 +97,7 @@ class WebRTCManager {
       // Participant listens for channels created by Host
       pc.ondatachannel = (event) => {
         const channel = event.channel;
+        console.log(`[WebRTC] Received DataChannel: ${channel.label} from ${targetPeerId}`);
         if (channel.label === 'control') {
           peerData.controlChannel = channel;
         } else if (channel.label === 'file_stream') {
@@ -116,45 +138,87 @@ class WebRTCManager {
 
   async createOffer(targetPeerId) {
     const peer = this.getOrCreatePeer(targetPeerId);
-    const offer = await peer.pc.createOffer();
-    await peer.pc.setLocalDescription(offer);
-
-    if (this.onSignalingSend) {
-      this.onSignalingSend({
-        action: 'webrtc_offer',
-        target_peer: targetPeerId,
-        sdp: peer.pc.localDescription
+    try {
+      const offer = await peer.pc.createOffer({
+        offerToReceiveAudio: false,
+        offerToReceiveVideo: false
       });
+      await peer.pc.setLocalDescription(offer);
+
+      if (this.onSignalingSend) {
+        this.onSignalingSend({
+          action: 'webrtc_offer',
+          target_peer: targetPeerId,
+          sdp: peer.pc.localDescription
+        });
+      }
+    } catch (err) {
+      console.error(`[WebRTC] Error creating offer to ${targetPeerId}:`, err);
+      throw err;
     }
   }
 
   async handleOffer(fromPeerId, sdp) {
     const peer = this.getOrCreatePeer(fromPeerId);
-    await peer.pc.setRemoteDescription(new RTCSessionDescription(sdp));
-    const answer = await peer.pc.createAnswer();
-    await peer.pc.setLocalDescription(answer);
+    try {
+      await peer.pc.setRemoteDescription(new RTCSessionDescription(sdp));
+      peer.isRemoteDescriptionSet = true;
+      await this.drainPendingCandidates(peer);
 
-    if (this.onSignalingSend) {
-      this.onSignalingSend({
-        action: 'webrtc_answer',
-        target_peer: fromPeerId,
-        sdp: peer.pc.localDescription
-      });
+      const answer = await peer.pc.createAnswer();
+      await peer.pc.setLocalDescription(answer);
+
+      if (this.onSignalingSend) {
+        this.onSignalingSend({
+          action: 'webrtc_answer',
+          target_peer: fromPeerId,
+          sdp: peer.pc.localDescription
+        });
+      }
+    } catch (err) {
+      console.error(`[WebRTC] Error handling offer from ${fromPeerId}:`, err);
+      throw err;
     }
   }
 
   async handleAnswer(fromPeerId, sdp) {
     const peer = this.getOrCreatePeer(fromPeerId);
-    await peer.pc.setRemoteDescription(new RTCSessionDescription(sdp));
+    try {
+      await peer.pc.setRemoteDescription(new RTCSessionDescription(sdp));
+      peer.isRemoteDescriptionSet = true;
+      await this.drainPendingCandidates(peer);
+    } catch (err) {
+      console.error(`[WebRTC] Error handling answer from ${fromPeerId}:`, err);
+      throw err;
+    }
   }
 
   async handleIceCandidate(fromPeerId, candidate) {
+    if (!candidate) return;
     const peer = this.getOrCreatePeer(fromPeerId);
-    if (candidate) {
+    
+    if (peer.pc.remoteDescription && peer.pc.remoteDescription.type) {
       try {
         await peer.pc.addIceCandidate(new RTCIceCandidate(candidate));
       } catch (err) {
-        console.warn('[WebRTC] Error adding ICE candidate:', err);
+        console.warn(`[WebRTC] Error adding ICE candidate directly:`, err);
+      }
+    } else {
+      // Remote description not yet set; buffer candidate for later
+      peer.pendingCandidates.push(candidate);
+    }
+  }
+
+  async drainPendingCandidates(peer) {
+    if (!peer.pendingCandidates || peer.pendingCandidates.length === 0) return;
+    const candidates = [...peer.pendingCandidates];
+    peer.pendingCandidates = [];
+
+    for (const c of candidates) {
+      try {
+        await peer.pc.addIceCandidate(new RTCIceCandidate(c));
+      } catch (err) {
+        console.warn('[WebRTC] Error adding buffered ICE candidate:', err);
       }
     }
   }
@@ -166,21 +230,26 @@ class WebRTCManager {
       peer.controlChannel.send(payload);
       return true;
     }
+    console.warn(`[WebRTC] Cannot send control message to ${targetPeerId} (Channel state: ${peer?.controlChannel?.readyState})`);
     return false;
   }
 
   closePeer(targetPeerId) {
     const peer = this.peers.get(targetPeerId);
     if (peer) {
-      if (peer.controlChannel) peer.controlChannel.close();
-      if (peer.fileChannel) peer.fileChannel.close();
-      peer.pc.close();
+      try {
+        if (peer.controlChannel) peer.controlChannel.close();
+        if (peer.fileChannel) peer.fileChannel.close();
+        peer.pc.close();
+      } catch (e) {
+        console.warn('[WebRTC] Error closing peer:', e);
+      }
       this.peers.delete(targetPeerId);
     }
   }
 
   closeAll() {
-    for (const peerId of this.peers.keys()) {
+    for (const peerId of Array.from(this.peers.keys())) {
       this.closePeer(peerId);
     }
   }

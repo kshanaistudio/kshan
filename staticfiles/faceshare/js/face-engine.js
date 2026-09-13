@@ -1,7 +1,7 @@
 /**
  * FaceShare Face Engine
- * Browser-based ultra-fast face detection and embedding pipeline
- * Uses MediaPipe / Face-API / ONNX Runtime Web for 100% on-device biometric extraction.
+ * Browser-based fast face detection and embedding pipeline
+ * Uses Face-API / ONNX Web for 100% on-device biometric extraction.
  * No photos, selfies or vectors ever leave the client's device to the cloud.
  */
 
@@ -9,26 +9,35 @@ class FaceEngine {
   constructor() {
     this.isLoaded = false;
     this.loadingPromise = null;
-    this.detector = null;
-    this.matchThreshold = 0.60; // Cosine similarity threshold
+    this.matchThreshold = 0.60; // Cosine similarity threshold (128-D descriptor)
+    this.activeDetector = 'ssd'; // 'ssd' or 'tiny'
+    this.modelUrls = [
+      'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/',
+      'https://raw.githubusercontent.com/vladmandic/face-api/master/model/'
+    ];
   }
 
-  async init() {
+  async init(onStatus) {
     if (this.isLoaded) return true;
     if (this.loadingPromise) return this.loadingPromise;
 
     this.loadingPromise = (async () => {
       try {
+        if (onStatus) onStatus('Loading face detection AI models...');
         console.log('[FaceEngine] Initializing Face Detection & Feature Extractor...');
-        
-        // Ensure human-friendly face-api or WebAssembly models are available
-        // We load face-api.js or lightweight mobile pipeline from trusted CDN / local static
-        await this.loadDependencies();
+
+        // 1. Ensure faceapi is present in window
+        await this.ensureFaceApiLoaded();
+
+        // 2. Load models with mirror fallback
+        await this.loadModelsWithFallback(onStatus);
+
         this.isLoaded = true;
         console.log('[FaceEngine] Face Engine initialized successfully.');
         return true;
       } catch (err) {
         console.error('[FaceEngine] Failed to initialize face engine:', err);
+        this.loadingPromise = null;
         throw err;
       }
     })();
@@ -36,39 +45,67 @@ class FaceEngine {
     return this.loadingPromise;
   }
 
-  async loadDependencies() {
-    // If faceapi is already on window, initialize models
-    if (window.faceapi) {
-      const MODEL_URL = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/';
-      await Promise.all([
-        faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL),
-        faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
-        faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL)
-      ]);
-      return;
-    }
+  async ensureFaceApiLoaded() {
+    if (window.faceapi) return;
 
-    // Dynamically inject face-api if not pre-loaded
-    await new Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       const script = document.createElement('script');
       script.src = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.12/dist/face-api.js';
       script.async = true;
-      script.onload = async () => {
-        try {
-          const MODEL_URL = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/';
-          await Promise.all([
-            faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL),
-            faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
-            faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL)
-          ]);
-          resolve();
-        } catch (e) {
-          reject(e);
-        }
+      script.onload = () => resolve();
+      script.onerror = () => {
+        // Fallback CDN
+        const fallbackScript = document.createElement('script');
+        fallbackScript.src = 'https://unpkg.com/@vladmandic/face-api@1.7.12/dist/face-api.js';
+        fallbackScript.async = true;
+        fallbackScript.onload = () => resolve();
+        fallbackScript.onerror = () => reject(new Error('Failed to load face recognition script from CDN.'));
+        document.head.appendChild(fallbackScript);
       };
-      script.onerror = () => reject(new Error('Failed to load Face Recognition libraries'));
       document.head.appendChild(script);
     });
+  }
+
+  async loadModelsWithFallback(onStatus) {
+    let loaded = false;
+    let lastError = null;
+
+    for (const url of this.modelUrls) {
+      try {
+        if (onStatus) onStatus(`Loading neural weights from ${url}...`);
+        console.log(`[FaceEngine] Attempting model load from: ${url}`);
+        
+        await Promise.all([
+          faceapi.nets.ssdMobilenetv1.loadFromUri(url),
+          faceapi.nets.tinyFaceDetector.loadFromUri(url),
+          faceapi.nets.faceLandmark68Net.loadFromUri(url),
+          faceapi.nets.faceRecognitionNet.loadFromUri(url)
+        ]);
+
+        loaded = true;
+        this.activeDetector = 'ssd';
+        break;
+      } catch (err) {
+        console.warn(`[FaceEngine] Model load failed from ${url}:`, err);
+        lastError = err;
+      }
+    }
+
+    if (!loaded) {
+      // Try minimal TinyFaceDetector only
+      try {
+        const url = this.modelUrls[0];
+        await Promise.all([
+          faceapi.nets.tinyFaceDetector.loadFromUri(url),
+          faceapi.nets.faceLandmark68Net.loadFromUri(url),
+          faceapi.nets.faceRecognitionNet.loadFromUri(url)
+        ]);
+        this.activeDetector = 'tiny';
+        loaded = true;
+      } catch (e) {
+        throw new Error('Could not load face recognition neural models: ' + (lastError?.message || e.message));
+      }
+    }
   }
 
   /**
@@ -106,16 +143,25 @@ class FaceEngine {
 
   /**
    * Extract all faces from a photo (Host batch scanning)
-   * Returns array of { bbox, score, descriptor (Float32Array) }
+   * Returns array of { bbox, score, descriptor (Array<number>) }
    */
   async extractFaces(canvasOrImg) {
     await this.init();
-    const detections = await faceapi
-      .detectAllFaces(canvasOrImg, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.38 }))
-      .withFaceLandmarks()
-      .withFaceDescriptors();
+    
+    let detections = [];
+    if (this.activeDetector === 'ssd' && faceapi.nets.ssdMobilenetv1.isLoaded) {
+      detections = await faceapi
+        .detectAllFaces(canvasOrImg, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.35 }))
+        .withFaceLandmarks()
+        .withFaceDescriptors();
+    } else {
+      detections = await faceapi
+        .detectAllFaces(canvasOrImg, new faceapi.TinyFaceDetectorOptions({ inputSize: 416, scoreThreshold: 0.35 }))
+        .withFaceLandmarks()
+        .withFaceDescriptors();
+    }
 
-    return detections.map(d => ({
+    return (detections || []).map(d => ({
       bbox: [
         Math.round(d.detection.box.x),
         Math.round(d.detection.box.y),
@@ -133,10 +179,19 @@ class FaceEngine {
    */
   async extractSelfieEmbedding(canvasOrImg) {
     await this.init();
-    const detections = await faceapi
-      .detectAllFaces(canvasOrImg, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.45 }))
-      .withFaceLandmarks()
-      .withFaceDescriptors();
+    
+    let detections = [];
+    if (this.activeDetector === 'ssd' && faceapi.nets.ssdMobilenetv1.isLoaded) {
+      detections = await faceapi
+        .detectAllFaces(canvasOrImg, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.40 }))
+        .withFaceLandmarks()
+        .withFaceDescriptors();
+    } else {
+      detections = await faceapi
+        .detectAllFaces(canvasOrImg, new faceapi.TinyFaceDetectorOptions({ inputSize: 416, scoreThreshold: 0.40 }))
+        .withFaceLandmarks()
+        .withFaceDescriptors();
+    }
 
     if (!detections || detections.length === 0) {
       throw new Error('No face detected. Please ensure your face is well-lit and facing the camera directly.');
@@ -163,6 +218,7 @@ class FaceEngine {
    * Cosine similarity between two float vectors
    */
   static cosineSimilarity(vecA, vecB) {
+    if (!vecA || !vecB || vecA.length !== vecB.length) return 0;
     let dot = 0.0;
     let normA = 0.0;
     let normB = 0.0;
@@ -184,6 +240,7 @@ class FaceEngine {
     let isMatch = false;
 
     for (const face of photoFaces) {
+      if (!face.descriptor) continue;
       const score = FaceEngine.cosineSimilarity(participantEmbedding, face.descriptor);
       if (score > bestScore) {
         bestScore = score;
@@ -201,4 +258,5 @@ class FaceEngine {
   }
 }
 
+window.FaceEngine = FaceEngine;
 window.faceEngine = new FaceEngine();

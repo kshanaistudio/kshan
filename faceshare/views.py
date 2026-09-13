@@ -3,7 +3,7 @@ import logging
 from django.shortcuts import render, redirect
 from django.http import JsonResponse, Http404
 from django.views.decorators.http import require_http_methods
-from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 from django.conf import settings
 from .room_service import room_service
 
@@ -15,6 +15,7 @@ def get_client_ip(request):
         return x_forwarded_for.split(',')[0].strip()
     return request.META.get('REMOTE_ADDR')
 
+@ensure_csrf_cookie
 def faceshare_landing_view(request):
     """
     FaceShare Home / Entry point.
@@ -27,6 +28,7 @@ def faceshare_landing_view(request):
     }
     return render(request, 'faceshare/landing.html', context)
 
+@ensure_csrf_cookie
 def faceshare_host_view(request, room_code):
     """
     Host Dashboard for managing photo batch, local face scanning, and WebRTC streaming.
@@ -55,6 +57,7 @@ def faceshare_host_view(request, room_code):
     }
     return render(request, 'faceshare/host_room.html', context)
 
+@ensure_csrf_cookie
 def faceshare_participant_view(request, room_code):
     """
     Participant view:
@@ -81,6 +84,7 @@ def faceshare_participant_view(request, room_code):
 
 # ── REST API Endpoints ──────────────────────────────────────────────
 
+@csrf_exempt
 @require_http_methods(["POST"])
 def api_create_room(request):
     """
@@ -105,6 +109,7 @@ def api_create_room(request):
         'max_photos': room_data['max_photos'],
     })
 
+@csrf_exempt
 @require_http_methods(["POST"])
 def api_join_room(request, room_code):
     """
@@ -134,6 +139,7 @@ def api_room_status(request, room_code):
         return JsonResponse({'success': False, 'error': 'Room not found or expired.'}, status=404)
     return JsonResponse({'success': True, 'room': room})
 
+@csrf_exempt
 @require_http_methods(["POST"])
 def api_end_room(request, room_code):
     """
