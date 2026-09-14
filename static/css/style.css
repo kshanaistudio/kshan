@@ -2723,6 +2723,7 @@ main {
   color: #7B5F23 !important;
 }
 
+@media (max-width: 900px) {
   .landing-hero {
     grid-template-columns: 1fr !important;
     gap: 40px !important;
@@ -2735,17 +2736,6 @@ main {
   #for-photographers > div {
     grid-template-columns: 1fr !important;
     gap: 40px !important;
-  }
-  .studio-shell {
-    flex-direction: column !important;
-  }
-  .studio-sidebar {
-    width: 100% !important;
-    max-height: 50vh;
-    overflow-y: auto;
-  }
-  .studio-main {
-    padding: 16px !important;
   }
 }
 
