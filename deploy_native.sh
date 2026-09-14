@@ -53,8 +53,8 @@ fi
 
 source venv/bin/activate
 echo "   Installing requirements without disk caching..."
-pip install --no-cache-dir --upgrade pip
-pip install --no-cache-dir -r requirements.txt
+pip install --no-cache-dir --upgrade pip setuptools wheel
+pip install --no-cache-dir --prefer-binary -r requirements.txt
 
 # 6. Django database migrate and static files
 echo "▶ [5/7] Running database migrations and collecting static files..."
