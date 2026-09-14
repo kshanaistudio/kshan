@@ -32,8 +32,8 @@ fi
 
 # 3. Create Python 3.11 Conda Environment
 if [ ! -d "$ENV_DIR" ]; then
-    echo "▶ [3/6] Creating Python 3.11 environment..."
-    "$MINICONDA_DIR/bin/conda" create -y -n kshan python=3.11
+    echo "▶ [3/6] Creating Python 3.11 environment (via conda-forge)..."
+    "$MINICONDA_DIR/bin/conda" create -y -c conda-forge --override-channels -n kshan python=3.11
 else
     echo "▶ [3/6] Python 3.11 environment exists."
 fi
