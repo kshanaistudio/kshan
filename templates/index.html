@@ -822,54 +822,163 @@
   <!-- ══════════════════════════════════════════════════════════
        COMPARISON TABLE
        ══════════════════════════════════════════════════════════ -->
-  <section data-animate style="padding: 80px 32px; max-width: 1000px; margin: 0 auto; width: 100%;">
-    <div style="text-align: center; margin-bottom: 40px;">
+  <section data-animate class="comparison-section" style="padding: clamp(48px, 8vw, 80px) clamp(16px, 4vw, 32px); max-width: 1000px; margin: 0 auto; width: 100%; box-sizing: border-box;">
+    <div style="text-align: center; margin-bottom: 32px;">
       <span class="badge badge-rose" style="margin-bottom: 16px;">WHY KSHAN</span>
-      <h2 style="font-family: var(--font-display); font-size: clamp(28px, 3.5vw, 40px); font-weight: 300; color: var(--text-primary);">
+      <h2 style="font-family: var(--font-display); font-size: clamp(26px, 3.5vw, 40px); font-weight: 300; color: var(--text-primary); margin-bottom: 8px;">
         Other Platforms vs <span class="text-gradient-gold">KSHAN</span>
       </h2>
     </div>
 
-    <div class="glass-dark" style="border-radius: var(--radius-xl); overflow: hidden; border: 1.5px solid rgba(255,255,255,0.14); border-top: 2px solid rgba(255,255,255,0.3); box-shadow: 0 25px 60px rgba(0,0,0,0.5);">
-      <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; background: rgba(255,255,255,0.06); border-bottom: 1px solid rgba(255,255,255,0.1);">
-        <div style="padding: 18px 26px; font-size: 12px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em;">Feature</div>
-        <div style="padding: 18px 26px; font-size: 12px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; text-align: center;">Other Platforms</div>
-        <div style="padding: 18px 26px; font-size: 13px; font-weight: 900; color: var(--gold); text-transform: uppercase; letter-spacing: 0.1em; text-align: center; background: rgba(199,168,107,0.12);">KSHAN AI</div>
+    <!-- Desktop / Tablet Table View (Hidden on Mobile) -->
+    <div class="comparison-desktop-table glass-dark" style="border-radius: var(--radius-xl); overflow: hidden; border: 1.5px solid rgba(255,255,255,0.14); border-top: 2px solid rgba(255,255,255,0.3); box-shadow: 0 25px 60px rgba(0,0,0,0.5);">
+      <div style="display: grid; grid-template-columns: 2.2fr 1fr 1.1fr; background: rgba(255,255,255,0.06); border-bottom: 1px solid rgba(255,255,255,0.1);">
+        <div style="padding: 18px 24px; font-size: 12px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em;">Feature</div>
+        <div style="padding: 18px 16px; font-size: 12px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; text-align: center;">Other Platforms</div>
+        <div style="padding: 18px 16px; font-size: 13px; font-weight: 900; color: var(--gold); text-transform: uppercase; letter-spacing: 0.1em; text-align: center; background: rgba(199,168,107,0.12);">KSHAN AI</div>
       </div>
-      <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; border-bottom: 1px solid rgba(255,255,255,0.08);">
-        <div style="padding: 16px 26px; font-size: 14px; color: var(--text-primary); font-weight: 600;">AI Facial Recognition (99.4% Accuracy)</div>
-        <div style="padding: 16px 26px; text-align: center; color: var(--danger); font-size: 16px; font-weight: 700;">&#10007;</div>
-        <div style="padding: 16px 26px; text-align: center; color: #34D399; font-size: 18px; font-weight: 900; background: rgba(199,168,107,0.06);">&#10003;</div>
+      <div style="display: grid; grid-template-columns: 2.2fr 1fr 1.1fr; border-bottom: 1px solid rgba(255,255,255,0.08); align-items: center;">
+        <div style="padding: 16px 24px; font-size: 14px; color: var(--text-primary); font-weight: 600;">AI Facial Recognition (99.4% Accuracy)</div>
+        <div style="padding: 16px; text-align: center; color: var(--danger); font-size: 16px; font-weight: 700;">&#10007;</div>
+        <div style="padding: 16px; text-align: center; color: #34D399; font-size: 18px; font-weight: 900; background: rgba(199,168,107,0.06);">&#10003;</div>
       </div>
-      <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; border-bottom: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.02);">
-        <div style="padding: 16px 26px; font-size: 14px; color: var(--text-primary); font-weight: 600;">Camera2Cloud &bull; Realtime Sync</div>
-        <div style="padding: 16px 26px; text-align: center; color: var(--danger); font-size: 16px; font-weight: 700;">&#10007;</div>
-        <div style="padding: 16px 26px; text-align: center; color: #34D399; font-size: 18px; font-weight: 900; background: rgba(199,168,107,0.06);">&#10003;</div>
+      <div style="display: grid; grid-template-columns: 2.2fr 1fr 1.1fr; border-bottom: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.02); align-items: center;">
+        <div style="padding: 16px 24px; font-size: 14px; color: var(--text-primary); font-weight: 600;">Camera2Cloud &bull; Realtime Sync</div>
+        <div style="padding: 16px; text-align: center; color: var(--danger); font-size: 16px; font-weight: 700;">&#10007;</div>
+        <div style="padding: 16px; text-align: center; color: #34D399; font-size: 18px; font-weight: 900; background: rgba(199,168,107,0.06);">&#10003;</div>
       </div>
-      <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; border-bottom: 1px solid rgba(255,255,255,0.08);">
-        <div style="padding: 16px 26px; font-size: 14px; color: var(--text-primary); font-weight: 600;">Live Beam Projector Slideshow</div>
-        <div style="padding: 16px 26px; text-align: center; color: var(--danger); font-size: 16px; font-weight: 700;">&#10007;</div>
-        <div style="padding: 16px 26px; text-align: center; color: #34D399; font-size: 18px; font-weight: 900; background: rgba(199,168,107,0.06);">&#10003;</div>
+      <div style="display: grid; grid-template-columns: 2.2fr 1fr 1.1fr; border-bottom: 1px solid rgba(255,255,255,0.08); align-items: center;">
+        <div style="padding: 16px 24px; font-size: 14px; color: var(--text-primary); font-weight: 600;">Live Beam Projector Slideshow</div>
+        <div style="padding: 16px; text-align: center; color: var(--danger); font-size: 16px; font-weight: 700;">&#10007;</div>
+        <div style="padding: 16px; text-align: center; color: #34D399; font-size: 18px; font-weight: 900; background: rgba(199,168,107,0.06);">&#10003;</div>
       </div>
-      <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; border-bottom: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.02);">
-        <div style="padding: 16px 26px; font-size: 14px; color: var(--text-primary); font-weight: 600;">Smart WhatsApp Automated Delivery</div>
-        <div style="padding: 16px 26px; text-align: center; color: var(--danger); font-size: 16px; font-weight: 700;">&#10007;</div>
-        <div style="padding: 16px 26px; text-align: center; color: #34D399; font-size: 18px; font-weight: 900; background: rgba(199,168,107,0.06);">&#10003;</div>
+      <div style="display: grid; grid-template-columns: 2.2fr 1fr 1.1fr; border-bottom: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.02); align-items: center;">
+        <div style="padding: 16px 24px; font-size: 14px; color: var(--text-primary); font-weight: 600;">Smart WhatsApp Automated Delivery</div>
+        <div style="padding: 16px; text-align: center; color: var(--danger); font-size: 16px; font-weight: 700;">&#10007;</div>
+        <div style="padding: 16px; text-align: center; color: #34D399; font-size: 18px; font-weight: 900; background: rgba(199,168,107,0.06);">&#10003;</div>
       </div>
-      <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; border-bottom: 1px solid rgba(255,255,255,0.08);">
-        <div style="padding: 16px 26px; font-size: 14px; color: var(--text-primary); font-weight: 600;">Razorpay Monetization & Selling</div>
-        <div style="padding: 16px 26px; text-align: center; color: var(--danger); font-size: 16px; font-weight: 700;">&#10007;</div>
-        <div style="padding: 16px 26px; text-align: center; color: #34D399; font-size: 18px; font-weight: 900; background: rgba(199,168,107,0.06);">&#10003;</div>
+      <div style="display: grid; grid-template-columns: 2.2fr 1fr 1.1fr; border-bottom: 1px solid rgba(255,255,255,0.08); align-items: center;">
+        <div style="padding: 16px 24px; font-size: 14px; color: var(--text-primary); font-weight: 600;">Razorpay Monetization & Selling</div>
+        <div style="padding: 16px; text-align: center; color: var(--danger); font-size: 16px; font-weight: 700;">&#10007;</div>
+        <div style="padding: 16px; text-align: center; color: #34D399; font-size: 18px; font-weight: 900; background: rgba(199,168,107,0.06);">&#10003;</div>
       </div>
-      <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; border-bottom: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.02);">
-        <div style="padding: 16px 26px; font-size: 14px; color: var(--text-primary); font-weight: 600;">14+ Luxury Gallery Themes</div>
-        <div style="padding: 16px 26px; text-align: center; color: var(--danger); font-size: 16px; font-weight: 700;">&#10007;</div>
-        <div style="padding: 16px 26px; text-align: center; color: #34D399; font-size: 18px; font-weight: 900; background: rgba(199,168,107,0.06);">&#10003;</div>
+      <div style="display: grid; grid-template-columns: 2.2fr 1fr 1.1fr; border-bottom: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.02); align-items: center;">
+        <div style="padding: 16px 24px; font-size: 14px; color: var(--text-primary); font-weight: 600;">14+ Luxury Gallery Themes</div>
+        <div style="padding: 16px; text-align: center; color: var(--danger); font-size: 16px; font-weight: 700;">&#10007;</div>
+        <div style="padding: 16px; text-align: center; color: #34D399; font-size: 18px; font-weight: 900; background: rgba(199,168,107,0.06);">&#10003;</div>
       </div>
-      <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; background: rgba(255,255,255,0.02);">
-        <div style="padding: 16px 26px; font-size: 14px; color: var(--text-primary); font-weight: 600;">Original Uncompressed RAW/4K Downloads</div>
-        <div style="padding: 16px 26px; text-align: center; color: var(--danger); font-size: 16px; font-weight: 700;">&#10007;</div>
-        <div style="padding: 16px 26px; text-align: center; color: #34D399; font-size: 18px; font-weight: 900; background: rgba(199,168,107,0.06);">&#10003;</div>
+      <div style="display: grid; grid-template-columns: 2.2fr 1fr 1.1fr; background: rgba(255,255,255,0.02); align-items: center;">
+        <div style="padding: 16px 24px; font-size: 14px; color: var(--text-primary); font-weight: 600;">Original Uncompressed RAW/4K Downloads</div>
+        <div style="padding: 16px; text-align: center; color: var(--danger); font-size: 16px; font-weight: 700;">&#10007;</div>
+        <div style="padding: 16px; text-align: center; color: #34D399; font-size: 18px; font-weight: 900; background: rgba(199,168,107,0.06);">&#10003;</div>
+      </div>
+    </div>
+
+    <!-- Mobile Stacked Card View (Visible only on <= 640px) -->
+    <div class="comparison-mobile-list" style="display: none; flex-direction: column; gap: 10px;">
+      <!-- Row 1 -->
+      <div class="glass-dark" style="padding: 14px 16px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.12); display: flex; flex-direction: column; gap: 10px;">
+        <div style="font-size: 13.5px; font-weight: 700; color: var(--text-primary); line-height: 1.35;">AI Facial Recognition (99.4% Accuracy)</div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+          <div style="background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.2); border-radius: 10px; padding: 7px 10px; display: flex; align-items: center; justify-content: space-between;">
+            <span style="font-size: 11px; color: var(--text-muted); font-weight: 600;">Others</span>
+            <span style="color: #FB7185; font-weight: 900; font-size: 14px;">✕</span>
+          </div>
+          <div style="background: rgba(199,168,107,0.12); border: 1px solid rgba(199,168,107,0.35); border-radius: 10px; padding: 7px 10px; display: flex; align-items: center; justify-content: space-between;">
+            <span style="font-size: 11px; color: var(--gold); font-weight: 800;">KSHAN</span>
+            <span style="color: #34D399; font-weight: 900; font-size: 14px;">✓</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Row 2 -->
+      <div class="glass-dark" style="padding: 14px 16px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.12); display: flex; flex-direction: column; gap: 10px;">
+        <div style="font-size: 13.5px; font-weight: 700; color: var(--text-primary); line-height: 1.35;">Camera2Cloud &bull; Realtime Sync</div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+          <div style="background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.2); border-radius: 10px; padding: 7px 10px; display: flex; align-items: center; justify-content: space-between;">
+            <span style="font-size: 11px; color: var(--text-muted); font-weight: 600;">Others</span>
+            <span style="color: #FB7185; font-weight: 900; font-size: 14px;">✕</span>
+          </div>
+          <div style="background: rgba(199,168,107,0.12); border: 1px solid rgba(199,168,107,0.35); border-radius: 10px; padding: 7px 10px; display: flex; align-items: center; justify-content: space-between;">
+            <span style="font-size: 11px; color: var(--gold); font-weight: 800;">KSHAN</span>
+            <span style="color: #34D399; font-weight: 900; font-size: 14px;">✓</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Row 3 -->
+      <div class="glass-dark" style="padding: 14px 16px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.12); display: flex; flex-direction: column; gap: 10px;">
+        <div style="font-size: 13.5px; font-weight: 700; color: var(--text-primary); line-height: 1.35;">Live Beam Projector Slideshow</div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+          <div style="background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.2); border-radius: 10px; padding: 7px 10px; display: flex; align-items: center; justify-content: space-between;">
+            <span style="font-size: 11px; color: var(--text-muted); font-weight: 600;">Others</span>
+            <span style="color: #FB7185; font-weight: 900; font-size: 14px;">✕</span>
+          </div>
+          <div style="background: rgba(199,168,107,0.12); border: 1px solid rgba(199,168,107,0.35); border-radius: 10px; padding: 7px 10px; display: flex; align-items: center; justify-content: space-between;">
+            <span style="font-size: 11px; color: var(--gold); font-weight: 800;">KSHAN</span>
+            <span style="color: #34D399; font-weight: 900; font-size: 14px;">✓</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Row 4 -->
+      <div class="glass-dark" style="padding: 14px 16px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.12); display: flex; flex-direction: column; gap: 10px;">
+        <div style="font-size: 13.5px; font-weight: 700; color: var(--text-primary); line-height: 1.35;">Smart WhatsApp Automated Delivery</div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+          <div style="background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.2); border-radius: 10px; padding: 7px 10px; display: flex; align-items: center; justify-content: space-between;">
+            <span style="font-size: 11px; color: var(--text-muted); font-weight: 600;">Others</span>
+            <span style="color: #FB7185; font-weight: 900; font-size: 14px;">✕</span>
+          </div>
+          <div style="background: rgba(199,168,107,0.12); border: 1px solid rgba(199,168,107,0.35); border-radius: 10px; padding: 7px 10px; display: flex; align-items: center; justify-content: space-between;">
+            <span style="font-size: 11px; color: var(--gold); font-weight: 800;">KSHAN</span>
+            <span style="color: #34D399; font-weight: 900; font-size: 14px;">✓</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Row 5 -->
+      <div class="glass-dark" style="padding: 14px 16px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.12); display: flex; flex-direction: column; gap: 10px;">
+        <div style="font-size: 13.5px; font-weight: 700; color: var(--text-primary); line-height: 1.35;">Razorpay Monetization & Selling</div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+          <div style="background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.2); border-radius: 10px; padding: 7px 10px; display: flex; align-items: center; justify-content: space-between;">
+            <span style="font-size: 11px; color: var(--text-muted); font-weight: 600;">Others</span>
+            <span style="color: #FB7185; font-weight: 900; font-size: 14px;">✕</span>
+          </div>
+          <div style="background: rgba(199,168,107,0.12); border: 1px solid rgba(199,168,107,0.35); border-radius: 10px; padding: 7px 10px; display: flex; align-items: center; justify-content: space-between;">
+            <span style="font-size: 11px; color: var(--gold); font-weight: 800;">KSHAN</span>
+            <span style="color: #34D399; font-weight: 900; font-size: 14px;">✓</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Row 6 -->
+      <div class="glass-dark" style="padding: 14px 16px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.12); display: flex; flex-direction: column; gap: 10px;">
+        <div style="font-size: 13.5px; font-weight: 700; color: var(--text-primary); line-height: 1.35;">14+ Luxury Gallery Themes</div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+          <div style="background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.2); border-radius: 10px; padding: 7px 10px; display: flex; align-items: center; justify-content: space-between;">
+            <span style="font-size: 11px; color: var(--text-muted); font-weight: 600;">Others</span>
+            <span style="color: #FB7185; font-weight: 900; font-size: 14px;">✕</span>
+          </div>
+          <div style="background: rgba(199,168,107,0.12); border: 1px solid rgba(199,168,107,0.35); border-radius: 10px; padding: 7px 10px; display: flex; align-items: center; justify-content: space-between;">
+            <span style="font-size: 11px; color: var(--gold); font-weight: 800;">KSHAN</span>
+            <span style="color: #34D399; font-weight: 900; font-size: 14px;">✓</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Row 7 -->
+      <div class="glass-dark" style="padding: 14px 16px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.12); display: flex; flex-direction: column; gap: 10px;">
+        <div style="font-size: 13.5px; font-weight: 700; color: var(--text-primary); line-height: 1.35;">Original Uncompressed RAW/4K Downloads</div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+          <div style="background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.2); border-radius: 10px; padding: 7px 10px; display: flex; align-items: center; justify-content: space-between;">
+            <span style="font-size: 11px; color: var(--text-muted); font-weight: 600;">Others</span>
+            <span style="color: #FB7185; font-weight: 900; font-size: 14px;">✕</span>
+          </div>
+          <div style="background: rgba(199,168,107,0.12); border: 1px solid rgba(199,168,107,0.35); border-radius: 10px; padding: 7px 10px; display: flex; align-items: center; justify-content: space-between;">
+            <span style="font-size: 11px; color: var(--gold); font-weight: 800;">KSHAN</span>
+            <span style="color: #34D399; font-weight: 900; font-size: 14px;">✓</span>
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -1174,7 +1283,15 @@
         <!-- Brand Info -->
         <div class="uniq-footer-brand">
           <div class="uniq-brand-logo" style="display: flex; align-items: center; gap: 12px;">
-            <img src="/static/images/kshan_kalam_logo_gold.png" alt="क्षण KSHAN Logo" style="height: 36px; width: auto; object-fit: contain; filter: drop-shadow(0 2px 8px rgba(199,168,107,0.45));">
+            <div class="brand-logo-animated">
+              <img src="/static/images/kshan_kalam_logo_gold.png" alt="क्षण KSHAN Logo" class="brand-logo-img" style="height: 36px;">
+              <span class="logo-bracket bracket-tl"></span>
+              <span class="logo-bracket bracket-tr"></span>
+              <span class="logo-bracket bracket-bl"></span>
+              <span class="logo-bracket bracket-br"></span>
+              <span class="logo-scan-line"></span>
+              <span class="logo-match-dot"></span>
+            </div>
             <span class="uniq-logo-text">KSHAN</span>
           </div>
           <p class="uniq-brand-desc">

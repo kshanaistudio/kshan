@@ -71,8 +71,16 @@
   <aside class="mobile-nav-drawer" id="mobileNavDrawer" aria-label="Mobile Navigation">
     <!-- Drawer Header -->
     <div class="mobile-drawer-header">
-      <a href="/" class="mobile-drawer-brand" onclick="closeMobileNav()" style="text-decoration: none; display: flex; align-items: center; gap: 10px;">
-        <img src="/static/images/kshan_kalam_logo_gold.png" alt="KSHAN Logo" style="height: 32px; width: auto; object-fit: contain;">
+      <a href="/" class="mobile-drawer-brand kshan-brand" onclick="closeMobileNav()" style="text-decoration: none; display: flex; align-items: center; gap: 10px;">
+        <div class="brand-logo-animated">
+          <img src="/static/images/kshan_kalam_logo_gold.png" alt="KSHAN Logo" class="brand-logo-img" style="height: 30px;">
+          <span class="logo-bracket bracket-tl"></span>
+          <span class="logo-bracket bracket-tr"></span>
+          <span class="logo-bracket bracket-bl"></span>
+          <span class="logo-bracket bracket-br"></span>
+          <span class="logo-scan-line"></span>
+          <span class="logo-match-dot"></span>
+        </div>
         <div>
           <div style="font-family: var(--font-display); font-size: 17px; font-weight: 700; color: var(--text-primary); letter-spacing: 0.12em; line-height: 1;">KSHAN</div>
           <div style="font-size: 8px; font-weight: 800; color: var(--gold); letter-spacing: 0.15em; text-transform: uppercase; margin-top: 2px;">AI PHOTO SUITE</div>
@@ -156,10 +164,18 @@
   <header class="kshan-navbar" id="kshanNavbar">
     <div class="kshan-navbar-left">
       <a href="/" class="kshan-brand" style="display: flex; align-items: center; gap: 12px; text-decoration: none;">
-        <img src="/static/images/kshan_kalam_logo_gold.png" alt="क्षण KSHAN Logo" class="brand-logo-img">
+        <div class="brand-logo-animated">
+          <img src="/static/images/kshan_kalam_logo_gold.png" alt="क्षण KSHAN Logo" class="brand-logo-img">
+          <span class="logo-bracket bracket-tl"></span>
+          <span class="logo-bracket bracket-tr"></span>
+          <span class="logo-bracket bracket-bl"></span>
+          <span class="logo-bracket bracket-br"></span>
+          <span class="logo-scan-line"></span>
+          <span class="logo-match-dot"></span>
+        </div>
         <div style="display: flex; flex-direction: column;">
-          <span style="font-family: var(--font-display); font-size: 21px; font-weight: 700; letter-spacing: 0.15em; line-height: 1; color: var(--text-primary);">KSHAN</span>
-          <span style="font-size: 8.5px; font-weight: 800; letter-spacing: 0.2em; color: var(--gold); text-transform: uppercase; margin-top: 2px;">AI PHOTO SUITE</span>
+          <span class="brand-text-kshan">KSHAN</span>
+          <span class="brand-text-subtitle">AI PHOTO SUITE</span>
         </div>
       </a>
     </div>
@@ -337,6 +353,48 @@
         setTimeout(focusEventSearch, 300);
       }
     });
+
+    /* ── Active Scrollspy for Navbar Links ── */
+    const navSpyLinks = document.querySelectorAll('.kshan-nav-group .kshan-nav-link');
+    const spySections = ['guest-access', 'how-it-works', 'for-photographers', 'pricing'];
+
+    function updateActiveNav() {
+      const currentPath = window.location.pathname;
+      if (currentPath.startsWith('/faceshare')) {
+        navSpyLinks.forEach(link => {
+          if ((link.getAttribute('href') || '').startsWith('/faceshare')) {
+            link.classList.add('active');
+          } else {
+            link.classList.remove('active');
+          }
+        });
+        return;
+      }
+      
+      if (currentPath === '/' || currentPath === '') {
+        let activeId = '';
+        const scrollPosition = window.pageYOffset + 140;
+        
+        for (const id of spySections) {
+          const el = document.getElementById(id);
+          if (el && el.offsetTop <= scrollPosition) {
+            activeId = id;
+          }
+        }
+        
+        navSpyLinks.forEach(link => {
+          const href = link.getAttribute('href') || '';
+          if (activeId && href.includes('#' + activeId)) {
+            link.classList.add('active');
+          } else {
+            link.classList.remove('active');
+          }
+        });
+      }
+    }
+
+    window.addEventListener('scroll', updateActiveNav, { passive: true });
+    document.addEventListener('DOMContentLoaded', updateActiveNav);
 
     /* ── Keyboard shortcut: Escape closes mobile nav ── */
     document.addEventListener('keydown', (e) => {

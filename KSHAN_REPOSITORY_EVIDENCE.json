@@ -1,0 +1,306 @@
+{
+  "project": "KSHAN",
+  "audit_date": "2026-09-13",
+  "audit_summary": {
+    "active_face_detector": "InsightFace RetinaFace / SCRFD (buffalo_s)",
+    "active_embedding_model": "ArcFace 512-d (ResNet-50 / MobileFaceNet)",
+    "inference_runtime": "ONNX Runtime (CPUExecutionProvider)",
+    "embedding_storage": "BinaryField BLOB (2048 bytes float32) in SQLite / PostgreSQL",
+    "comparison_metric": "Cosine Similarity (NumPy Matrix Dot Product)",
+    "acceptance_threshold": 0.40,
+    "image_storage": "Local Filesystem (storage/events/) with optional Cloudflare R2 (boto3)",
+    "job_processing_method": "In-Memory ThreadPoolExecutor(max_workers=2)",
+    "production_readiness_verdict": "NOT Production-Ready (Volatile queue, hardcoded credentials, linear vector search, JS syntax error)"
+  },
+  "components": [
+    {
+      "name": "Face Detection & Embedding Extractor",
+      "status": "fully_implemented",
+      "technology": "InsightFace 0.7.3, ONNX Runtime, OpenCV",
+      "files": [
+        "gallery/services/face_service.py",
+        "gallery/services/image_service.py"
+      ],
+      "entry_points": [
+        "FaceService.extract_faces_from_image()",
+        "FaceService.validate_and_extract_selfie()"
+      ],
+      "dependencies": [
+        "insightface",
+        "onnxruntime",
+        "numpy",
+        "opencv-python-headless"
+      ],
+      "evidence": [
+        "gallery/services/face_service.py:17-21 (FaceAnalysis initialization with CPUExecutionProvider)",
+        "gallery/services/face_service.py:38-60 (Face detection, size filtering, L2 normalization, 512-d byte serialization)",
+        "gallery/services/face_service.py:79-118 (Selfie validation with 1280px downsampling and dominant face selection)"
+      ],
+      "risks": [
+        "CPU execution on large images without hardware acceleration can bottleneck during heavy uploads."
+      ],
+      "fotoai_comparison": "FotoAI uses batchflow-hub wrapping RetinaFace, FaceNet, ArcFace, and InspireFace with dynamic backend switching."
+    },
+    {
+      "name": "Identity Matching & Vector Search",
+      "status": "fully_implemented",
+      "technology": "NumPy Linear Algebra (Dot Product Cosine Similarity)",
+      "files": [
+        "gallery/services/matching_service.py"
+      ],
+      "entry_points": [
+        "find_matching_photos(event_id, query_embedding, threshold)"
+      ],
+      "dependencies": [
+        "numpy",
+        "django.conf"
+      ],
+      "evidence": [
+        "gallery/services/matching_service.py:17-24 (SQL query filtered strictly by event_id)",
+        "gallery/services/matching_service.py:36-38 (Unpacking 512 float32 vectors from raw BLOB bytes)",
+        "gallery/services/matching_service.py:61 (np.dot(embeddings_matrix, query_vec) cosine calculation)",
+        "gallery/services/matching_service.py:66-85 (Filtering by threshold >= 0.40 and photo deduplication)"
+      ],
+      "risks": [
+        "Linear O(N) scan unpacks all event embeddings into RAM on every search request; will scale poorly past 100k faces without pgvector/HNSW."
+      ],
+      "fotoai_comparison": "FotoAI embeds matching nodes in Batchflow execution graphs; KSHAN implements direct in-memory matrix multiplication tied to Django models."
+    },
+    {
+      "name": "Background Worker & Asynchronous Processing",
+      "status": "partial",
+      "technology": "Python concurrent.futures.ThreadPoolExecutor",
+      "files": [
+        "gallery/services/background_worker.py"
+      ],
+      "entry_points": [
+        "queue_photo_processing(photo_id)",
+        "queue_batch_processing(photo_ids)",
+        "process_single_photo(photo_id)"
+      ],
+      "dependencies": [
+        "concurrent.futures",
+        "psutil"
+      ],
+      "evidence": [
+        "gallery/services/background_worker.py:23 (executor = ThreadPoolExecutor(max_workers=2))",
+        "gallery/services/background_worker.py:60-182 (process_single_photo execution pipeline)",
+        "gallery/services/background_worker.py:188-214 (get_event_progress polling API helper)"
+      ],
+      "risks": [
+        "In-memory worker queue is volatile: in-flight jobs are permanently lost if the web server restarts or crashes. No persistent dead-letter queue."
+      ],
+      "fotoai_comparison": "FotoAI's Batchflow framework implements persistent DAG execution graphs with decoupled worker nodes and multi-process orchestration."
+    },
+    {
+      "name": "Image Storage & Multi-Tier Cloud Sync",
+      "status": "fully_implemented",
+      "technology": "Local Filesystem + Boto3 Cloudflare R2 S3 SDK",
+      "files": [
+        "gallery/services/storage_service.py"
+      ],
+      "entry_points": [
+        "save_uploaded_photo()",
+        "upload_to_r2()",
+        "get_file_bytes_from_r2()",
+        "delete_event_storage()",
+        "create_zip_archive()"
+      ],
+      "dependencies": [
+        "boto3",
+        "botocore",
+        "zipfile"
+      ],
+      "evidence": [
+        "gallery/services/storage_service.py:16-34 (S3 client initialization for Cloudflare R2 endpoint)",
+        "gallery/services/storage_service.py:79-88 (UUID file naming and disk write to storage/events/)",
+        "gallery/services/storage_service.py:101-122 (Dynamic in-memory ZIP archive generation)"
+      ],
+      "risks": [
+        "Direct media endpoints lack time-expiring signed tokens; thumbnail and view routes are unprotected if photo ID is known."
+      ],
+      "fotoai_comparison": "FotoAI provides storage adapters for AWS S3, Backblaze B2, Google Drive, and Filecoin Web3 decentralized storage."
+    },
+    {
+      "name": "Image Processing & Watermarking Engine",
+      "status": "fully_implemented",
+      "technology": "Pillow (PIL), OpenCV, ExifRead, hashlib",
+      "files": [
+        "gallery/services/image_service.py"
+      ],
+      "entry_points": [
+        "compute_sha256()",
+        "get_image_metadata()",
+        "apply_watermark()",
+        "create_thumbnail()",
+        "load_cv2_image_safe()"
+      ],
+      "dependencies": [
+        "Pillow",
+        "opencv-python-headless",
+        "exifread"
+      ],
+      "evidence": [
+        "gallery/services/image_service.py:9-15 (Streaming SHA-256 hash calculation)",
+        "gallery/services/image_service.py:20-86 (EXIF metadata parsing and orientation correction)",
+        "gallery/services/image_service.py:88-239 (Dual RGBA watermark overlay for photographer and KSHAN logo)",
+        "gallery/services/image_service.py:240-258 (500px LANCZOS thumbnail generation)"
+      ],
+      "risks": [
+        "Pillow operates synchronously in Python thread workers; high-resolution images spike RAM during thumbnail creation."
+      ],
+      "fotoai_comparison": "FotoAI uses image-transformation, an Imagor fork written in Go wrapping C libvips for 4x faster processing and lower memory footprints."
+    },
+    {
+      "name": "Monetization & Razorpay Payment Engine",
+      "status": "fully_implemented",
+      "technology": "Razorpay SDK, HMAC SHA256 Signature Verification",
+      "files": [
+        "gallery/services/razorpay_service.py",
+        "gallery/views.py"
+      ],
+      "entry_points": [
+        "create_subscription_order_api",
+        "verify_subscription_payment_api",
+        "create_guest_payment_order_api",
+        "verify_guest_payment_api"
+      ],
+      "dependencies": [
+        "razorpay"
+      ],
+      "evidence": [
+        "gallery/services/razorpay_service.py:16-41 (Order creation with amount in paise)",
+        "gallery/services/razorpay_service.py:43-61 (Cryptographic signature verification)",
+        "gallery/views.py:1796-2056 (Handling photographer plans, event passes, and guest single/full album unlocks)"
+      ],
+      "risks": [
+        "Lacks server-to-server webhook endpoint; payments may not activate if the client browser drops connection before redirect."
+      ],
+      "fotoai_comparison": "FotoAI public repositories contain no payment processing or monetization modules."
+    },
+    {
+      "name": "Meta WhatsApp Cloud API Integration",
+      "status": "fully_implemented",
+      "technology": "Meta WhatsApp Cloud API v21.0 REST Client",
+      "files": [
+        "gallery/services/whatsapp_service.py",
+        "gallery/views.py"
+      ],
+      "entry_points": [
+        "send_whatsapp_otp_api",
+        "verify_whatsapp_otp_api",
+        "guest_register_api"
+      ],
+      "dependencies": [
+        "requests"
+      ],
+      "evidence": [
+        "gallery/services/whatsapp_service.py:27-121 (Meta Graph API message payload dispatcher with dev mock fallback)",
+        "gallery/views.py:176-335 (WhatsApp OTP database generation, expiry check, and session login)",
+        "gallery/views.py:1369-1420 (Personalized WhatsApp deep-link generation for guest registrations)"
+      ],
+      "risks": [
+        "Production delivery requires valid META_WA_ACCESS_TOKEN and verified Meta WhatsApp Business Phone ID."
+      ],
+      "fotoai_comparison": "FotoAI public repositories do not include WhatsApp notification or OTP authentication features."
+    },
+    {
+      "name": "Peer-to-Peer FaceShare Subsystem",
+      "status": "fully_implemented",
+      "technology": "Django Channels, WebSockets, WebRTC DataChannels, vladmandic/face-api",
+      "files": [
+        "faceshare/consumers.py",
+        "faceshare/room_service.py",
+        "faceshare/views.py",
+        "static/faceshare/js/face-engine.js",
+        "static/faceshare/js/photo-indexer.js",
+        "static/faceshare/js/webrtc-manager.js",
+        "static/faceshare/js/file-transfer.js"
+      ],
+      "entry_points": [
+        "FaceShareSignalingConsumer",
+        "FaceShareRoomService.create_room()",
+        "FaceEngine.extractFaces()",
+        "FileTransferEngine.sendFile()"
+      ],
+      "dependencies": [
+        "channels",
+        "daphne"
+      ],
+      "evidence": [
+        "faceshare/consumers.py:8-203 (AsyncJsonWebsocketConsumer handling SDP Offer/Answer and ICE candidates)",
+        "faceshare/room_service.py:10-242 (Ephemeral in-memory room management with TTL and rate limiting)",
+        "static/faceshare/js/face-engine.js:40-128 (Client-side SsdMobilenetv1 face detection and 128-d vector extraction)",
+        "static/faceshare/js/file-transfer.js:23-92 (16KB binary chunked streaming with backpressure control)"
+      ],
+      "risks": [
+        "Direct WebRTC connections require TURN relay server for strict symmetric NAT / cellular networks."
+      ],
+      "fotoai_comparison": "FotoAI has no peer-to-peer browser-based offline scanning or WebRTC photo streaming."
+    },
+    {
+      "name": "Google Drive Sync Importer",
+      "status": "broken",
+      "technology": "Google Drive API v3, OAuth2",
+      "files": [
+        "gallery/services/gdrive_service.py",
+        "gallery/services/gdrive_oauth.py"
+      ],
+      "entry_points": [
+        "list_and_import_gdrive_photos()"
+      ],
+      "dependencies": [
+        "google-api-python-client",
+        "google-auth-oauthlib"
+      ],
+      "evidence": [
+        "gallery/services/gdrive_service.py:179-303 (Recursive GDrive importer)",
+        "gallery/services/gdrive_service.py:231 (Calls save_uploaded_photo with unsupported storage_destination argument)",
+        "gallery/services/gdrive_service.py:195, 235 (Reads non-existent event.google_drive_folder_url and event.storage_destination)"
+      ],
+      "risks": [
+        "Calling this function triggers an immediate unhandled TypeError crash."
+      ],
+      "fotoai_comparison": "FotoAI includes dedicated Google Drive storage adapters in its Batchflow framework."
+    },
+    {
+      "name": "Background Removal Tool",
+      "status": "broken",
+      "technology": "rembg",
+      "files": [
+        "gallery/views.py"
+      ],
+      "entry_points": [
+        "remove_background_api"
+      ],
+      "dependencies": [],
+      "evidence": [
+        "gallery/views.py:1277 (from rembg import remove called inside view function)",
+        "requirements.txt:1-21 (rembg is not included in dependency list)"
+      ],
+      "risks": [
+        "Endpoint /api/tools/remove-bg/ will raise unhandled ModuleNotFoundError 500 in production."
+      ],
+      "fotoai_comparison": "FotoAI relies on Go libvips transformations for background / alpha operations."
+    },
+    {
+      "name": "Frontend Photo Upload System",
+      "status": "broken",
+      "technology": "JavaScript Fetch API, FormData",
+      "files": [
+        "static/js/upload.js"
+      ],
+      "entry_points": [
+        "uploadFilesInBatches()"
+      ],
+      "dependencies": [],
+      "evidence": [
+        "static/js/upload.js:57-75 (Stray catch block without preceding try block causes syntax error in JS parser)"
+      ],
+      "risks": [
+        "Script fails to execute in standard browsers, breaking client-side batch uploads."
+      ],
+      "fotoai_comparison": "FotoAI uses Go and Cloudflare Workers for client upload management."
+    }
+  ]
+}

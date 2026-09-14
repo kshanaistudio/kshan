@@ -239,14 +239,15 @@ MEDIA_ROOT = BASE_DIR / 'storage'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Upload Limits & Configuration
-DATA_UPLOAD_MAX_MEMORY_SIZE = 100 * 1024 * 1024       # 100 MB max payload in request body
-FILE_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024        # 10 MB per file in memory buffer before streaming
-DATA_UPLOAD_MAX_NUMBER_FIELDS = 1000                  # Max fields
-MAX_PHOTO_UPLOAD_FILE_SIZE = 50 * 1024 * 1024         # 50 MB max single photo file
-MAX_SELFIE_UPLOAD_FILE_SIZE = 15 * 1024 * 1024        # 15 MB max selfie file
-MAX_IMAGE_PIXELS = 100_000_000                        # Pillow decompression bomb limit (100MP)
-MAX_PHOTOS_PER_BATCH = 200                            # Max photos in a single upload batch
+# Upload Limits & Configuration for High-Res Event Batches (Supports 1GB+ Multi-Gigabyte Uploads)
+DATA_UPLOAD_MAX_MEMORY_SIZE = 250 * 1024 * 1024       # 250 MB max payload in single request
+FILE_UPLOAD_MAX_MEMORY_SIZE = 25 * 1024 * 1024        # 25 MB in-memory buffer before streaming to temp disk
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000                 # Max multipart form fields
+DATA_UPLOAD_MAX_NUMBER_FILES = 10000                  # Max files in request payload
+MAX_PHOTO_UPLOAD_FILE_SIZE = 100 * 1024 * 1024        # 100 MB max single photo file (DSLR RAW/High-Res)
+MAX_SELFIE_UPLOAD_FILE_SIZE = 25 * 1024 * 1024        # 25 MB max selfie file
+MAX_IMAGE_PIXELS = 150_000_000                        # Pillow decompression limit (150MP)
+MAX_PHOTOS_PER_BATCH = 500                            # Max photos in a single upload request batch
 
 # Face Recognition Settings
 INSIGHTFACE_MODEL_NAME = os.getenv('INSIGHTFACE_MODEL', 'buffalo_s')
